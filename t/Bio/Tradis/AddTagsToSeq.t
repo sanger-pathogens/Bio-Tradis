@@ -7,7 +7,7 @@ BEGIN { unshift( @INC, './lib' ) }
 
 BEGIN {
     use Test::Most;
-    use_ok('Bio::Tradis::DetectTags');
+    use_ok('Bio::Tradis::AddTagsToSeq');
 }
 
 my $destination_directory_obj = File::Temp->newdir( CLEANUP => 1 );
@@ -16,11 +16,11 @@ my $destination_directory = $destination_directory_obj->dirname();
 my $bamfile = "../samples/sample_sm_tr.bam";
 
 ok(
-    my $obj = Bio::Tradis::DetectTags->new(
+    my $obj = Bio::Tradis::AddTagsToSeq->new(
         bamfile     => $bamfile,
         script_name => 'name_of_script'
     ),
-    'testing tag checker'
+    'testing adding tags to the sequences'
 );
 
 done_testing();
