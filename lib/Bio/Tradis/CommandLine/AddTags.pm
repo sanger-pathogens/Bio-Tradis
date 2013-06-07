@@ -17,20 +17,23 @@ has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'bamfile'     => ( is => 'rw', isa => 'Str',      required => 0 );
 has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
+has 'outfile'     => ( is => 'rw', isa => 'Str',      required => 0 );
 
 sub BUILD {
     my ($self) = @_;
 
-    my ( $bamfile, $help );
+    my ( $bamfile, $outfile, $help );
 
     GetOptionsFromArray(
         $self->args,
         'b|bamfile=s' => \$bamfile,
+        'o|outfile=s' => \$outfile,
         'h|help'      => \$help
     );
 
     $self->bamfile( abs_path($bamfile) ) if ( defined($bamfile) );
-    $self->help($help) if ( defined($help) );
+    $self->outfile( abs_path($outfile) ) if ( defined($outfile) );
+    $self->help($help)                   if ( defined($help) );
 
 }
 
@@ -40,7 +43,10 @@ sub run {
         print "Help here";
     }
 
-    my $tagadd = Bio::Tradis::AddTagsToSeq->new(bamfile => $self->bamfile);
+    my $tagadd = Bio::Tradis::AddTagsToSeq->new(
+        bamfile => $self->bamfile,
+        outfile => $self->outfile
+    );
     $tagadd->add_tags_to_seq;
 }
 
