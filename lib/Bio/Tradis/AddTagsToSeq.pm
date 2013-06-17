@@ -72,6 +72,8 @@ sub add_tags_to_seq {
         print TMPFILE join( "\t", @cols ) . "\n";
     }
 
+	close TMPFILE;
+
     #create new filename for output and convert tmp.sam to bam
     my $outfile = $filename;
     if ( defined( $self->outfile ) ) {
