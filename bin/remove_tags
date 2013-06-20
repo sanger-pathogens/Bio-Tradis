@@ -1,0 +1,20 @@
+#!/usr/bin/env perl
+
+package Bio::Tradis::Bin::RemoveTags;
+
+# ABSTRACT: remove user specified tags from start of fastq sequences
+# PODNAME: remove_tags
+
+=head1 SYNOPSIS
+
+Removes tags from the sequence and quality strings based on user input
+
+=cut
+
+BEGIN { unshift( @INC, '../lib' ) }
+BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '/software/pathogen/internal/prod/lib/' ) }
+
+use Bio::Tradis::CommandLine::RemoveFastqTags;
+
+Bio::Tradis::CommandLine::RemoveFastqTags->new(args => \@ARGV, script_name => $0)->run;
