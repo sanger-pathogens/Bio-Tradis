@@ -55,6 +55,9 @@ is(
     'checking file contents'
 );
 
+is(6, $obj->_number_of_lines_in_bam_file('t/data/AddTags/sample_sm_no_tr.bam'), 'number of reads as expected');
+
+
 unlink('t/data/output.bam');
 unlink('t/data/output.sam');
 unlink('t/data/AddTags/expected_tradis.sam');

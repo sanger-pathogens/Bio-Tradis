@@ -48,9 +48,8 @@ sub add_tags_to_seq {
         my $trtag = $result_holder->{tr};
         my $tqtag = $result_holder->{tq};
 
-		#replace CIGAR string to include extra 10 bp from tag
-		my $cigar = length($cols[9])+10;
-		$cols[5] = $cigar . 'M';
+		#replace CIGAR string with unmapped
+		$cols[5] = '*';
 
         #Check if seq is mapped & rev complement. If so, reformat.
         my $flag   = $result_holder->{FLAG};
@@ -84,9 +83,23 @@ sub add_tags_to_seq {
     }
     `samtools view -S -b -o $outfile tmp.sam`;
 
+    if($self->_number_of_lines_in_bam_file($outfile) != $self->_number_of_lines_in_bam_file($filename ))
+    {
+      die "The number of lines in the input and output files dont match so somethings gone wrong\n";
+    }
+
     #remove tmp file
     `rm tmp.sam`;
 	return 1;
+}
+
+sub _number_of_lines_in_bam_file
+{
+  my ($self, $filename) = @_;
+  open( my $fh, '-|',   "samtools view $filename | wc -l") or die "Couldnt open file :". $filename;
+  my $number_of_lines_in_file = <$fh>;
+  $number_of_lines_in_file =~ s!\W!!gi;
+  return $number_of_lines_in_file;
 }
 
 __PACKAGE__->meta->make_immutable;
