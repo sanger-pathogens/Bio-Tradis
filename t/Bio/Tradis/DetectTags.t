@@ -15,7 +15,7 @@ my $destination_directory = $destination_directory_obj->dirname();
 
 my ($bamfile, $obj);
 
-$bamfile = "t/data/sample_sm_tr.bam";
+$bamfile = "t/data/DetectTags/sample_sm_tr.bam";
 
 ok(
     $obj = Bio::Tradis::DetectTags->new(
@@ -26,7 +26,7 @@ ok(
 );
 is( $obj->tags_present, 1, 'testing output' );
 
-$bamfile = "t/data/sample_sm_no_tr.bam";
+$bamfile = "t/data/DetectTags/sample_sm_no_tr.bam";
 
 ok(
     $obj = Bio::Tradis::DetectTags->new(
