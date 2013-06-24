@@ -48,9 +48,6 @@ sub add_tags_to_seq {
         my $trtag = $result_holder->{tr};
         my $tqtag = $result_holder->{tq};
 
-		#replace CIGAR string with unmapped
-		$cols[5] = '*';
-
         #Check if seq is mapped & rev complement. If so, reformat.
         my $flag   = $result_holder->{FLAG};
         my $mapped = $pars->is_mapped($flag);
@@ -78,6 +75,16 @@ sub add_tags_to_seq {
         else {
             $cols[9]  = $trtag . $cols[9];
             $cols[10] = $tqtag . $cols[10];
+        }
+        
+        if($mapped)
+        {
+          my $cigar = length($cols[9]);
+          $cols[5] = $cigar . 'M';
+        }
+        else
+        {
+          $cols[5] = '*';
         }
 
         print TMPFILE join( "\t", @cols ) . "\n";
