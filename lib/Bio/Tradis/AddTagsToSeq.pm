@@ -48,24 +48,43 @@ sub add_tags_to_seq {
         my $trtag = $result_holder->{tr};
         my $tqtag = $result_holder->{tq};
 
-		#replace CIGAR string with unmapped
-		$cols[5] = '*';
-
         #Check if seq is mapped & rev complement. If so, reformat.
         my $flag   = $result_holder->{FLAG};
         my $mapped = $pars->is_mapped($flag);
         my $rev    = $pars->is_reverse_strand($flag);
         if ( $mapped && $rev ) {
-            $cols[10] = reverse($tqtag) . $cols[10];
-
-            #reverse complement
-            my $seq_obj = Bio::Seq->new( -seq => $trtag, -alphabet => 'dna' );
-            my $rc = $seq_obj->revcom;
-            $cols[9] = $rc->seq . $cols[9];
+            # The transposon is not reverse complimented but the genomic read is
+            
+            # reverse the genomic quality scores.
+            $cols[10] = reverse($cols[10]);
+            # Add the transposon quality score on the beginning
+            $cols[10] = $tqtag . $cols[10];
+            # Reverse the whole quality string.
+            $cols[10] = reverse($cols[10]);
+            # Reverse the genomic sequence
+            my $genomic_seq_obj = Bio::Seq->new( -seq => $cols[9], -alphabet => 'dna' );
+            my $reversed_genomic_seq_obj = $genomic_seq_obj->revcom;
+            
+            # Add on the tag sequence
+            $cols[9]  = $trtag . $reversed_genomic_seq_obj->seq;
+            # Reverse the tag+genomic sequence to get it back into the correct orentation.
+            my $genomic_and_tag_seq_obj = Bio::Seq->new( -seq => $cols[9], -alphabet => 'dna' );
+            $cols[9] = $genomic_and_tag_seq_obj->revcom->seq;
+            
         }
         else {
             $cols[9]  = $trtag . $cols[9];
             $cols[10] = $tqtag . $cols[10];
+        }
+        
+        if($mapped)
+        {
+          my $cigar = length($cols[9]);
+          $cols[5] = $cigar . 'M';
+        }
+        else
+        {
+          $cols[5] = '*';
         }
 
         print TMPFILE join( "\t", @cols ) . "\n";
