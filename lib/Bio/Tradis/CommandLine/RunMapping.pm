@@ -14,13 +14,13 @@ use Getopt::Long qw(GetOptionsFromArray);
 use Cwd 'abs_path';
 use Bio::Tradis::Map;
 
-has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
-has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
-has 'fastqfile'   => ( is => 'rw', isa => 'Str',      required => 0 );
-has 'reference'   => ( is => 'rw', isa => 'Str',      required => 0 );
-has 'refname'     => ( is => 'rw', isa => 'Str',      required => 0 );
-has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
-has 'outfile'     => ( is => 'rw', isa => 'Str',      required => 0 );
+has 'args'        => ( is => 'ro', isa => 'ArrayRef',   required => 1 );
+has 'script_name' => ( is => 'ro', isa => 'Str',        required => 1 );
+has 'fastqfile'   => ( is => 'rw', isa => 'Str',        required => 0 );
+has 'reference'   => ( is => 'rw', isa => 'Str',        required => 0 );
+has 'refname'     => ( is => 'rw', isa => 'Str',        required => 0 );
+has 'help'        => ( is => 'rw', isa => 'Bool',       required => 0 );
+has 'outfile'     => ( is => 'rw', isa => 'Maybe[Str]', required => 0 );
 
 sub BUILD {
     my ($self) = @_;
