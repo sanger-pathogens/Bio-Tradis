@@ -2,6 +2,6 @@ use strict;
 use warnings;
 package Bio::Tradis;
 
-# ABSTRACT: Check for presence of tansposon tags in a BAM file and process accordingly
+# ABSTRACT: Perform multiple steps of a tradis analysis
 
 1;

@@ -1,0 +1,20 @@
+#!/usr/bin/env perl
+
+package Bio::Tradis::Bin::RunMapping;
+
+# ABSTRACT: Perform mapping of given fastq to given reference
+# PODNAME: run_mapping
+
+=head1 SYNOPSIS
+
+Removes tags from the sequence and quality strings based on user input
+
+=cut
+
+BEGIN { unshift( @INC, '../lib' ) }
+BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '/software/pathogen/internal/prod/lib/' ) }
+
+use Bio::Tradis::CommandLine::RunMapping;
+
+Bio::Tradis::CommandLine::RunMapping->new(args => \@ARGV, script_name => $0)->run;
