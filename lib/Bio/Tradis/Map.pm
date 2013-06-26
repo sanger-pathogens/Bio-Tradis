@@ -19,27 +19,25 @@ use Moose;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'reference' => ( is => 'rw', isa => 'Str', required => 1 );
-has 'refname' =>
-  ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
-has 'outfile' =>
-  ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
+has 'refname'   => ( is => 'rw', isa => 'Str', required => 0 );
+has 'outfile'   => ( is => 'rw', isa => 'Str', required => 0 );
 
 sub index_ref {
-    my ($self) = @_;
-    my $ref = $self->reference;
-	my $refname = $self->refname;
+    my ($self)  = @_;
+    my $ref     = $self->reference;
+    my $refname = $self->refname;
 
     system("smalt index -k 13 -s 4 $refname $ref");
     return 1;
 }
 
 sub do_mapping {
-    my ($self) = @_;
-    my $fqfile = $self->fastqfile;
-	my $refname = $self->refname;
-	my $outfile = $self->outfile;
+    my ($self)  = @_;
+    my $fqfile  = $self->fastqfile;
+    my $refname = $self->refname;
+    my $outfile = $self->outfile;
 
-    system( "smalt map -x -r -1 -y 0.95 $refname $fqfile > $outfile" );
+    system("smalt map -x -r -1 -y 0.95 $refname $fqfile > $outfile");
     return 1;
 }
 
