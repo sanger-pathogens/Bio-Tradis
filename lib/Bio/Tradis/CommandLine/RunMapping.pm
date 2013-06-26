@@ -22,7 +22,7 @@ has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
 has 'refname' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
 has 'outfile' =>
-  ( is => 'rw', isa => 'Maybe[Str]', required => 0, default => 'mapped.sam' );
+  ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
 
 sub BUILD {
     my ($self) = @_;

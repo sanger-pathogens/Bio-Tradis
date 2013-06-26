@@ -23,7 +23,6 @@ ok(
     $obj = Bio::Tradis::FilterTags->new(
         fastqfile   => $fastqfile,
         tag         => $tag,
-        script_name => 'name_of_script',
         outfile     => 't/data/output.fastq'
     ),
     'creating object'
