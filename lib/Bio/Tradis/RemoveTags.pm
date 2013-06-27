@@ -24,7 +24,7 @@ has 'outfile'   => ( is => 'rw', isa => 'Str', required => 0 );
 
 sub remove_tags {
     my ($self) = @_;
-    my $tag = $self->tag;
+    my $tag = uc($self->tag);
 
     #set up fastq parser
     my $filename      = $self->fastqfile;

@@ -15,6 +15,7 @@ in GFF format
 =cut
 
 use Moose;
+use Bio::Tradis::Analysis::InsertSite;
 
 has 'mappedfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'outfile'    => ( is => 'rw', isa => 'Str', required => 0 );
@@ -23,9 +24,9 @@ sub plot {
     my ($self) = @_;
 
 	Bio::Tradis::Analysis::InsertSite->new(
-	    filename             => $mappedfile,
-	    output_base_filename => $outfile
-	)->create_plots();
+	    filename             => $self->mappedfile,
+	    output_base_filename => $self->outfile
+	)->create_plots;
 
     return 1;
 }
