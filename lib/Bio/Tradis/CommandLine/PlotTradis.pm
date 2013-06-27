@@ -12,7 +12,7 @@ a reference in GFF format
 use Moose;
 use Getopt::Long qw(GetOptionsFromArray);
 use Cwd 'abs_path';
-use Bio::Tradis::Map;
+use Bio::Tradis::TradisPlot;
 
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );

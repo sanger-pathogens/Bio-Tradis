@@ -4,8 +4,8 @@ InsertSite.pm   - Take in a bam file and plot the start position of each read
 
 =head1 SYNOPSIS
 
-use Pathogens::RNASeq::InsertSite;
-my $insertsite_plots_from_bam = Pathogens::RNASeq::InsertSite->new(
+use Bio::Tradis::Analysis::InsertSite;
+my $insertsite_plots_from_bam = Bio::Tradis::Analysis::InsertSite->new(
    filename => 'my_file.bam',
    output_base_filename => 'my_output_file'
   );
