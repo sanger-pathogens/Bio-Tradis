@@ -37,7 +37,7 @@ sub do_mapping {
     my $refname = $self->refname;
     my $outfile = $self->outfile;
 
-    system("smalt map -x -r -1 -y 0.95 $refname $fqfile > $outfile");
+    system("smalt map -x -r -1 -y 0.96 $refname $fqfile > $outfile");
     return 1;
 }
 

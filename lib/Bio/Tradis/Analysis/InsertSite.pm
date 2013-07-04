@@ -15,11 +15,12 @@ $insertsite_plots_from_bam->create_plots();
 =cut
 package Bio::Tradis::Analysis::InsertSite;
 use Moose;
-use VertRes::Parser::bam;
+use Bio::Tradis::Parser::Bam;
 use Bio::DB::Sam;
 
 has 'filename'                => ( is => 'rw', isa => 'Str',      required  => 1 );
 has 'output_base_filename'    => ( is => 'rw', isa => 'Str',      required  => 1 );
+has 'mapping_score'           => ( is => 'ro', isa => 'Int',      required  => 1 );
                             
 has '_input_file_handle'      => ( is => 'rw',                    lazy_build => 1 );
 has '_output_file_handles'    => ( is => 'rw', isa => 'HashRef',  lazy_build => 1 );
@@ -32,7 +33,7 @@ has '_frequency_of_read_start' => ( is => 'rw', isa => 'HashRef',  lazy => 1, bu
 sub _build__sequence_information
 {
   my ($self) = @_;
-  my %all_sequences_info = VertRes::Parser::bam->new( file => $self->filename )->sequence_info();
+  my %all_sequences_info = Bio::Tradis::Parser::Bam->new( file => $self->filename )->seq_info;
   return \%all_sequences_info;
 }
 
@@ -60,7 +61,7 @@ sub _build__output_file_handles
   my %output_file_handles;
   for my $sequence_name (@{$self->_sequence_names} )
   {
-    open($output_file_handles{$sequence_name}, '|-', " gzip >". $self->output_base_filename.".$sequence_name.insert_site_plot.gz") || Pathogens::RNASeq::Exceptions::FailedToCreateOutputFileHandle->throw(error => "Couldnt create output file handle for saving insertsite plot results for ". $sequence_name. " in ". $self->filename. " and output base ".$self->output_base_filename);
+    open($output_file_handles{$sequence_name}, '|-', " gzip >". $self->output_base_filename.".$sequence_name.insert_site_plot.gz") || Bio::Tradis::Analysis::Exceptions::FailedToCreateOutputFileHandle->throw(error => "Couldnt create output file handle for saving insertsite plot results for ". $sequence_name. " in ". $self->filename. " and output base ".$self->output_base_filename);
   }
   
   return \%output_file_handles;
@@ -140,14 +141,17 @@ sub _build__frequency_of_read_start
   while (my $align = $self->_input_file_handle->read1) 
   {
     next if ($align->unmapped);
-    my $seqid     = $target_names->[$align->tid];
-    if($align->strand == 1)
-    {
-      $frequency_of_read_start{$seqid}{$align->start}{$align->strand}++;
-    }
-    else
-    {
-      $frequency_of_read_start{$seqid}{$align->end}{$align->strand}++;
+    # check quality score here !!!!!!!!!!!!!!!
+    if ($align->qual > $self->mapping_score) {
+    	my $seqid     = $target_names->[$align->tid];
+    	if($align->strand == 1)
+    	{
+    	  $frequency_of_read_start{$seqid}{$align->start}{$align->strand}++;
+    	}
+    	else
+    	{
+    	  $frequency_of_read_start{$seqid}{$align->end}{$align->strand}++;
+    	}
     }
   }
 
