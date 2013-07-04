@@ -16,7 +16,7 @@ Outputs a file *.rmtag.fastq unless an out file is specified
 =cut
 
 use Moose;
-use VertRes::Parser::fastq;
+use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'tag'       => ( is => 'rw', isa => 'Str', required => 1 );
@@ -28,8 +28,7 @@ sub remove_tags {
 
     #set up fastq parser
     my $filename      = $self->fastqfile;
-    my $pars          = VertRes::Parser::fastq->new( file => $filename );
-    my $result_holder = $pars->result_holder();
+    my $pars          = Bio::Tradis::Parser::Fastq->new( file => $filename );
 
     # create file handle for output
     my $outfile = $filename;
@@ -42,10 +41,11 @@ sub remove_tags {
     open( OUTFILE, ">$outfile" );
 
     # loop through fastq
-    while ( $pars->next_result() ) {
-        my $id          = $result_holder->[0];
-        my $seq_string  = $result_holder->[1];
-        my $qual_string = $result_holder->[2];
+    while ( $pars->next_read ) {
+    	my @read = $pars->read_info;
+        my $id          = $read[0];
+        my $seq_string  = $read[1];
+        my $qual_string = $read[2];
 
         # remove the tag
         my $l = length($tag);

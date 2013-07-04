@@ -16,7 +16,7 @@ Then converts to BAM and removes the tmp SAM file.
 
 use Moose;
 use Bio::Seq;
-use VertRes::Parser::bam;
+use Bio::Tradis::Parser::Bam;
 
 has 'bamfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'outfile' => ( is => 'rw', isa => 'Str', required => 0 );
@@ -26,32 +26,25 @@ sub add_tags_to_seq {
 
     #set up BAM parser
     my $filename      = $self->bamfile;
-    my $pars          = VertRes::Parser::bam->new( file => $filename );
-    my $result_holder = $pars->result_holder();
+    my $pars          = Bio::Tradis::Parser::Bam->new( file => $filename );
+    my $read_info = $pars->read_info;
 
     #open temp file in SAM format and output headers from current BAM to it
     `samtools view -H $filename > tmp.sam`;
     open( TMPFILE, '>>tmp.sam' );
 
-    #set up parser to capture flags and tags
-    $pars->get_fields( 'FLAG', 'tr', 'tq' );
-
     #open BAM file in SAM format using samtools
     my @bam = split( "\n", `samtools view $filename` );
-    my $c = 0;
-    while ( $pars->next_result() ) {
-        my $line = $bam[$c];
-        $c++;
 
+    foreach my $line ( @bam ) {
         #split current line into columns and get tags
         my @cols  = split( " ", $line );
-        my $trtag = $result_holder->{tr};
-        my $tqtag = $result_holder->{tq};
+        my $trtag = ${$read_info}{tr};
+        my $tqtag = ${$read_info}{tq};
 
         #Check if seq is mapped & rev complement. If so, reformat.
-        my $flag   = $result_holder->{FLAG};
-        my $mapped = $pars->is_mapped($flag);
-        my $rev    = $pars->is_reverse_strand($flag);
+        my $mapped = $pars->is_mapped;
+        my $rev    = $pars->is_reverse;
         if ( $mapped && $rev ) {
             # The transposon is not reverse complimented but the genomic read is
             
@@ -88,6 +81,7 @@ sub add_tags_to_seq {
         }
 
         print TMPFILE join( "\t", @cols ) . "\n";
+        $pars->next_read;
     }
 
 	close TMPFILE;
