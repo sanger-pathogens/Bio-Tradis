@@ -42,8 +42,10 @@ sub BUILD {
 
 sub run {
     my ($self) = @_;
+
     if ( defined( $self->help ) ) {
-        print "Help here";
+    #if ( scalar( @{ $self->args } ) == 0 ) {
+          $self->usage_text;
     }
 
     my $tag_rm = Bio::Tradis::RemoveTags->new(
@@ -52,6 +54,21 @@ sub run {
         outfile   => $self->outfile
     );
     $tag_rm->remove_tags;
+}
+
+sub usage_text {
+      print <<USAGE;
+Removes transposon sequence and quality tags from the read strings
+
+Usage: remove_tags -f file.fastq [options]
+
+Options:
+-f  : fastq file with tradis tags
+-t	: tag to remove
+-o  : output file name (optional. default: <file>.rmtag.fastq)
+
+USAGE
+      exit;
 }
 
 __PACKAGE__->meta->make_immutable;

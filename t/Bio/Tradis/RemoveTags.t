@@ -17,7 +17,7 @@ my $destination_directory = $destination_directory_obj->dirname();
 my ( $fastqfile, $tag, $obj );
 
 $fastqfile = "t/data/RemoveTags/sample.caa.fastq";
-$tag     = "CAACGTTTT";
+$tag       = "CAACGTTTT";
 
 ok(
     $obj = Bio::Tradis::RemoveTags->new(
@@ -37,7 +37,7 @@ is(
 );
 
 $fastqfile = "t/data/RemoveTags/sample.tna.fastq";
-$tag = "TNAGAGACAG";
+$tag       = "TNAGAGACAG";
 
 ok(
     $obj = Bio::Tradis::RemoveTags->new(

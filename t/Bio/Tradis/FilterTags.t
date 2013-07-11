@@ -17,13 +17,13 @@ my $destination_directory = $destination_directory_obj->dirname();
 my ( $fastqfile, $tag, $obj );
 
 $fastqfile = "t/data/FilterTags/sample.fastq";
-$tag     = "CAACGTTTT";
+$tag       = "CAACGTTTT";
 
 ok(
     $obj = Bio::Tradis::FilterTags->new(
-        fastqfile   => $fastqfile,
-        tag         => $tag,
-        outfile     => 't/data/output.fastq'
+        fastqfile => $fastqfile,
+        tag       => $tag,
+        outfile   => 't/data/output.fastq'
     ),
     'creating object'
 );

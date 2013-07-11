@@ -20,27 +20,31 @@ use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'tag'       => ( is => 'rw', isa => 'Str', required => 1 );
-has 'outfile'   => ( is => 'rw', isa => 'Str', required => 0 );
+has 'outfile'   => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    default  => sub {
+        my ($self) = @_;
+        my $o = $self->fastqfile;
+        $o =~ s/\.fastq/\.tag\.fastq/;
+        return $o;
+    }
+);
 
 sub filter_tags {
     my ($self) = @_;
-    my $tag = uc($self->tag);
+    my $tag = uc( $self->tag );
+	my $outfile = $self->outfile;
 
     #set up fastq parser
-    my $filename      = $self->fastqfile;
-    my $pars          = Bio::Tradis::Parser::Fastq->new( file => $filename );
+    my $filename = $self->fastqfile;
+    my $pars = Bio::Tradis::Parser::Fastq->new( file => $filename );
 
-    my $outfile = $filename;
-    if ( defined( $self->outfile ) ) {
-        $outfile = $self->outfile;
-    }
-    else {
-        $outfile =~ s/\.fastq/\.tag\.fastq/;
-    }
     open( OUTFILE, ">$outfile" );
 
     while ( $pars->next_read ) {
-    	my @read = $pars->read_info;
+        my @read        = $pars->read_info;
         my $id          = $read[0];
         my $seq_string  = $read[1];
         my $qual_string = $read[2];
@@ -51,7 +55,7 @@ sub filter_tags {
             print OUTFILE $qual_string . "\n";
         }
     }
-	close OUTFILE;
+    close OUTFILE;
     return 1;
 }
 
