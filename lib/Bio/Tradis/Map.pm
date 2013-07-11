@@ -16,6 +16,7 @@ Maps given fastq files to ref.
 =cut
 
 use Moose;
+use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'reference' => ( is => 'rw', isa => 'Str', required => 1 );
@@ -27,7 +28,24 @@ sub index_ref {
     my $ref     = $self->reference;
     my $refname = $self->refname;
 
-    system("smalt index -k 13 -s 4 $refname $ref");
+    # Calculate index parameters
+    my $pars = Bio::Tradis::Parser::Fastq->new( file => $self->fastqfile );
+    $pars->next_read;
+    my @read = $pars->read_info;
+    my ( $k, $s );
+    ( $k, $s ) = ( 13, 4 );
+    my $seq = $read[1];
+    if ( length($seq) < 70 ) {
+        ( $k, $s ) = ( 13, 4 );
+    }
+    elsif ( length($seq) > 70 && length($seq) < 100 ) {
+        ( $k, $s ) = ( 13, 6 );
+    }
+    else {
+        ( $k, $s ) = ( 20, 13 );
+    }
+
+    system("smalt index -k $k -s $s $refname $ref");
     return 1;
 }
 

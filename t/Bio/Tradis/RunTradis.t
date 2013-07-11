@@ -23,11 +23,11 @@ $outfile   = "test.plot";
 
 ok(
     $obj = Bio::Tradis::RunTradis->new(
-        fastqfile   => $fastqfile,
-        reference   => $ref,
-        tag         => $tag,
-        outfile     => $outfile,
-        destination => $destination_directory_obj
+        fastqfile    => $fastqfile,
+        reference    => $ref,
+        tag          => $tag,
+        outfile      => $outfile,
+        _destination => $destination_directory_obj
     ),
     'creating object'
 );
@@ -59,26 +59,28 @@ ok( $obj->_map,                             'testing mapping' );
 ok( -e "$destination_directory/mapped.sam", 'checking SAM existence' );
 `grep -v "\@PG" $destination_directory/mapped.sam > tmp1.sam`;
 `grep -v "\@PG" t/data/RunTradis/mapped.sam > tmp2.sam`;
-is(
-    read_file("tmp1.sam"),
-    read_file('tmp2.sam'),
-    'checking mapped file contents'
-);
+is( read_file("tmp1.sam"), read_file('tmp2.sam'),
+    'checking mapped file contents' );
 
 # Conversion
 ok( $obj->_sam2bam,                         'testing SAM/BAM conversion' );
 ok( -e "$destination_directory/mapped.bam", 'checking BAM existence' );
 
+# Sorting
+ok( $obj->_sort_bam, 'testing BAM sorting' );
+ok( -e "$destination_directory/mapped.sort.bam",
+    'checking sorted BAM existence' );
+
 # Plot
 ok( $obj->_make_plot, 'testing plotting' );
 ok( -e 'test.plot.AE004091.insert_site_plot.gz',
     'checking plot file existence' );
-system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
-system("gunzip -c t/data/TradisPlot/expected.plot.gz > expected.plot.unzipped");
+system("gunzip -c $destination_directory/test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
+system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
     read_file('expected.plot.unzipped'),
-    'checking file contents'
+    'checking plot file contents'
 );
 
 # Complete pipeline
@@ -86,17 +88,17 @@ ok( $obj->run_tradis, 'testing complete analysis' );
 ok( -e 'test.plot.AE004091.insert_site_plot.gz',
     'checking plot file existence' );
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
-system("gunzip -c t/data/TradisPlot/expected.plot.gz > expected.plot.unzipped");
+system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
     read_file('expected.plot.unzipped'),
-    'checking file contents'
+    'checking completed pipeline file contents'
 );
-
 
 unlink("tmp1.sam");
 unlink("tmp2.sam");
 unlink('test.plot.AE004091.insert_site_plot.gz');
+unlink('test.plot.unzipped');
 unlink('expected.plot.unzipped');
 File::Temp::cleanup();
 done_testing();

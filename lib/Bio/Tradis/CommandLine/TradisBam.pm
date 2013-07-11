@@ -1,10 +1,11 @@
 package Bio::Tradis::CommandLine::TradisBam;
 
-# ABSTRACT: Check for presence of tr tag in BAM file
+# ABSTRACT: Adds tags to sequences if tags are present
 
 =head1 SYNOPSIS
 
-Output processed TraDIS BAM file
+Checks for tradis tags in the BAM and outputs processed TraDIS BAM file
+with tags attached
 
 =cut
 
@@ -17,8 +18,17 @@ use Bio::Tradis::AddTagsToSeq;
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'bamfile'     => ( is => 'rw', isa => 'Str',      required => 1 );
-has 'outfile'     => ( is => 'rw', isa => 'Str',      required => 1 );
-has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
+has 'outfile'     => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    default  => sub {
+        my $o = $self->bamfile;
+        $o =~ s/\.bam/\.tr\.bam/;
+        return $o;
+    }
+);
+has 'help' => ( is => 'rw', isa => 'Bool', required => 0 );
 
 sub BUILD {
     my ($self) = @_;
@@ -40,8 +50,10 @@ sub BUILD {
 
 sub run {
     my ($self) = @_;
+
     if ( defined( $self->help ) ) {
-        print "Help here";
+    #if ( scalar( @{ $self->args } ) == 0 ) {
+        $self->usage_text;
     }
 
     my $is_tradis =
@@ -53,6 +65,21 @@ sub run {
         );
         $add_tag_obj->add_tags_to_seq;
     }
+}
+
+sub usage_text {
+    print <<USAGE;
+Checks for tradis tags in the BAM and outputs processed TraDIS BAM file
+with tags attached
+
+Usage: bam_to_tradis_bam -b file.bam [options]
+
+Options:
+-b  : bam file
+-o  : output BAM name (optional. default: <file>.tr.bam)
+
+USAGE
+    exit;
 }
 
 __PACKAGE__->meta->make_immutable;

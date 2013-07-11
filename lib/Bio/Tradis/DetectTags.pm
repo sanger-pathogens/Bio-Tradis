@@ -15,16 +15,16 @@ Detects presence of tr/tq tags in BAM files from Tradis analyses
 use Moose;
 use Bio::DB::Sam;
 
-has 'bamfile'            => ( is => 'ro', isa => 'Str', required => 1 );
+has 'bamfile' => ( is => 'ro', isa => 'Str', required => 1 );
 
-sub tags_present{
-	my ($self) = @_;
-	my $bam = Bio::DB::Bam->open($self->bamfile);
-	my $header = $bam->header;
-	my $a = $bam->read1;
-	my $tr = $a->get_tag_values('tr');
-	if(defined($tr)){return 1;}
-	else{return 0;}	
+sub tags_present {
+    my ($self) = @_;
+    my $bam    = Bio::DB::Bam->open( $self->bamfile );
+    my $header = $bam->header;
+    my $a      = $bam->read1;
+    my $tr     = $a->get_tag_values('tr');
+    if   ( defined($tr) ) { return 1; }
+    else                  { return 0; }
 }
 
 __PACKAGE__->meta->make_immutable;

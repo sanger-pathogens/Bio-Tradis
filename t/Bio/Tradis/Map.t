@@ -23,22 +23,24 @@ $outfile   = "t/data/Map/mapped.out";
 
 ok(
     $obj = Bio::Tradis::Map->new(
-        fastqfile   => $fastqfile,
-        reference   => $ref,
-        refname => $refname,
-        outfile     => $outfile
+        fastqfile => $fastqfile,
+        reference => $ref,
+        refname   => $refname,
+        outfile   => $outfile
     ),
     'creating object'
 );
-ok( $obj->index_ref,        'testing reference indexing' );
+ok( $obj->index_ref,              'testing reference indexing' );
 ok( -e 't/data/Map/test.ref.sma', 'checking index file existence' );
 ok( -e 't/data/Map/test.ref.smi', 'checking index file existence' );
 
-ok( $obj->do_mapping,        'testing reference indexing' );
+ok( $obj->do_mapping,           'testing reference indexing' );
 ok( -e 't/data/Map/mapped.out', 'checking index file existence' );
+system("grep -v ^\@ t/data/Map/mapped.out > mapped.nohead.out");
+system("grep -v ^\@ t/data/Map/expected.mapped > expected.nohead.mapped");
 is(
-    read_file('t/data/Map/mapped.out'),
-    read_file('t/data/Map/expected.mapped'),
+    read_file('mapped.nohead.out'),
+    read_file('expected.nohead.mapped'),
     'checking file contents'
 );
 

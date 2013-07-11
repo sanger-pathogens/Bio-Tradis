@@ -42,8 +42,10 @@ sub BUILD {
 
 sub run {
     my ($self) = @_;
+
     if ( defined( $self->help ) ) {
-        print "Help here";
+    #if ( scalar( @{ $self->args } ) == 0 ) {
+          $self->usage_text;
     }
 
     my $tag_filter = Bio::Tradis::FilterTags->new(
@@ -52,6 +54,21 @@ sub run {
         outfile   => $self->outfile
     );
     $tag_filter->filter_tags;
+}
+
+sub usage_text {
+      print <<USAGE;
+Filters a BAM file and outputs reads with tag matching -t option
+
+Usage: filter_tags -b file.bam -t tag [options]
+
+Options:
+-f  : fastq file with tradis tags attached
+-t	: tag to search for
+-o  : output file name (optional. default: <file>.tag.fastq)
+
+USAGE
+      exit;
 }
 
 __PACKAGE__->meta->make_immutable;

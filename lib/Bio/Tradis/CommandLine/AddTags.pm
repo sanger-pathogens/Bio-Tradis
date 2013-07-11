@@ -39,8 +39,10 @@ sub BUILD {
 
 sub run {
     my ($self) = @_;
+
     if ( defined( $self->help ) ) {
-        print "Help here";
+    #if ( scalar( @{ $self->args } ) == 0 ) {
+          $self->usage_text;
     }
 
     my $tagadd = Bio::Tradis::AddTagsToSeq->new(
@@ -48,6 +50,21 @@ sub run {
         outfile => $self->outfile
     );
     $tagadd->add_tags_to_seq;
+}
+
+sub usage_text {
+      print <<USAGE;
+Adds transposon sequence and quality tags to the read strings and
+outputs a BAM.
+
+Usage: add_tags -b file.bam [options]
+
+Options:
+-b  : bam file with tradis tags
+-o  : output BAM name (optional. default: <file>.tr.bam)
+
+USAGE
+      exit;
 }
 
 __PACKAGE__->meta->make_immutable;

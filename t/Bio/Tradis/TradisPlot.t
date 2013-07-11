@@ -21,14 +21,16 @@ $outfile    = "test.plot";
 
 ok(
     $obj = Bio::Tradis::TradisPlot->new(
-        mappedfile => $mappedfile,
-        outfile    => $outfile
+        mappedfile    => $mappedfile,
+        outfile       => $outfile,
+        mapping_score => 30
     ),
     'creating object'
 );
 
-ok( $obj->plot,              'testing plotting' );
-ok( -e 'test.plot.AE004091.insert_site_plot.gz', 'checking plot file existence' );
+ok( $obj->plot, 'testing plotting' );
+ok( -e 'test.plot.AE004091.insert_site_plot.gz',
+    'checking plot file existence' );
 
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
 system("gunzip -c t/data/TradisPlot/expected.plot.gz > expected.plot.unzipped");

@@ -48,8 +48,10 @@ sub BUILD {
 
 sub run {
     my ($self) = @_;
+
     if ( defined( $self->help ) ) {
-        print "Help here";
+    #if ( scalar( @{ $self->args } ) == 0 ) {
+          $self->usage_text;
     }
 
     my $mapping = Bio::Tradis::Map->new(
@@ -60,6 +62,28 @@ sub run {
     );
     $mapping->index_ref;
     $mapping->do_mapping;
+}
+
+sub usage_text {
+      print <<USAGE;
+Indexes the reference genome and maps the given fastq file.
+-k and -s options for indexing are calculated for the length of
+the read as follows
+Read length		k	s
+<70				13	4
+>70 & <100		13	6
+>100			20	13
+
+Usage: run_mapping -f file.fastq -r ref.fa [options]
+
+Options:
+-f  : fastq file to map
+-r	: reference in fasta format
+-rn : reference index name (optional. default: ref.index)
+-o  : mapped SAM output name (optional. default: mapped.sam)
+
+USAGE
+      exit;
 }
 
 __PACKAGE__->meta->make_immutable;
