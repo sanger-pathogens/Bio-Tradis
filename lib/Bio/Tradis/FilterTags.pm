@@ -20,6 +20,7 @@ use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'tag'       => ( is => 'rw', isa => 'Str', required => 1 );
+has 'mismatch'  => ( is => 'rw', isa => 'Int', required => 0, default => 0 );
 has 'outfile'   => (
     is       => 'rw',
     isa      => 'Str',
@@ -49,14 +50,43 @@ sub filter_tags {
         my $seq_string  = $read[1];
         my $qual_string = $read[2];
 
-        if ( $seq_string =~ /^$tag/ ) {
-            print OUTFILE "\@$id\n";
+		my $print_out = 0;
+		if ($self->mismatch == 0){
+			if ( $seq_string =~ /^$tag/ ) {
+	            $print_out = 1;
+	        }
+		}
+		else {
+			my $mm = $self->_tag_mismatch($seq_string);
+			if ($mm <= $self->mismatch){
+				$print_out = 1;
+			}
+		}
+		
+		if($print_out){
+			print OUTFILE "\@$id\n";
             print OUTFILE $seq_string . "\n+\n";
             print OUTFILE $qual_string . "\n";
-        }
+		}
+        
     }
     close OUTFILE;
     return 1;
+}
+
+sub _tag_mismatch {
+	my ($self, $seq_string) = @_;
+	my $tag_len = length($self->tag);
+	
+	my @tag = split("", $self->tag);
+	my @seq = split("", substr($seq_string, 0, $tag_len));
+	my $mismatches = 0;
+	foreach my $i (0..($tag_len-1)){
+		if($tag[$i] ne $seq[$i]){
+			$mismatches++;
+		}
+	}
+	return $mismatches;
 }
 
 __PACKAGE__->meta->make_immutable;
