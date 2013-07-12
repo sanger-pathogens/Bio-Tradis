@@ -20,21 +20,23 @@ use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'tag'       => ( is => 'rw', isa => 'Str', required => 1 );
+has 'mismatch'  => ( is => 'rw', isa => 'Int', required => 0 );
 has 'outfile' => (
     is       => 'rw',
     isa      => 'Str',
     required => 0,
-    default => sub { 
-		my ($self) = @_;
-		my $o = $self->bamfile; 
-		$o =~ s/\.fastq/\.rmtag\.fastq/; 
-		return $o; 
-	}
+    default  => sub {
+        my ($self) = @_;
+        my $o = $self->bamfile;
+        $o =~ s/\.fastq/\.rmtag\.fastq/;
+        return $o;
+    }
 );
+
 sub remove_tags {
-    my ($self) = @_;
-    my $tag = uc( $self->tag );
-	my $outfile = $self->outfile;
+    my ($self)  = @_;
+    my $tag     = uc( $self->tag );
+    my $outfile = $self->outfile;
 
     #set up fastq parser
     my $filename = $self->fastqfile;
@@ -51,9 +53,18 @@ sub remove_tags {
         my $qual_string = $read[2];
 
         # remove the tag
-        my $l = length($tag);
-        if ( $seq_string =~ m/^$tag/ ) {
-            $seq_string =~ s/^$tag//;
+        my $rm = 0;
+        if ( $self->mismatch == 0 ) {
+            if ( $seq_string =~ m/^$tag/ ) { $rm = 1; }
+        }
+        else {
+            my $mm = $self->_tag_mismatch($seq_string);
+            if ( $mm <= $self->mismatch ) { $rm = 1; }
+        }
+
+        if ($rm) {
+            my $l = length($tag);
+            $seq_string  = substr( $seq_string,  $l );
             $qual_string = substr( $qual_string, $l );
         }
 
@@ -63,6 +74,21 @@ sub remove_tags {
     }
     close OUTFILE;
     return 1;
+}
+
+sub _tag_mismatch {
+    my ( $self, $seq_string ) = @_;
+    my $tag_len = length( $self->tag );
+
+    my @tag = split( "", $self->tag );
+    my @seq = split( "", substr( $seq_string, 0, $tag_len ) );
+    my $mismatches = 0;
+    foreach my $i ( 0 .. ( $tag_len - 1 ) ) {
+        if ( $tag[$i] ne $seq[$i] ) {
+            $mismatches++;
+        }
+    }
+    return $mismatches;
 }
 
 __PACKAGE__->meta->make_immutable;
