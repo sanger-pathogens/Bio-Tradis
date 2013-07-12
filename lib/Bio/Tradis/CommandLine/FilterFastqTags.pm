@@ -70,6 +70,7 @@ Usage: filter_tags -b file.bam -t tag [options]
 Options:
 -f  : fastq file with tradis tags attached
 -t	: tag to search for
+-m  : number of mismatches to allow when matching tag (optional. default = 0)
 -o  : output file name (optional. default: <file>.tag.fastq)
 
 USAGE

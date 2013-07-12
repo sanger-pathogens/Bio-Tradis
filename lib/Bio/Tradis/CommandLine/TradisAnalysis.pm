@@ -18,6 +18,7 @@ has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'fastqfile'   => ( is => 'rw', isa => 'Str',      required => 0 );
 has 'tag'         => ( is => 'rw', isa => 'Str',      required => 0 );
+has 'mismatch' => ( is => 'rw', isa => 'Int', required => 0, default => 0 );
 has 'tagdirection' =>
   ( is => 'rw', isa => 'Str', required => 0, default => '3' );
 has 'reference' => ( is => 'rw', isa => 'Str',  required => 0 );
@@ -29,13 +30,14 @@ has 'outfile' => ( is => 'rw', isa => 'Str', required => 0 );
 sub BUILD {
     my ($self) = @_;
 
-    my ( $fastqfile, $tag, $td, $ref, $map_score, $help );
+    my ( $fastqfile, $tag, $td, $mismatch, $ref, $map_score, $help );
 
     GetOptionsFromArray(
         $self->args,
         'f|fastqfile=s'     => \$fastqfile,
         't|tag=s'           => \$tag,
-        'td|tagdirection'   => \$td,
+        'td|tagdirection=i' => \$td,
+        'mm|mismatch=i'     => \$mismatch,
         'r|reference=s'     => \$ref,
         'm|mapping_score=i' => \$map_score,
         'h|help'            => \$help
@@ -44,6 +46,7 @@ sub BUILD {
     $self->fastqfile( abs_path($fastqfile) ) if ( defined($fastqfile) );
     $self->tag( uc($tag) )                   if ( defined($tag) );
     $self->tagdirection($td)                 if ( defined($td) );
+    $self->mismatch($mismatch)               if ( defined($mismatch) );
     $self->reference( abs_path($ref) )       if ( defined($ref) );
     $self->mapping_score($map_score)         if ( defined($map_score) );
     $self->help($help)                       if ( defined($help) );
@@ -54,20 +57,22 @@ sub run {
     my ($self) = @_;
 
     if ( defined( $self->help ) ) {
-    #if ( scalar( @{ $self->args } ) == 0 ) {
+
+        #if ( scalar( @{ $self->args } ) == 0 ) {
         $self->usage_text;
     }
 
     #parse list of files and run pipeline for each one
     open( FILES, "<", $self->fastqfile );
-	my @filelist = <FILES>;
-	my $file_dir = $self->get_file_dir;
+    my @filelist = <FILES>;
+    my $file_dir = $self->get_file_dir;
     foreach my $f (@filelist) {
         chomp($f);
         my $analysis = Bio::Tradis::RunTradis->new(
             fastqfile     => "$file_dir/$f",
             tag           => $self->tag,
             tagdirection  => $self->tagdirection,
+            mismatch      => $self->mismatch,
             reference     => $self->reference,
             mapping_score => $self->mapping_score
         );
@@ -76,12 +81,12 @@ sub run {
 }
 
 sub get_file_dir {
-	my ($self) = @_;
-	my $fq = $self->fastqfile;
-	
-	my @dirs = split('/', $fq);
-	pop(@dirs);
-	return join('/', @dirs);
+    my ($self) = @_;
+    my $fq = $self->fastqfile;
+
+    my @dirs = split( '/', $fq );
+    pop(@dirs);
+    return join( '/', @dirs );
 }
 
 sub usage_text {
@@ -99,8 +104,9 @@ Options:
 -f  : list of fastq files with tradis tags attached
 -t  : tag to search for
 -td : tag direction - 3 or 5 
+-mm : number of mismatches allowed when matching tag (optional. default = 0)
 -r  : reference genome in fasta format (.fa)
--m  : mapping quality cutoff score (optional. default: 30)
+-m  : mapping quality cutoff score (optional. default = 30)
 
 USAGE
     exit;

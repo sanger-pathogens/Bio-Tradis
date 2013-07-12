@@ -23,15 +23,33 @@ ok(
     $obj = Bio::Tradis::FilterTags->new(
         fastqfile => $fastqfile,
         tag       => $tag,
-        outfile   => 't/data/output.fastq'
+        outfile   => 'output.fastq'
     ),
     'creating object'
 );
-ok( $obj->filter_tags,        'testing output' );
-ok( -e 't/data/output.fastq', 'checking file existence' );
+ok( $obj->filter_tags, 'testing output' );
+ok( -e 'output.fastq', 'checking file existence' );
 is(
-    read_file('t/data/output.fastq'),
+    read_file('output.fastq'),
     read_file('t/data/FilterTags/expected.caa.fastq'),
+    'checking file contents'
+);
+
+# Test tag mismatch option
+ok(
+    $obj = Bio::Tradis::FilterTags->new(
+        fastqfile => $fastqfile,
+        tag       => $tag,
+        mismatch  => 1,
+        outfile   => 'output.fastq'
+    ),
+    'creating object'
+);
+ok( $obj->filter_tags, 'testing output' );
+ok( -e 'output.fastq', 'checking file existence' );
+is(
+    read_file('output.fastq'),
+    read_file('t/data/FilterTags/expected.1mm.caa.fastq'),
     'checking file contents'
 );
 
@@ -41,15 +59,14 @@ ok(
     $obj = Bio::Tradis::FilterTags->new(
         fastqfile   => $fastqfile,
         tag         => $tag,
-        script_name => 'name_of_script',
-        outfile     => 't/data/output.fastq'
+        outfile     => 'output.fastq'
     ),
     'creating object'
 );
 ok( $obj->filter_tags,        'testing output' );
-ok( -e 't/data/output.fastq', 'checking file existence' );
+ok( -e 'output.fastq', 'checking file existence' );
 is(
-    read_file('t/data/output.fastq'),
+    read_file('output.fastq'),
     read_file('t/data/FilterTags/expected.tna.fastq'),
     'checking file contents'
 );

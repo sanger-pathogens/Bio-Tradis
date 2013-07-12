@@ -31,6 +31,7 @@ has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'tag'       => ( is => 'ro', isa => 'Str', required => 1 );
 has 'tagdirection' =>
   ( is => 'ro', isa => 'Str', required => 1, default => '5' );
+has 'mismatch' => ( is => 'rw', isa => 'Int', required => 1 );
 has 'mapping_score' =>
   ( is => 'ro', isa => 'Int', required => 1, default => 30 );
 has 'reference' => ( is => 'rw', isa => 'Str', required => 1 );
@@ -40,8 +41,8 @@ has 'outfile' => (
     required => 0,
     default  => sub {
         my ($self) = @_;
-		my @dirs = split('/', $self->fastqfile);
-		my $o = pop(@dirs);
+        my @dirs = split( '/', $self->fastqfile );
+        my $o = pop(@dirs);
         $o =~ s/fastq/out/;
         return $o;
     }
@@ -128,49 +129,51 @@ sub run_tradis {
     my $destination_directory = $self->_destination->dirname();
 
     # Step 1: Filter tags that match user input tag
-	print STDERR "..........Step 1: Filter tags that match user input tag\n";
+    print STDERR "..........Step 1: Filter tags that match user input tag\n";
     $self->_filter;
 
-	`ls $destination_directory`;
+    `ls $destination_directory`;
 
     # Step 2: Remove the tag from the sequence and quality strings
-	print STDERR "..........Step 2: Remove the tag from the sequence and quality strings\n";
+    print STDERR
+"..........Step 2: Remove the tag from the sequence and quality strings\n";
     $self->_remove;
 
-	`ls $destination_directory`;
+    `ls $destination_directory`;
 
     # Step 3: Map file to reference
-	print STDERR "..........Step 3: Map file to reference\n";
+    print STDERR "..........Step 3: Map file to reference\n";
     $self->_map;
 
-	`ls $destination_directory`;
+    `ls $destination_directory`;
 
     # Step 3.5: Convert output from SAM to BAM and sort
-	print STDERR "..........Step 3.5: Convert output from SAM to BAM and sort\n";
+    print STDERR
+      "..........Step 3.5: Convert output from SAM to BAM and sort\n";
     $self->_sam2bam;
     $self->_sort_bam;
 
-	`ls $destination_directory`;
+    `ls $destination_directory`;
 
     # Step 4: Generate plot
-	print STDERR "..........Step 4: Generate plot\n";
+    print STDERR "..........Step 4: Generate plot\n";
     $self->_make_plot;
 
-	`ls $destination_directory`;
+    `ls $destination_directory`;
 
     # Step 5: Generate statistics
-	print STDERR "..........Step 5: Generate statistics\n";
+    print STDERR "..........Step 5: Generate statistics\n";
     $self->_stats;
 
-	`ls $destination_directory`;
+    `ls $destination_directory`;
 
     # Step 6: Move files to current directory
-	print STDERR "..........Step 6: Move files to current directory\n";
-	my $outfile = $self->outfile;
+    print STDERR "..........Step 6: Move files to current directory\n";
+    my $outfile = $self->outfile;
     system("mv $destination_directory/$outfile* \.");
 
     # Clean up
-	print("..........Clean up\n");
+    print("..........Clean up\n");
     unlink("$destination_directory/filter.fastq");
     unlink("$destination_directory/tags_removed.fastq");
     unlink("$destination_directory/mapped.sam");
@@ -192,6 +195,7 @@ sub _filter {
     my $filter = Bio::Tradis::FilterTags->new(
         fastqfile => $fqfile,
         tag       => $tag,
+		mismatch => $self->mismatch,
         outfile   => "$destination_directory/filter.fastq"
     )->filter_tags;
 }
@@ -204,6 +208,7 @@ sub _remove {
     my $rm_tags = Bio::Tradis::RemoveTags->new(
         fastqfile => "$destination_directory/filter.fastq",
         tag       => $tag,
+		mismatch => $self->mismatch,
         outfile   => "$destination_directory/tags_removed.fastq"
     )->remove_tags;
 }
@@ -315,7 +320,9 @@ sub _stats {
     $stats .= ( $mapped / $matching ) * 100 . "\t";
 
     # Unique insertion sites
-    system("gunzip -c $destination_directory/$plotname > $destination_directory/tmp.plot");
+    system(
+"gunzip -c $destination_directory/$plotname > $destination_directory/tmp.plot"
+    );
     my $uis =
 `grep -v "^0" $destination_directory/tmp.plot | sort | uniq | wc | awk '{ print \$1 }'`;
     $stats .= "$uis\n";
