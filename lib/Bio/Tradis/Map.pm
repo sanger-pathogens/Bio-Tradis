@@ -55,8 +55,21 @@ sub do_mapping {
     my $refname = $self->refname;
     my $outfile = $self->outfile;
 
-    system("smalt map -x -r -1 -y 0.96 $refname $fqfile > $outfile");
-    return 1;
+    system("smalt map -x -r -1 -y 0.96 $refname $fqfile 1> $outfile  2> smalt.stderr");
+	#my $smalt_exit = `tail -1 smalt.stderr`;
+	#if($smalt_exit =~ m/wrong FASTQ\/FASTA format/){
+	#	print STDERR "Problem with file format when mapping. Please check the file.\n";
+	#	unlink('smalt.stderr');
+	#	return 0;
+	#}
+	#else{
+	#	print STDERR `cat smalt.stderr`;
+	#	unlink('smalt.stderr');
+	#	return 1;
+	#}
+	
+	unlink('smalt.stderr');
+	return 1;
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -14,20 +14,25 @@ BEGIN {
 my $destination_directory_obj = File::Temp->newdir( CLEANUP => 0 );
 my $destination_directory = $destination_directory_obj->dirname();
 
-my ( $obj, $fastqfile, $ref, $tag, $outfile );
+my ( $obj, $fastqfile, $stats_handle, $ref, $tag, $outfile );
+
+# First, test all parts and complete pipeline without mismatch
 
 $fastqfile = "t/data/RunTradis/test.tagged.fastq";
 $ref       = "t/data/RunTradis/smallref.fa";
-$tag       = "taagagtcag";
+$tag       = "TAAGAGTCAG";
 $outfile   = "test.plot";
+open( $stats_handle, '>', "test.stats" );
 
+#_destination  => $destination_directory_obj->dirname,
 ok(
     $obj = Bio::Tradis::RunTradis->new(
-        fastqfile    => $fastqfile,
-        reference    => $ref,
-        tag          => $tag,
-        outfile      => $outfile,
-        _destination => $destination_directory_obj
+        fastqfile     => $fastqfile,
+        reference     => $ref,
+        tag           => $tag,
+        outfile       => $outfile,
+		_destination  => $destination_directory_obj->dirname,
+        _stats_handle => $stats_handle
     ),
     'creating object'
 );
@@ -70,12 +75,16 @@ ok( -e "$destination_directory/mapped.bam", 'checking BAM existence' );
 ok( $obj->_sort_bam, 'testing BAM sorting' );
 ok( -e "$destination_directory/mapped.sort.bam",
     'checking sorted BAM existence' );
+ok( -e 	"$destination_directory/mapped.sort.bam.bai",
+	    'checking indexed BAM existence' );
 
 # Plot
 ok( $obj->_make_plot, 'testing plotting' );
 ok( -e 'test.plot.AE004091.insert_site_plot.gz',
     'checking plot file existence' );
-system("gunzip -c $destination_directory/test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
+system(
+"gunzip -c $destination_directory/test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped"
+);
 system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
@@ -95,10 +104,43 @@ is(
     'checking completed pipeline file contents'
 );
 
+unlink("$destination_directory/filter.fastq");
+unlink("$destination_directory/tags_removed.fastq");
+
+unlink('test.plot.AE004091.insert_site_plot.gz');
+unlink('expected.plot.unzipped');
+unlink('test.plot.unzipped');
+
+# Test complete pipeline with 1 mismatch allowed
+ok(
+    $obj = Bio::Tradis::RunTradis->new(
+        fastqfile     => $fastqfile,
+        reference     => $ref,
+        tag           => $tag,
+        outfile       => $outfile,
+        mismatch      => 1,
+        _destination  => $destination_directory_obj->dirname,
+        _stats_handle => $stats_handle
+    ),
+    'creating object'
+);
+
+ok( $obj->run_tradis, 'testing complete analysis with mismatch' );
+ok( -e 'test.plot.AE004091.insert_site_plot.gz',
+    'checking plot file existence' );
+system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
+system("gunzip -c t/data/RunTradis/expected.1mm.plot.gz > expected.plot.unzipped");
+is(
+    read_file('test.plot.unzipped'),
+    read_file('expected.plot.unzipped'),
+    'checking completed pipeline with mismatch file contents'
+);
+
 unlink("tmp1.sam");
 unlink("tmp2.sam");
 unlink('test.plot.AE004091.insert_site_plot.gz');
-unlink('test.plot.unzipped');
 unlink('expected.plot.unzipped');
+unlink('test.plot.unzipped');
+
 File::Temp::cleanup();
 done_testing();

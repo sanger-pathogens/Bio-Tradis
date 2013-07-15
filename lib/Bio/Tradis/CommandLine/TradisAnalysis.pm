@@ -25,7 +25,13 @@ has 'reference' => ( is => 'rw', isa => 'Str',  required => 0 );
 has 'help'      => ( is => 'rw', isa => 'Bool', required => 0 );
 has 'mapping_score' =>
   ( is => 'ro', isa => 'Int', required => 0, default => 30 );
-has 'outfile' => ( is => 'rw', isa => 'Str', required => 0 );
+has '_stats_handle' => (
+    is       => 'ro',
+    isa      => 'FileHandle',
+    required => 0,
+    lazy     => 1,
+    builder  => '_build__stats_handle'
+);
 
 sub BUILD {
     my ($self) = @_;
@@ -62,6 +68,19 @@ sub run {
         $self->usage_text;
     }
 
+    #write title line to stats file
+    my @fields = (
+        "File",
+        "Total Reads",
+        "Reads Matched",
+        "\% Matched",
+        "Reads Mapped",
+        "\% Mapped",
+        "Unique Insertion Sites"
+    );
+	my $sh = $self->_stats_handle;
+	print { $self->_stats_handle } join("\t", @fields) . "\n";
+
     #parse list of files and run pipeline for each one
     open( FILES, "<", $self->fastqfile );
     my @filelist = <FILES>;
@@ -74,10 +93,22 @@ sub run {
             tagdirection  => $self->tagdirection,
             mismatch      => $self->mismatch,
             reference     => $self->reference,
-            mapping_score => $self->mapping_score
+            mapping_score => $self->mapping_score,
+			_stats_handle => $self->_stats_handle
         );
         $analysis->run_tradis;
     }
+	close($sh);
+}
+
+sub _build__stats_handle {
+    my ($self) = @_;
+    my $filelist = $self->fastqfile;
+	my $dir = $self->get_file_dir;
+	$filelist =~ s/$dir\///;
+	$filelist =~ s/[^\.]+$/stats/;
+    open( my $stats, ">", "$filelist" );
+    return $stats;
 }
 
 sub get_file_dir {
