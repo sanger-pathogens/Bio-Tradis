@@ -152,8 +152,8 @@ sub run_tradis {
     print STDERR "..........Step 6: Move files to current directory\n";
     my $outfile = $self->outfile;
     system("mv $destination_directory/$outfile* \.");
-	system("mv $destination_directory/mapped.sort.bam \./$outfile.sort.bam");
-	system("mv $destination_directory/mapped.sort.bam.bai \./$outfile.sort.bam.bai");
+	system("mv $destination_directory/mapped.sort.bam \./$outfile.mapped.bam");
+	system("mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai");
 
     # Clean up
     print("..........Clean up\n");
