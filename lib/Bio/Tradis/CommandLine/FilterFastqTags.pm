@@ -17,7 +17,7 @@ has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'fastqfile'   => ( is => 'rw', isa => 'Str',      required => 0 );
 has 'tag'         => ( is => 'rw', isa => 'Str',      required => 0 );
-has 'mismatch'    => ( is => 'rw', isa => 'Int',      required => 0 );
+has 'mismatch'    => ( is => 'rw', isa => 'Int',      required => 0, default => 0 );
 has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
 has 'outfile'     => ( is => 'rw', isa => 'Str',      required => 0 );
 

@@ -24,6 +24,7 @@ ok(
     $obj = Bio::Tradis::RemoveTags->new(
         fastqfile => $fastqfile,
         tag       => $tag,
+        mismatch  => 0,
         outfile   => 't/data/output.fastq'
     ),
     'creating object'
@@ -61,6 +62,7 @@ ok(
     $obj = Bio::Tradis::RemoveTags->new(
         fastqfile => $fastqfile,
         tag       => $tag,
+        mismatch  => 0,
         outfile   => 't/data/output.fastq'
     ),
     'creating object'

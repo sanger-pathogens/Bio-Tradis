@@ -23,6 +23,7 @@ ok(
     $obj = Bio::Tradis::FilterTags->new(
         fastqfile => $fastqfile,
         tag       => $tag,
+        mismatch  => 0,
         outfile   => 'output.fastq'
     ),
     'creating object'
@@ -57,13 +58,14 @@ $tag = "TNAGAGACAG";
 
 ok(
     $obj = Bio::Tradis::FilterTags->new(
-        fastqfile   => $fastqfile,
-        tag         => $tag,
-        outfile     => 'output.fastq'
+        fastqfile => $fastqfile,
+        tag       => $tag,
+        mismatch  => 0,
+        outfile   => 'output.fastq'
     ),
     'creating object'
 );
-ok( $obj->filter_tags,        'testing output' );
+ok( $obj->filter_tags, 'testing output' );
 ok( -e 'output.fastq', 'checking file existence' );
 is(
     read_file('output.fastq'),
