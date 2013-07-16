@@ -55,19 +55,12 @@ has '_destination' => (
     builder  => '_build__destination'
 );
 has '_stats_handle' => ( is => 'ro', isa => 'FileHandle', required => 1 );
-has '_plotfile' => (
+has '_sequence_info' => (
     is       => 'rw',
-    isa      => 'Str',
+    isa      => 'HashRef',
     required => 0,
     lazy     => 1,
-    builder  => '_build__plotfile'
-);
-has '_sequence_name' => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 0,
-    lazy     => 1,
-    builder  => '_build__sequence_name'
+    builder  => '_build__sequence_info'
 );
 has '_current_directory' => (
     is       => 'rw',
@@ -85,22 +78,19 @@ sub _build__stats_handle {
     return $stats;
 }
 
-sub _build__plotfile {
-    my ($self)                = @_;
-    my $destination_directory = $self->_destination;
-    my $outfile               = $self->outfile;
-    my $seqname               = $self->_sequence_name;
-    my $plotfile_name         = "$outfile.$seqname.insert_site_plot.gz";
-    return $plotfile_name;
-}
-
-sub _build__sequence_name {
+sub _build__sequence_info {
     my ($self) = @_;
     my $destination_directory = $self->_destination;
-    my $sn =
-`grep \@SQ $destination_directory/mapped.sam | awk '{print \$2}' | sed s/SN://`;
-    chomp($sn);
-    return $sn;
+    open( GREP,
+        "grep \@SQ $destination_directory/mapped.sam | awk '{print \$2, \$3}' |"
+    );
+    my %sns = ();
+    while ( my $sn = <GREP> ) {
+        chomp($sn);
+        $sn =~ /SN:(\S+)\s+LN:(\d+)/;
+        $sns{$1} = $2;
+    }
+    return \%sns;
 }
 
 sub _build__destination {
@@ -118,8 +108,11 @@ sub _build__current_directory {
 }
 
 sub run_tradis {
-    my ($self) = @_;
+    my ($self)                = @_;
     my $destination_directory = $self->_destination;
+    my $fq                    = $self->fastqfile;
+
+    print STDERR "::::::::::::::::::\n$fq\n::::::::::::::::::\n\n";
 
     # Step 1: Filter tags that match user input tag
     print STDERR "..........Step 1: Filter tags that match user input tag\n";
@@ -134,7 +127,7 @@ sub run_tradis {
     print STDERR "..........Step 3: Map file to reference\n";
     $self->_map;
 
-    # Step 4: Convert output from SAM to BAM and sort
+    # Step 4: Convert output from SAM to BAM, sort and index
     print STDERR
       "..........Step 3.5: Convert output from SAM to BAM and sort\n";
     $self->_sam2bam;
@@ -152,8 +145,10 @@ sub run_tradis {
     print STDERR "..........Step 6: Move files to current directory\n";
     my $outfile = $self->outfile;
     system("mv $destination_directory/$outfile* \.");
-	system("mv $destination_directory/mapped.sort.bam \./$outfile.mapped.bam");
-	system("mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai");
+    system("mv $destination_directory/mapped.sort.bam \./$outfile.mapped.bam");
+    system(
+"mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai"
+    );
 
     # Clean up
     print("..........Clean up\n");
@@ -233,7 +228,7 @@ sub _sort_bam {
     system(
 "samtools sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
     );
-	system("samtools index $destination_directory/mapped.sort.bam");
+    system("samtools index $destination_directory/mapped.sort.bam");
     return 1;
 }
 
@@ -253,22 +248,24 @@ sub _make_plot {
 
     # if tag direction is 5, reverse plot columns
     if ( $self->tagdirection eq '5' ) {
-        $self->_reverse_plot;
+        $self->_reverse_plots;
     }
 }
 
-sub _reverse_plot {
+sub _reverse_plots {
     my ($self)                = @_;
     my $destination_directory = $self->_destination;
     my $outfile               = $self->outfile;
+    my @seqnames              = keys %{ $self->_sequence_info };
 
-    my $plotname = $self->_plotfile;
-    system("gunzip -c $plotname > $destination_directory/tmp.plot");
-    system(
+    foreach my $sn (@seqnames) {
+        my $plotname = $self->_plotname($sn);
+        system("gunzip -c $plotname > $destination_directory/tmp.plot");
+        system(
 "awk '{ t = \$1; \$1 = \$2; \$2 = t; print; }' $destination_directory/tmp.plot > rv_plot"
-    );
-    system("gzip -c rv_plot > $plotname");
-
+        );
+        system("gzip -c rv_plot > $plotname");
+    }
     unlink("$destination_directory/tmp.plot");
     unlink("rv_plot");
 }
@@ -278,11 +275,14 @@ sub _stats {
     my $outfile               = $self->outfile;
     my $destination_directory = $self->_destination;
     my $fq                    = $self->fastqfile;
-    my $plotname              = $self->_plotfile;
+    my $seq_info              = $self->_sequence_info;
+
+    #write header to stats file
+    $self->_write_stats_header;
 
     # Add file name and number of reads in it
-    my @fql = split( "/", $fq );
-    my $stats = "$fql[-1]\t";
+    my @fql         = split( "/", $fq );
+    my $stats       = "$fql[-1]\t";
     my $total_reads = `wc $fq | awk '{print \$1/4}'`;
     chomp($total_reads);
     $stats .= "$total_reads\t";
@@ -300,14 +300,55 @@ sub _stats {
     $stats .= ( $mapped / $matching ) * 100 . "\t";
 
     # Unique insertion sites
-    system(
+    my ( $total_uis, $total_seq_len );
+    foreach my $si ( keys %{$seq_info} ) {
+        my $plotname = $self->_plotname($si);
+        system(
 "gunzip -c $destination_directory/$plotname > $destination_directory/tmp.plot"
-    );
-    my $uis =
+        );
+        my $uis =
 `grep -v "^0" $destination_directory/tmp.plot | sort | uniq | wc | awk '{ print \$1 }'`;
-    $stats .= "$uis";
-
+        chomp($uis);
+        $total_uis += $uis;
+        $stats .= "$uis\t";
+        my $seqlen = ${$seq_info}{$si};
+        $total_seq_len += $seqlen;
+        my $uis_per_seqlen = $uis / $seqlen;
+        chomp($uis_per_seqlen);
+        $stats .= "$uis_per_seqlen\t";
+    }
+	$stats .= "$total_uis\t";
+	my $t_uis_p_l = $total_uis/$total_seq_len;
+	$stats .= "$t_uis_p_l\n";
     print { $self->_stats_handle } $stats;
+}
+
+sub _write_stats_header {
+    my ($self)   = @_;
+    my @seqnames = keys %{ $self->_sequence_info };
+    my @fields   = (
+        "File",
+        "Total Reads",
+        "Reads Matched",
+        "\% Matched",
+        "Reads Mapped",
+        "\% Mapped"
+    );
+    print { $self->_stats_handle } join( "\t", @fields ) . "\t";
+    foreach my $sn (@seqnames) {
+        print { $self->_stats_handle } "Unique Insertion Sites : $sn\t";
+        print { $self->_stats_handle } "UIS/Seq Len : $sn\t";
+    }
+	print { $self->_stats_handle } "Total Unique Insertion Sites\t";
+	print { $self->_stats_handle } "Total UIS/Total Seq Len\n";
+}
+
+sub _plotname {
+    my ( $self, $seq_name ) = @_;
+    my $outfile = $self->outfile;
+
+    my $plotfile_name = "$outfile.$seq_name.insert_site_plot.gz";
+    return $plotfile_name;
 }
 
 sub _number_of_mapped_reads {
