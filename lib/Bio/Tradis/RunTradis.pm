@@ -282,22 +282,22 @@ sub _stats {
 
     # Add file name and number of reads in it
     my @fql         = split( "/", $fq );
-    my $stats       = "$fql[-1]\t";
+    my $stats       = "$fql[-1],";
     my $total_reads = `wc $fq | awk '{print \$1/4}'`;
     chomp($total_reads);
-    $stats .= "$total_reads\t";
+    $stats .= "$total_reads,";
 
     # Matching reads
     my $matching =
       `wc $destination_directory/filter.fastq | awk '{print \$1/4}'`;
     chomp($matching);
-    $stats .= "$matching\t";
-    $stats .= ( $matching / $total_reads ) * 100 . "\t";
+    $stats .= "$matching,";
+    $stats .= ( $matching / $total_reads ) * 100 . ",";
 
     # Mapped reads
     my $mapped = $self->_number_of_mapped_reads;
-    $stats .= "$mapped\t";
-    $stats .= ( $mapped / $matching ) * 100 . "\t";
+    $stats .= "$mapped,";
+    $stats .= ( $mapped / $matching ) * 100 . ",";
 
     # Unique insertion sites
     my ( $total_uis, $total_seq_len );
@@ -310,14 +310,14 @@ sub _stats {
 `grep -v "^0" $destination_directory/tmp.plot | sort | uniq | wc | awk '{ print \$1 }'`;
         chomp($uis);
         $total_uis += $uis;
-        $stats .= "$uis\t";
+        $stats .= "$uis,";
         my $seqlen = ${$seq_info}{$si};
         $total_seq_len += $seqlen;
         my $uis_per_seqlen = $uis / $seqlen;
         chomp($uis_per_seqlen);
-        $stats .= "$uis_per_seqlen\t";
+        $stats .= "$uis_per_seqlen,";
     }
-	$stats .= "$total_uis\t";
+	$stats .= "$total_uis,";
 	my $t_uis_p_l = $total_uis/$total_seq_len;
 	$stats .= "$t_uis_p_l\n";
     print { $self->_stats_handle } $stats;
@@ -334,12 +334,12 @@ sub _write_stats_header {
         "Reads Mapped",
         "\% Mapped"
     );
-    print { $self->_stats_handle } join( "\t", @fields ) . "\t";
+    print { $self->_stats_handle } join( ",", @fields ) . ",";
     foreach my $sn (@seqnames) {
-        print { $self->_stats_handle } "Unique Insertion Sites : $sn\t";
-        print { $self->_stats_handle } "UIS/Seq Len : $sn\t";
+        print { $self->_stats_handle } "Unique Insertion Sites : $sn,";
+        print { $self->_stats_handle } "UIS/Seq Len : $sn,";
     }
-	print { $self->_stats_handle } "Total Unique Insertion Sites\t";
+	print { $self->_stats_handle } "Total Unique Insertion Sites,";
 	print { $self->_stats_handle } "Total UIS/Total Seq Len\n";
 }
 
