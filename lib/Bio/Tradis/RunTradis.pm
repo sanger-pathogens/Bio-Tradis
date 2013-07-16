@@ -151,7 +151,7 @@ sub run_tradis {
     );
 
     # Clean up
-    print("..........Clean up\n");
+    print STDERR "..........Clean up\n";
 
     unlink("$destination_directory/filter.fastq");
     unlink("$destination_directory/tags_removed.fastq");
