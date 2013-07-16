@@ -68,19 +68,6 @@ sub run {
         $self->usage_text;
     }
 
-    #write title line to stats file
-    my @fields = (
-        "File",
-        "Total Reads",
-        "Reads Matched",
-        "\% Matched",
-        "Reads Mapped",
-        "\% Mapped",
-        "Unique Insertion Sites"
-    );
-	my $sh = $self->_stats_handle;
-	print { $self->_stats_handle } join("\t", @fields) . "\n";
-
     #parse list of files and run pipeline for each one
     open( FILES, "<", $self->fastqfile );
     my @filelist = <FILES>;
@@ -88,27 +75,54 @@ sub run {
     foreach my $f (@filelist) {
         chomp($f);
         my $analysis = Bio::Tradis::RunTradis->new(
-            fastqfile     => "$file_dir/$f",
-            tag           => $self->tag,
-            tagdirection  => $self->tagdirection,
-            mismatch      => $self->mismatch,
-            reference     => $self->reference,
-            mapping_score => $self->mapping_score,
-			_stats_handle => $self->_stats_handle
+            fastqfile      => "$file_dir/$f",
+            tag            => $self->tag,
+            tagdirection   => $self->tagdirection,
+            mismatch       => $self->mismatch,
+            reference      => $self->reference,
+            mapping_score  => $self->mapping_score,
+            _stats_handle  => $self->_stats_handle
         );
         $analysis->run_tradis;
     }
-	close($sh);
+	$self->_tidy_stats;
+    close(FILES);
 }
 
 sub _build__stats_handle {
-    my ($self) = @_;
+    my ($self)   = @_;
     my $filelist = $self->fastqfile;
-	my $dir = $self->get_file_dir;
-	$filelist =~ s/$dir\///;
-	$filelist =~ s/[^\.]+$/stats/;
+    my $dir      = $self->get_file_dir;
+    $filelist =~ s/$dir\///;
+    $filelist =~ s/[^\.]+$/stats/;
     open( my $stats, ">", "$filelist" );
     return $stats;
+}
+
+sub _tidy_stats {
+	my ($self)   = @_;
+    my $filelist = $self->fastqfile;
+    my $dir      = $self->get_file_dir;
+    $filelist =~ s/$dir\///;
+    $filelist =~ s/[^\.]+$/stats/;
+	open(STATS, '<', $filelist);
+	open(TMP, '>', 'tmp.stats');
+
+	my $header = 0;
+	while(my $line = <STATS>){
+		if($line =~ /^File/){
+			if($header == 0){
+				print TMP "$line";
+				$header = 1;
+			}
+		}
+		else{
+			print TMP "$line";
+		}
+	}
+	close(TMP);
+	close(STATS);
+	system("mv tmp.stats $filelist");
 }
 
 sub get_file_dir {
