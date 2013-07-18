@@ -74,8 +74,11 @@ sub run {
     my $file_dir = $self->get_file_dir;
     foreach my $f (@filelist) {
         chomp($f);
+		if( substr($f, 0, 1) ne "/"){
+			$f = "$file_dir/$f";
+		}
         my $analysis = Bio::Tradis::RunTradis->new(
-            fastqfile      => "$file_dir/$f",
+            fastqfile      => $f,
             tag            => $self->tag,
             tagdirection   => $self->tagdirection,
             mismatch       => $self->mismatch,
