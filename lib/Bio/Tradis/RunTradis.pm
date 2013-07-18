@@ -28,7 +28,9 @@ use Bio::Tradis::Map;
 use Bio::Tradis::TradisPlot;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
-has 'tag'       => ( is => 'ro', isa => 'Str', required => 1 );
+has '_unzipped_fastq' =>
+  ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__unzipped_fastq' );
+has 'tag' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'tagdirection' =>
   ( is => 'ro', isa => 'Str', required => 1, default => '5' );
 has 'mismatch' => ( is => 'rw', isa => 'Int', required => 1, default => 0 );
@@ -69,6 +71,25 @@ has '_current_directory' => (
     lazy     => 1,
     builder  => '_build__current_directory'
 );
+
+sub _build__unzipped_fastq {
+    my ($self)                = @_;
+    my $fq                    = $self->fastqfile;
+    my $destination_directory = $self->_destination;
+
+    if ( $fq =~ /\.gz/ ) {
+        $fq =~ /([^\/]+)$/;
+        my $newfq = $1;
+        $newfq =~ s/\.gz//;
+        if ( !-e "$destination_directory/$newfq" ) {
+            `gunzip -c $fq > $destination_directory/$newfq`;
+        }
+        return "$destination_directory/$newfq";
+    }
+    else {
+        return $fq;
+    }
+}
 
 sub _build__stats_handle {
     my ($self) = @_;
@@ -169,7 +190,7 @@ sub run_tradis {
 sub _filter {
     my ($self)                = @_;
     my $destination_directory = $self->_destination;
-    my $fqfile                = $self->fastqfile;
+    my $fqfile                = $self->_unzipped_fastq;
     my $tag                   = $self->tag;
     my $mm                    = $self->mismatch;
 
@@ -274,7 +295,7 @@ sub _stats {
     my ($self)                = @_;
     my $outfile               = $self->outfile;
     my $destination_directory = $self->_destination;
-    my $fq                    = $self->fastqfile;
+    my $fq                    = $self->_unzipped_fastq;
     my $seq_info              = $self->_sequence_info;
 
     #write header to stats file
@@ -317,9 +338,9 @@ sub _stats {
         chomp($uis_per_seqlen);
         $stats .= "$uis_per_seqlen,";
     }
-	$stats .= "$total_uis,";
-	my $t_uis_p_l = $total_uis/$total_seq_len;
-	$stats .= "$t_uis_p_l\n";
+    $stats .= "$total_uis,";
+    my $t_uis_p_l = $total_uis / $total_seq_len;
+    $stats .= "$t_uis_p_l\n";
     print { $self->_stats_handle } $stats;
 }
 
@@ -339,8 +360,8 @@ sub _write_stats_header {
         print { $self->_stats_handle } "Unique Insertion Sites : $sn,";
         print { $self->_stats_handle } "UIS/Seq Len : $sn,";
     }
-	print { $self->_stats_handle } "Total Unique Insertion Sites,";
-	print { $self->_stats_handle } "Total UIS/Total Seq Len\n";
+    print { $self->_stats_handle } "Total Unique Insertion Sites,";
+    print { $self->_stats_handle } "Total UIS/Total Seq Len\n";
 }
 
 sub _plotname {
