@@ -72,12 +72,24 @@ has '_current_directory' => (
     builder  => '_build__current_directory'
 );
 
+sub _is_gz {
+    my ($self) = @_;
+    my $fq = $self->fastqfile;
+
+    if ( $fq =~ /\.gz/ ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 sub _build__unzipped_fastq {
     my ($self)                = @_;
     my $fq                    = $self->fastqfile;
     my $destination_directory = $self->_destination;
 
-    if ( $fq =~ /\.gz/ ) {
+    if ( $self->_is_gz ) {
         $fq =~ /([^\/]+)$/;
         my $newfq = $1;
         $newfq =~ s/\.gz//;
@@ -181,6 +193,7 @@ sub run_tradis {
     unlink("$destination_directory/ref.index.smi");
     unlink("$destination_directory/mapped.bam");
     unlink("$destination_directory/tmp.plot");
+	unlink($self->_unzipped_fastq) if ($self->_is_gz);
 
     File::Temp::cleanup();
 
