@@ -54,6 +54,7 @@ is(
     'checking file contents'
 );
 
+# Different tag
 $tag = "TNAGAGACAG";
 
 ok(
@@ -70,6 +71,27 @@ ok( -e 'output.fastq', 'checking file existence' );
 is(
     read_file('output.fastq'),
     read_file('t/data/FilterTags/expected.tna.fastq'),
+    'checking file contents'
+);
+
+# Gzipped input
+$fastqfile = "t/data/FilterTags/sample.fastq.gz";
+$tag       = "CAACGTTTT";
+
+ok(
+    $obj = Bio::Tradis::FilterTags->new(
+        fastqfile => $fastqfile,
+        tag       => $tag,
+        mismatch  => 0,
+        outfile   => 'output.fastq'
+    ),
+    'creating object'
+);
+ok( $obj->filter_tags, 'testing output' );
+ok( -e 'output.fastq', 'checking file existence' );
+is(
+    read_file('output.fastq'),
+    read_file('t/data/FilterTags/expected.caa.fastq'),
     'checking file contents'
 );
 

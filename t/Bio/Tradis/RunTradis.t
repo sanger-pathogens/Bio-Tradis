@@ -17,6 +17,7 @@ my $destination_directory = $destination_directory_obj->dirname();
 my ( $obj, $fastqfile, $stats_handle, $ref, $tag, $outfile );
 
 # First, test all parts and complete pipeline without mismatch
+print STDERR "Normal files, no mismatch\n";
 
 $fastqfile = "t/data/RunTradis/test.tagged.fastq";
 $ref       = "t/data/RunTradis/smallref.fa";
@@ -24,7 +25,6 @@ $tag       = "TAAGAGTCAG";
 $outfile   = "test.plot";
 open( $stats_handle, '>', "test.stats" );
 
-#_destination  => $destination_directory_obj->dirname,
 ok(
     $obj = Bio::Tradis::RunTradis->new(
         fastqfile     => $fastqfile,
@@ -112,6 +112,8 @@ unlink('expected.plot.unzipped');
 unlink('test.plot.unzipped');
 
 # Test complete pipeline with 1 mismatch allowed
+print STDERR "Normal files one mismatch\n";
+
 ok(
     $obj = Bio::Tradis::RunTradis->new(
         fastqfile     => $fastqfile,
@@ -141,6 +143,33 @@ unlink("tmp2.sam");
 unlink('test.plot.AE004091.insert_site_plot.gz');
 unlink('expected.plot.unzipped');
 unlink('test.plot.unzipped');
+
+# Test pipeline with gzipped input
+print "Gzipped file, no mismatch\n";
+
+$fastqfile = "t/data/RunTradis/test.tagged.fastq.gz";
+ok(
+    $obj = Bio::Tradis::RunTradis->new(
+        fastqfile     => $fastqfile,
+        reference     => $ref,
+        tag           => $tag,
+        outfile       => $outfile,
+        _destination  => $destination_directory_obj->dirname,
+        _stats_handle => $stats_handle
+    ),
+    'creating object with gzipped data'
+);
+
+ok( $obj->run_tradis, 'testing complete analysis with gzipped data' );
+ok( -e 'test.plot.AE004091.insert_site_plot.gz',
+    'checking plot file existence (gzipped data)' );
+system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
+system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
+is(
+    read_file('test.plot.unzipped'),
+    read_file('expected.plot.unzipped'),
+    'checking completed pipeline with gzipped data file contents'
+);
 
 File::Temp::cleanup();
 done_testing();

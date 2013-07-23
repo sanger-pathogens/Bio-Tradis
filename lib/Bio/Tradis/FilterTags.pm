@@ -19,9 +19,11 @@ use Moose;
 use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
-has 'tag'       => ( is => 'rw', isa => 'Str', required => 1 );
-has 'mismatch'  => ( is => 'rw', isa => 'Int', required => 0 );
-has 'outfile'   => (
+has '_unzipped_fastq' =>
+  ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__unzipped_fastq' );
+has 'tag'      => ( is => 'rw', isa => 'Str', required => 1 );
+has 'mismatch' => ( is => 'rw', isa => 'Int', required => 0 );
+has 'outfile'  => (
     is       => 'rw',
     isa      => 'Str',
     required => 0,
@@ -39,20 +41,50 @@ has '_currentread' => (
     writer   => '_set_currentread'
 );
 
+sub _is_gz {
+    my ($self) = @_;
+    my $fq = $self->fastqfile;
+
+    if ( $fq =~ /\.gz/ ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+sub _build__unzipped_fastq {
+    my ($self) = @_;
+    my $fq = $self->fastqfile;
+
+    if ( $self->_is_gz ) {
+        $fq =~ /([^\/]+)$/;
+        my $newfq = $1;
+        $newfq =~ s/\.gz//;
+        if ( !-e $newfq ) {
+            `gunzip -c $fq > $newfq`;
+        }
+        return $newfq;
+    }
+    else {
+        return $fq;
+    }
+}
+
 sub filter_tags {
     my ($self)  = @_;
     my $tag     = uc( $self->tag );
     my $outfile = $self->outfile;
 
     #set up fastq parser
-    my $filename = $self->fastqfile;
+    my $filename = $self->_unzipped_fastq;
     my $pars = Bio::Tradis::Parser::Fastq->new( file => $filename );
 
     open( OUTFILE, ">$outfile" );
 
     while ( $pars->next_read ) {
-        my @read        = $pars->read_info;
-		$self->_set_currentread(\@read);
+        my @read = $pars->read_info;
+        $self->_set_currentread( \@read );
         my $id          = $read[0];
         my $seq_string  = $read[1];
         my $qual_string = $read[2];
@@ -76,14 +108,17 @@ sub filter_tags {
             print OUTFILE $qual_string . "\n";
         }
     }
+    if ( $self->_is_gz ) {
+        unlink( $self->_unzipped_fastq );
+    }
     close OUTFILE;
     return 1;
 }
 
 sub _tag_mismatch {
-    my ($self) = @_;
-    my $tag_len = length( $self->tag );
-	my $seq_string = ${$self->_currentread}[1];
+    my ($self)     = @_;
+    my $tag_len    = length( $self->tag );
+    my $seq_string = ${ $self->_currentread }[1];
 
     my @tag = split( "", $self->tag );
     my @seq = split( "", substr( $seq_string, 0, $tag_len ) );
