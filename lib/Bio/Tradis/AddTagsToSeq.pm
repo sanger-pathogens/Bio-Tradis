@@ -41,7 +41,7 @@ sub add_tags_to_seq {
     my $outfile   = $self->outfile;
 
     #open temp file in SAM format and output headers from current BAM to it
-    `samtools view -H $filename > tmp.sam`;
+    system("samtools view -H $filename > tmp.sam");
     open( TMPFILE, '>>tmp.sam' );
 
     #open BAM file in SAM format using samtools
@@ -105,7 +105,7 @@ sub add_tags_to_seq {
     close TMPFILE;
 
     #convert tmp.sam to bam
-    `samtools view -S -b -o $outfile tmp.sam`;
+    system("samtools view -S -b -o $outfile tmp.sam");
 
     if ( $self->_number_of_lines_in_bam_file($outfile) !=
         $self->_number_of_lines_in_bam_file($filename) )
