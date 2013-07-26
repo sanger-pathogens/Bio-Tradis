@@ -53,11 +53,13 @@ sub _binary_flag {
 
 sub _parse_read {
     my ( $self, $line ) = @_;
+	chomp($line);
 
     # Parse and return as a hash ref
     my @fields = qw(QNAME FLAG RNAME POS MAPQ CIGAR RNEXT PNEXT TLEN SEQ QUAL);
     my @cols = split( '\t', $line );
     my %read;
+	$read{'READ'} = $line;
     foreach my $i ( 0 .. ( scalar(@cols) - 1 ) ) {
         if ( $i < scalar(@fields) ) {
             $read{ $fields[$i] } = $cols[$i];
@@ -137,7 +139,8 @@ Standard fields are named as per the SAM format specification:
 9 : TLEN
 10 : SEQ
 11 : QUAL
-Additional fields will use their tag names. 
+Additional fields will use their tag names.
+Complete line is returned with key READ
 =cut
 
 sub read_info {

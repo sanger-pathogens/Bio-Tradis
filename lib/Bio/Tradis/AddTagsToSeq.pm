@@ -41,20 +41,30 @@ sub add_tags_to_seq {
     my $outfile   = $self->outfile;
 
     #open temp file in SAM format and output headers from current BAM to it
+    print STDERR "Reading BAM header\n";
     system("samtools view -H $filename > tmp.sam");
     open( TMPFILE, '>>tmp.sam' );
 
     #open BAM file in SAM format using samtools
-    open( my $bam, "samtools view $filename |" );
+    print STDERR "Reading BAM file\n";
+    my @field_order = (
+        "QNAME", "FLAG",  "RNAME", "POS", "MAPQ", "CIGAR",
+        "RNEXT", "PNEXT", "TLEN",  "SEQ", "QUAL", "X0",
+        "X1",    "BC",    "MD",    "RG",  "XG",   "XM",
+        "XO",    "QT",    "XT",    "tq",  "tr"
+    );
 
     while ( $pars->next_read ) {
-        my $line      = <$bam>;
         my $read_info = $pars->read_info;
+        my $line      = ${$read_info}{READ};
 
-        #split current line into columns and get tags
-        my @cols  = split( " ", $line );
+        # get tags, seq, qual and cigar str
         my $trtag = ${$read_info}{tr};
         my $tqtag = ${$read_info}{tq};
+
+        my $seq_tagged   = ${$read_info}{SEQ};
+        my $qual_tagged  = ${$read_info}{QUAL};
+        my $cigar_update = ${$read_info}{CIGAR};
 
         #Check if seq is mapped & rev complement. If so, reformat.
         my $mapped = $pars->is_mapped;
@@ -64,40 +74,46 @@ sub add_tags_to_seq {
             # The transposon is not reverse complimented but the genomic read is
 
             # reverse the genomic quality scores.
-            $cols[10] = reverse( $cols[10] );
+            $qual_tagged = reverse($qual_tagged);
 
             # Add the transposon quality score on the beginning
-            $cols[10] = $tqtag . $cols[10];
+            $qual_tagged = $tqtag . $qual_tagged;
 
             # Reverse the whole quality string.
-            $cols[10] = reverse( $cols[10] );
+            $qual_tagged = reverse($qual_tagged);
 
             # Reverse the genomic sequence
             my $genomic_seq_obj =
-              Bio::Seq->new( -seq => $cols[9], -alphabet => 'dna' );
+              Bio::Seq->new( -seq => $seq_tagged, -alphabet => 'dna' );
             my $reversed_genomic_seq_obj = $genomic_seq_obj->revcom;
 
             # Add on the tag sequence
-            $cols[9] = $trtag . $reversed_genomic_seq_obj->seq;
+            $seq_tagged = $trtag . $reversed_genomic_seq_obj->seq;
 
   # Reverse the tag+genomic sequence to get it back into the correct orentation.
             my $genomic_and_tag_seq_obj =
-              Bio::Seq->new( -seq => $cols[9], -alphabet => 'dna' );
-            $cols[9] = $genomic_and_tag_seq_obj->revcom->seq;
+              Bio::Seq->new( -seq => $seq_tagged, -alphabet => 'dna' );
+            $seq_tagged = $genomic_and_tag_seq_obj->revcom->seq;
 
         }
         else {
-            $cols[9]  = $trtag . $cols[9];
-            $cols[10] = $tqtag . $cols[10];
+            $seq_tagged  = $trtag . $seq_tagged;
+            $qual_tagged = $tqtag . $qual_tagged;
         }
 
         if ($mapped) {
-            my $cigar = length( $cols[9] );
-            $cols[5] = $cigar . 'M';
+            my $cigar = length($seq_tagged);
+            $cigar_update = $cigar . 'M';
         }
         else {
-            $cols[5] = '*';
+            $cigar_update = '*';
         }
+
+        # replace updated fields and print to TMPFILE
+        my @cols = split( " ", $line );
+        $cols[5]  = $cigar_update;
+        $cols[9]  = $seq_tagged;
+        $cols[10] = $qual_tagged;
 
         print TMPFILE join( "\t", @cols ) . "\n";
     }
@@ -105,6 +121,7 @@ sub add_tags_to_seq {
     close TMPFILE;
 
     #convert tmp.sam to bam
+    print STDERR "Convert SAM to BAM\n";
     system("samtools view -S -b -o $outfile tmp.sam");
 
     if ( $self->_number_of_lines_in_bam_file($outfile) !=
