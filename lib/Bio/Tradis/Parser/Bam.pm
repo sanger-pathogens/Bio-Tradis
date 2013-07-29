@@ -121,6 +121,7 @@ sub next_read {
         return 1;
     }
     else {
+		close $bh;
         return 0;
     }
 }

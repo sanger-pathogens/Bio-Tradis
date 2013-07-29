@@ -35,8 +35,8 @@ sub add_tags_to_seq {
     my ($self) = @_;
 
     #set up BAM parser
-    my $filename  = $self->bamfile;
-    my $pars      = Bio::Tradis::Parser::Bam->new( file => $filename );
+    my $filename = $self->bamfile;
+
     my $read_info = $pars->read_info;
     my $outfile   = $self->outfile;
 
@@ -47,12 +47,7 @@ sub add_tags_to_seq {
 
     #open BAM file in SAM format using samtools
     print STDERR "Reading BAM file\n";
-    my @field_order = (
-        "QNAME", "FLAG",  "RNAME", "POS", "MAPQ", "CIGAR",
-        "RNEXT", "PNEXT", "TLEN",  "SEQ", "QUAL", "X0",
-        "X1",    "BC",    "MD",    "RG",  "XG",   "XM",
-        "XO",    "QT",    "XT",    "tq",  "tr"
-    );
+    my $pars = Bio::Tradis::Parser::Bam->new( file => $filename );
 
     while ( $pars->next_read ) {
         my $read_info = $pars->read_info;
@@ -128,7 +123,7 @@ sub add_tags_to_seq {
         $self->_number_of_lines_in_bam_file($filename) )
     {
         die
-"The number of lines in the input and output files dont match so somethings gone wrong\n";
+"The number of lines in the input and output files don't match, so something's gone wrong\n";
     }
 
     #remove tmp file
@@ -139,7 +134,7 @@ sub add_tags_to_seq {
 sub _number_of_lines_in_bam_file {
     my ( $self, $filename ) = @_;
     open( my $fh, '-|', "samtools view $filename | wc -l" )
-      or die "Couldnt open file :" . $filename;
+      or die "Couldn't open file :" . $filename;
     my $number_of_lines_in_file = <$fh>;
     $number_of_lines_in_file =~ s!\W!!gi;
     return $number_of_lines_in_file;
