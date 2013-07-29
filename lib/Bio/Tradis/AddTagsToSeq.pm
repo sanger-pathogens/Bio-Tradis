@@ -91,6 +91,7 @@ sub add_tags_to_seq {
 
         }
         else {
+			print STDERR "$line\n" if(!defined($tqtag));
             $seq_tagged  = $trtag . $seq_tagged;
             $qual_tagged = $tqtag . $qual_tagged;
         }

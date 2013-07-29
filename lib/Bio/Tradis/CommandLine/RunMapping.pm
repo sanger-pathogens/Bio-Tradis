@@ -44,6 +44,8 @@ sub BUILD {
     $self->outfile( abs_path($outfile) )     if ( defined($outfile) );
     $self->help($help)                       if ( defined($help) );
 
+	# print usage text if required parameters are not present
+	($fastqfile && $ref) or die $self->usage_text;
 }
 
 sub run {
@@ -69,10 +71,11 @@ sub usage_text {
 Indexes the reference genome and maps the given fastq file.
 -k and -s options for indexing are calculated for the length of
 the read as follows
-Read length		k	s
-<70				13	4
->70 & <100		13	6
->100			20	13
+Read length    | k  |  s
+---------------+----+-----
+<70            | 13 |  4
+>70 & <100     | 13 |  6
+>100           | 20 |  13
 
 Usage: run_mapping -f file.fastq -r ref.fa [options]
 

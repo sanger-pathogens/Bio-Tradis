@@ -68,8 +68,12 @@ sub _parse_read {
             }
         }
         else {
-            my @tagged = split( ':', $cols[$i] );
-            $read{ $tagged[0] } = $tagged[2];
+			$cols[$i] =~ /^([^:]+):[AifZHB]:(.+)/;
+            #my @tagged = split( ':', $cols[$i] );
+			#my $tag_key = shift @tagged;
+			#shift @tagged;
+            #$read{ $tag_key } = join(':', @tagged);
+			$read{ $1 } = $2;
         }
     }
     return \%read;

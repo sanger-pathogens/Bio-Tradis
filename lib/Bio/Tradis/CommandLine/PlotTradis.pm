@@ -39,6 +39,8 @@ sub BUILD {
     $self->mapping_score($mapping_score)       if ( defined($mapping_score) );
     $self->help($help)                         if ( defined($help) );
 
+	# print usage text if required parameters are not present
+	($mappedfile) or die $self->usage_text;
 }
 
 sub run {

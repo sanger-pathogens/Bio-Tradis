@@ -41,6 +41,8 @@ sub BUILD {
     $self->outfile( abs_path($outfile) )     if ( defined($outfile) );
     $self->help($help)                       if ( defined($help) );
 
+	# print usage text if required parameters are not present
+	($fastqfile && $tag) or die $self->usage_text;
 }
 
 sub run {
@@ -69,7 +71,7 @@ Usage: remove_tags -f file.fastq [options]
 
 Options:
 -f  : fastq file with tradis tags
--t	: tag to remove
+-t  : tag to remove
 -m  : number of mismatches to allow when matching tag (optional. default = 0)
 -o  : output file name (optional. default: <file>.rmtag.fastq)
 
