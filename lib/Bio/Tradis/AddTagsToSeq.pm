@@ -36,8 +36,6 @@ sub add_tags_to_seq {
 
     #set up BAM parser
     my $filename = $self->bamfile;
-
-    my $read_info = $pars->read_info;
     my $outfile   = $self->outfile;
 
     #open temp file in SAM format and output headers from current BAM to it
@@ -45,9 +43,10 @@ sub add_tags_to_seq {
     system("samtools view -H $filename > tmp.sam");
     open( TMPFILE, '>>tmp.sam' );
 
-    #open BAM file in SAM format using samtools
+    #open BAM file
     print STDERR "Reading BAM file\n";
     my $pars = Bio::Tradis::Parser::Bam->new( file => $filename );
+	my $read_info = $pars->read_info;
 
     while ( $pars->next_read ) {
         my $read_info = $pars->read_info;
