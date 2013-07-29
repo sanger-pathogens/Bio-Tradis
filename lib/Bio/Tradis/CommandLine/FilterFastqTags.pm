@@ -41,6 +41,8 @@ sub BUILD {
     $self->outfile( abs_path($outfile) )     if ( defined($outfile) );
     $self->help($help)                       if ( defined($help) );
 
+	# print usage text if required parameters are not present
+	($fastqfile && $tag) or die $self->usage_text;
 }
 
 sub run {
@@ -69,7 +71,7 @@ Usage: filter_tags -b file.bam -t tag [options]
 
 Options:
 -f  : fastq file with tradis tags attached
--t	: tag to search for
+-t  : tag to search for
 -m  : number of mismatches to allow when matching tag (optional. default = 0)
 -o  : output file name (optional. default: <file>.tag.fastq)
 

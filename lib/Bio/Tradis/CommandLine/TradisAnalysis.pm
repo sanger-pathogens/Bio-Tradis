@@ -57,6 +57,8 @@ sub BUILD {
     $self->mapping_score($map_score)         if ( defined($map_score) );
     $self->help($help)                       if ( defined($help) );
 
+	# print usage text if required parameters are not present
+	($fastqfile && $tag && $ref) or die $self->usage_text;
 }
 
 sub run {
@@ -151,7 +153,7 @@ Usage: run_tradis [options]
 Options:
 -f  : list of fastq files with tradis tags attached
 -t  : tag to search for
--td : tag direction - 3 or 5 
+-td : tag direction - 3 or 5 (optional. default = 3)
 -mm : number of mismatches allowed when matching tag (optional. default = 0)
 -r  : reference genome in fasta format (.fa)
 -m  : mapping quality cutoff score (optional. default = 30)

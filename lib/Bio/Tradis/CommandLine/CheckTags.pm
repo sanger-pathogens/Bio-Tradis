@@ -34,6 +34,8 @@ sub BUILD {
     $self->bamfile(abs_path($bamfile))                   if ( defined($bamfile) );
 	$self->help($help)                                   if ( defined($help) );
 
+	# print usage text if required parameters are not present
+	($bamfile) or die $self->usage_text;
 }
 
 sub run {
