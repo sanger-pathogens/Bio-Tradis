@@ -25,7 +25,7 @@ isa_ok $obj, 'Bio::Tradis::Parser::Bam';
 
 # Test sequence info
 my %si = $obj->seq_info;
-is ref(\%si), 'HASH', 'seq_info returns a hash';
+is ref( \%si ), 'HASH', 'seq_info returns a hash';
 
 # Test reading first result
 is $obj->next_read, 1, 'first result detected';
@@ -56,7 +56,8 @@ is_deeply $read_info,
     QT          => 'BBCDECBC',
     XT          => 'U',
     tq          => 'CCCBBFFFFF',
-    tr          => 'TAAGAGTCAG'
+    tr          => 'TAAGAGTCAG',
+    READ        => 'MS5_9521:1:1101:10072:14269#14	16	ENA|AE004091|AE004091.2	5	37	50M	*	0	0	AAGAGACCGGCGATTCTAGTGAAATCGAACGGGCAGGTCAATTTCCAACC	HHHGGGGGGGHHHHHHHHHHHGHHHGHHGGGGGGGGGGFFFBFFCBAABA	X0:i:1	X1:i:0	BC:Z:TCTCGGTT	MD:Z:50	RG:Z:1#14	XG:i:0	NM:i:0	XM:i:0	XO:i:0	QT:Z:BBCDECBC	XT:A:U	tq:Z:CCCBBFFFFF	tr:Z:TAAGAGTCAG'
   },
   'read_info contains correct info for first line';
 
@@ -92,7 +93,8 @@ is_deeply $read_info,
     QT          => 'CCCCCCCC',
     XT          => 'U',
     tq          => 'BCCCCFFFFF',
-    tr          => 'TAAGAGTCAG'
+    tr          => 'TAAGAGTCAG',
+    READ        => 'MS5_9521:1:1103:26809:18585#14	1040	ENA|AE004091|AE004091.2	23	37	50M	*	0	0	GTGAAATCGAACGGGCAGGTCAATTTCCAACCAGCGATGACGTAATAGAT	5FGGHHGEGHFEHHHHHGFHHGHGGHGFGGFCGEGBBAFC?DFFFBBBB3	X0:i:1	X1:i:0	BC:Z:TCTCGGTT	MD:Z:50	RG:Z:1#14	XG:i:0	NM:i:0	XM:i:0	XO:i:0	QT:Z:CCCCCCCC	XT:A:U	tq:Z:BCCCCFFFFF	tr:Z:TAAGAGTCAG'
   },
   'read_info contains correct info for last line';
 
