@@ -125,9 +125,13 @@ sub next_read {
         return 1;
     }
     else {
-		close $bh;
         return 0;
     }
+}
+
+sub close_file_handle{
+	my ($self) = @_;
+	close $self->_bam_handle;
 }
 
 =read_info

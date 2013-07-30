@@ -112,7 +112,7 @@ sub add_tags_to_seq {
 
         print TMPFILE join( "\t", @cols ) . "\n";
     }
-
+	$pars->close_file_handle;
     close TMPFILE;
 
     #convert tmp.sam to bam
