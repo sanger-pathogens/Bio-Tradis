@@ -17,14 +17,15 @@ my $destination_directory = $destination_directory_obj->dirname();
 my ( $fastqfile, $tag, $obj );
 
 $fastqfile = "t/data/RemoveTags/sample.caa.fastq";
-$tag     = "CAACGTTTT";
+$tag       = "CAACGTTTT";
 
+# Test without mismatch option
 ok(
     $obj = Bio::Tradis::RemoveTags->new(
-        fastqfile   => $fastqfile,
-        tag         => $tag,
-        script_name => 'name_of_script',
-        outfile     => 't/data/output.fastq'
+        fastqfile => $fastqfile,
+        tag       => $tag,
+        mismatch  => 0,
+        outfile   => 't/data/output.fastq'
     ),
     'creating object'
 );
@@ -36,15 +37,33 @@ is(
     'checking file contents'
 );
 
+# Test with 1 mismatch allowed
+ok(
+    $obj = Bio::Tradis::RemoveTags->new(
+        fastqfile => $fastqfile,
+        tag       => $tag,
+        mismatch  => 1,
+        outfile   => 't/data/output.fastq'
+    ),
+    'creating object'
+);
+ok( $obj->remove_tags,        'testing output' );
+ok( -e 't/data/output.fastq', 'checking file existence' );
+is(
+    read_file('t/data/output.fastq'),
+    read_file('t/data/RemoveTags/expected.rm.1mm.caa.fastq'),
+    'checking file contents'
+);
+
 $fastqfile = "t/data/RemoveTags/sample.tna.fastq";
-$tag = "TNAGAGACAG";
+$tag       = "TNAGAGACAG";
 
 ok(
     $obj = Bio::Tradis::RemoveTags->new(
-        fastqfile   => $fastqfile,
-        tag         => $tag,
-        script_name => 'name_of_script',
-        outfile     => 't/data/output.fastq'
+        fastqfile => $fastqfile,
+        tag       => $tag,
+        mismatch  => 0,
+        outfile   => 't/data/output.fastq'
     ),
     'creating object'
 );

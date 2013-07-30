@@ -16,109 +16,128 @@ Then converts to BAM and removes the tmp SAM file.
 
 use Moose;
 use Bio::Seq;
-use VertRes::Parser::bam;
+use Bio::Tradis::Parser::Bam;
 
 has 'bamfile' => ( is => 'rw', isa => 'Str', required => 1 );
-has 'outfile' => ( is => 'rw', isa => 'Str', required => 0 );
+has 'outfile' => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    default  => sub {
+        my ($self) = @_;
+        my $o = $self->bamfile;
+        $o =~ s/\.bam/\.tr\.bam/;
+        return $o;
+    }
+);
 
 sub add_tags_to_seq {
     my ($self) = @_;
 
     #set up BAM parser
-    my $filename      = $self->bamfile;
-    my $pars          = VertRes::Parser::bam->new( file => $filename );
-    my $result_holder = $pars->result_holder();
+    my $filename = $self->bamfile;
+    my $outfile   = $self->outfile;
 
     #open temp file in SAM format and output headers from current BAM to it
-    `samtools view -H $filename > tmp.sam`;
+    print STDERR "Reading BAM header\n";
+    system("samtools view -H $filename > tmp.sam");
     open( TMPFILE, '>>tmp.sam' );
 
-    #set up parser to capture flags and tags
-    $pars->get_fields( 'FLAG', 'tr', 'tq' );
+    #open BAM file
+    print STDERR "Reading BAM file\n";
+    my $pars = Bio::Tradis::Parser::Bam->new( file => $filename );
+	my $read_info = $pars->read_info;
 
-    #open BAM file in SAM format using samtools
-    my @bam = split( "\n", `samtools view $filename` );
-    my $c = 0;
-    while ( $pars->next_result() ) {
-        my $line = $bam[$c];
-        $c++;
+    while ( $pars->next_read ) {
+        my $read_info = $pars->read_info;
+        my $line      = ${$read_info}{READ};
 
-        #split current line into columns and get tags
-        my @cols  = split( " ", $line );
-        my $trtag = $result_holder->{tr};
-        my $tqtag = $result_holder->{tq};
+        # get tags, seq, qual and cigar str
+        my $trtag = ${$read_info}{tr};
+        my $tqtag = ${$read_info}{tq};
+
+        my $seq_tagged   = ${$read_info}{SEQ};
+        my $qual_tagged  = ${$read_info}{QUAL};
+        my $cigar_update = ${$read_info}{CIGAR};
 
         #Check if seq is mapped & rev complement. If so, reformat.
-        my $flag   = $result_holder->{FLAG};
-        my $mapped = $pars->is_mapped($flag);
-        my $rev    = $pars->is_reverse_strand($flag);
+        my $mapped = $pars->is_mapped;
+        my $rev    = $pars->is_reverse;
         if ( $mapped && $rev ) {
+
             # The transposon is not reverse complimented but the genomic read is
-            
+
             # reverse the genomic quality scores.
-            $cols[10] = reverse($cols[10]);
+            $qual_tagged = reverse($qual_tagged);
+
             # Add the transposon quality score on the beginning
-            $cols[10] = $tqtag . $cols[10];
+            $qual_tagged = $tqtag . $qual_tagged;
+
             # Reverse the whole quality string.
-            $cols[10] = reverse($cols[10]);
+            $qual_tagged = reverse($qual_tagged);
+
             # Reverse the genomic sequence
-            my $genomic_seq_obj = Bio::Seq->new( -seq => $cols[9], -alphabet => 'dna' );
+            my $genomic_seq_obj =
+              Bio::Seq->new( -seq => $seq_tagged, -alphabet => 'dna' );
             my $reversed_genomic_seq_obj = $genomic_seq_obj->revcom;
-            
+
             # Add on the tag sequence
-            $cols[9]  = $trtag . $reversed_genomic_seq_obj->seq;
-            # Reverse the tag+genomic sequence to get it back into the correct orentation.
-            my $genomic_and_tag_seq_obj = Bio::Seq->new( -seq => $cols[9], -alphabet => 'dna' );
-            $cols[9] = $genomic_and_tag_seq_obj->revcom->seq;
-            
+            $seq_tagged = $trtag . $reversed_genomic_seq_obj->seq;
+
+  # Reverse the tag+genomic sequence to get it back into the correct orentation.
+            my $genomic_and_tag_seq_obj =
+              Bio::Seq->new( -seq => $seq_tagged, -alphabet => 'dna' );
+            $seq_tagged = $genomic_and_tag_seq_obj->revcom->seq;
+
         }
         else {
-            $cols[9]  = $trtag . $cols[9];
-            $cols[10] = $tqtag . $cols[10];
+			print STDERR "$line\n" if(!defined($tqtag));
+            $seq_tagged  = $trtag . $seq_tagged;
+            $qual_tagged = $tqtag . $qual_tagged;
         }
-        
-        if($mapped)
-        {
-          my $cigar = length($cols[9]);
-          $cols[5] = $cigar . 'M';
+
+        if ($mapped) {
+            my $cigar = length($seq_tagged);
+            $cigar_update = $cigar . 'M';
         }
-        else
-        {
-          $cols[5] = '*';
+        else {
+            $cigar_update = '*';
         }
+
+        # replace updated fields and print to TMPFILE
+        my @cols = split( " ", $line );
+        $cols[5]  = $cigar_update;
+        $cols[9]  = $seq_tagged;
+        $cols[10] = $qual_tagged;
 
         print TMPFILE join( "\t", @cols ) . "\n";
     }
+	$pars->close_file_handle;
+    close TMPFILE;
 
-	close TMPFILE;
+    #convert tmp.sam to bam
+    print STDERR "Convert SAM to BAM\n";
+    system("samtools view -S -b -o $outfile tmp.sam");
 
-    #create new filename for output and convert tmp.sam to bam
-    my $outfile = $filename;
-    if ( defined( $self->outfile ) ) {
-        $outfile = $self->outfile;
-    }
-    else {
-        $outfile =~ s/\.bam/\.tr\.bam/;
-    }
-    `samtools view -S -b -o $outfile tmp.sam`;
-
-    if($self->_number_of_lines_in_bam_file($outfile) != $self->_number_of_lines_in_bam_file($filename ))
+    if ( $self->_number_of_lines_in_bam_file($outfile) !=
+        $self->_number_of_lines_in_bam_file($filename) )
     {
-      die "The number of lines in the input and output files dont match so somethings gone wrong\n";
+        die
+"The number of lines in the input and output files don't match, so something's gone wrong\n";
     }
 
     #remove tmp file
-    `rm tmp.sam`;
-	return 1;
+    unlink("tmp.sam");
+    return 1;
 }
 
-sub _number_of_lines_in_bam_file
-{
-  my ($self, $filename) = @_;
-  open( my $fh, '-|',   "samtools view $filename | wc -l") or die "Couldnt open file :". $filename;
-  my $number_of_lines_in_file = <$fh>;
-  $number_of_lines_in_file =~ s!\W!!gi;
-  return $number_of_lines_in_file;
+sub _number_of_lines_in_bam_file {
+    my ( $self, $filename ) = @_;
+    open( my $fh, '-|', "samtools view $filename | wc -l" )
+      or die "Couldn't open file :" . $filename;
+    my $number_of_lines_in_file = <$fh>;
+    $number_of_lines_in_file =~ s!\W!!gi;
+    return $number_of_lines_in_file;
 }
 
 __PACKAGE__->meta->make_immutable;
