@@ -16,41 +16,55 @@ Outputs a file *.rmtag.fastq unless an out file is specified
 =cut
 
 use Moose;
-use VertRes::Parser::fastq;
+use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'tag'       => ( is => 'rw', isa => 'Str', required => 1 );
-has 'outfile'   => ( is => 'rw', isa => 'Str', required => 0 );
+has 'mismatch'  => ( is => 'rw', isa => 'Int', required => 0 );
+has 'outfile' => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    default  => sub {
+        my ($self) = @_;
+        my $o = $self->bamfile;
+        $o =~ s/\.fastq/\.rmtag\.fastq/;
+        return $o;
+    }
+);
 
 sub remove_tags {
-    my ($self) = @_;
-    my $tag = $self->tag;
+    my ($self)  = @_;
+    my $tag     = uc( $self->tag );
+    my $outfile = $self->outfile;
 
     #set up fastq parser
-    my $filename      = $self->fastqfile;
-    my $pars          = VertRes::Parser::fastq->new( file => $filename );
-    my $result_holder = $pars->result_holder();
+    my $filename = $self->fastqfile;
+    my $pars = Bio::Tradis::Parser::Fastq->new( file => $filename );
 
     # create file handle for output
-    my $outfile = $filename;
-    if ( defined( $self->outfile ) ) {
-        $outfile = $self->outfile;
-    }
-    else {
-        $outfile =~ s/\.fastq/\.rmtag\.fastq/;
-    }
     open( OUTFILE, ">$outfile" );
 
     # loop through fastq
-    while ( $pars->next_result() ) {
-        my $id          = $result_holder->[0];
-        my $seq_string  = $result_holder->[1];
-        my $qual_string = $result_holder->[2];
+    while ( $pars->next_read ) {
+        my @read        = $pars->read_info;
+        my $id          = $read[0];
+        my $seq_string  = $read[1];
+        my $qual_string = $read[2];
 
         # remove the tag
-        my $l = length($tag);
-        if ( $seq_string =~ m/^$tag/ ) {
-            $seq_string =~ s/^$tag//;
+        my $rm = 0;
+        if ( $self->mismatch == 0 ) {
+            if ( $seq_string =~ m/^$tag/ ) { $rm = 1; }
+        }
+        else {
+            my $mm = $self->_tag_mismatch($seq_string);
+            if ( $mm <= $self->mismatch ) { $rm = 1; }
+        }
+
+        if ($rm) {
+            my $l = length($tag);
+            $seq_string  = substr( $seq_string,  $l );
             $qual_string = substr( $qual_string, $l );
         }
 
@@ -58,8 +72,23 @@ sub remove_tags {
         print OUTFILE $seq_string . "\n+\n";
         print OUTFILE $qual_string . "\n";
     }
-	close OUTFILE;
+    close OUTFILE;
     return 1;
+}
+
+sub _tag_mismatch {
+    my ( $self, $seq_string ) = @_;
+    my $tag_len = length( $self->tag );
+
+    my @tag = split( "", $self->tag );
+    my @seq = split( "", substr( $seq_string, 0, $tag_len ) );
+    my $mismatches = 0;
+    foreach my $i ( 0 .. ( $tag_len - 1 ) ) {
+        if ( $tag[$i] ne $seq[$i] ) {
+            $mismatches++;
+        }
+    }
+    return $mismatches;
 }
 
 __PACKAGE__->meta->make_immutable;
