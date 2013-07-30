@@ -13,7 +13,7 @@ BEGIN {
 my $destination_directory_obj = File::Temp->newdir( CLEANUP => 1 );
 my $destination_directory = $destination_directory_obj->dirname();
 
-my ($bamfile, $obj);
+my ( $bamfile, $obj );
 
 $bamfile = "t/data/DetectTags/sample_sm_tr.bam";
 
@@ -36,6 +36,5 @@ ok(
     'testing tag checker - no tradis'
 );
 is( $obj->tags_present, 0, 'testing output' );
-
 
 done_testing();
