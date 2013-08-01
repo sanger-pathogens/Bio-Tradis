@@ -70,15 +70,9 @@ Objects and Methods
 				for the mapping step. Only skip this step if index files already
 				exist. -k and -s options for referencing are calculated based
 				on the length of the reads being mapped:
-				
-```
-				Read length    | k  |  s
-				---------------+----+-----
-				<70            | 13 |  4
-				>70 & <100     | 13 |  6
-				>100           | 20 |  13
-```
-
+				* <70 : -k 13 -s 4
+				* >70 & <100 : -k 13 -s 6
+				* >100 : -k 20 -s 13
 	* `do_mapping` - map `fastqfile` to `reference`. Options used for mapping are:
 				 `-r -1, -x and -y 0.96`
 				
