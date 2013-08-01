@@ -71,11 +71,11 @@ Objects and Methods
 				exist. -k and -s options for referencing are calculated based
 				on the length of the reads being mapped:
 				`
-				Read length    | k  |  s\n
-				---------------+----+-----\n
-				<70            | 13 |  4\n
-				>70 & <100     | 13 |  6\n
-				>100           | 20 |  13\n
+				Read length    | k  |  s<br>
+				---------------+----+-----<br>
+				<70            | 13 |  4<br>
+				>70 & <100     | 13 |  6<br>
+				>100           | 20 |  13<br>
 				`
 	* `do_mapping` - map `fastqfile` to `reference`. Options used for mapping are:
 				 `-r -1, -x and -y 0.96`
