@@ -78,6 +78,7 @@ Objects and Methods
 				>70 & <100     | 13 |  6
 				>100           | 20 |  13
 ```
+
 	* `do_mapping` - map `fastqfile` to `reference`. Options used for mapping are:
 				 `-r -1, -x and -y 0.96`
 				
