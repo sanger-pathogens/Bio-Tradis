@@ -70,7 +70,8 @@ Objects and Methods
 				for the mapping step. Only skip this step if index files already
 				exist. -k and -s options for referencing are calculated based
 				on the length of the reads being mapped:
-```Shell
+				
+```
 				Read length    | k  |  s
 				---------------+----+-----
 				<70            | 13 |  4
@@ -111,6 +112,7 @@ Examples
 ========
 Check whether `file.bam` contains TraDIS tag fields and, if so, adds the tags
 to the reads' sequence and quality strings.
+
 ```Perl
 my $detector = Bio::Tradis::DetectTags(bamfile => 'file.bam');
 if($detector->tags_present){
@@ -119,18 +121,21 @@ if($detector->tags_present){
 ```
 Filter a FastQ file with TraDIS tags attached for those matching the given tag.
 Then, remove the same tag from the start of all sequences in preparation for mapping.
+
 ```Perl
 Bio::Tradis::FilterTags(fastqfile => 'tradis.fastq', tag => 'TAAGAGTGAC', outfile => 'filtered.fastq')->filter_tags;
 Bio::Tradis::RemoveTags(fastqfile => 'filtered.fastq', tag => 'TAAGAGTGAC', outfile => 'notags.fastq')->remove_tags;
 ```
 Create mapping object, index the given reference file and then map the
 fastq file to the reference.
+
 ```Perl
 my $mapping = Bio::Tradis::Map(fastqfile => 'notags.fastq', reference => 'path/to/reference.fa');
 $mapping->index_ref;
 $mapping->do_mapping;
 ```
 Generate insertion site plot for only reads with a mapping score >= 50
+
 ```Perl
 Bio::Tradis::TradisPlot(mappedfile => mapped.bam, mapping_score => 50)->plot;
 ```
