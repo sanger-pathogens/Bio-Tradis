@@ -32,7 +32,7 @@ has '_unzipped_fastq' =>
   ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__unzipped_fastq' );
 has 'tag' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'tagdirection' =>
-  ( is => 'ro', isa => 'Str', required => 1, default => '5' );
+  ( is => 'ro', isa => 'Str', required => 1, default => '3' );
 has 'mismatch' => ( is => 'rw', isa => 'Int', required => 1, default => 0 );
 has 'mapping_score' =>
   ( is => 'ro', isa => 'Int', required => 1, default => 30 );

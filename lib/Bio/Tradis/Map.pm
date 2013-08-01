@@ -20,8 +20,10 @@ use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'reference' => ( is => 'rw', isa => 'Str', required => 1 );
-has 'refname'   => ( is => 'rw', isa => 'Str', required => 0 );
-has 'outfile'   => ( is => 'rw', isa => 'Str', required => 0 );
+has 'refname' =>
+  ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
+has 'outfile' =>
+  ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
 
 sub index_ref {
     my ($self)  = @_;
@@ -56,18 +58,6 @@ sub do_mapping {
     my $outfile = $self->outfile;
 
     system("smalt map -x -r -1 -y 0.96 $refname $fqfile 1> $outfile  2> smalt.stderr");
-	#my $smalt_exit = `tail -1 smalt.stderr`;
-	#if($smalt_exit =~ m/wrong FASTQ\/FASTA format/){
-	#	print STDERR "Problem with file format when mapping. Please check the file.\n";
-	#	unlink('smalt.stderr');
-	#	return 0;
-	#}
-	#else{
-	#	print STDERR `cat smalt.stderr`;
-	#	unlink('smalt.stderr');
-	#	return 1;
-	#}
-	
 	unlink('smalt.stderr');
 	return 1;
 }
