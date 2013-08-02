@@ -19,9 +19,9 @@ use Bio::Tradis::Analysis::InsertSite;
 
 has 'mappedfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'outfile' =>
-  ( is => 'rw', isa => 'Str', required => 0, default => 'tradis.plot' );
+  ( is => 'rw', isa => 'Str', required => 1, default => 'tradis.plot' );
 has 'mapping_score' =>
-  ( is => 'rw', isa => 'Int', required => 0, default => 30 );
+  ( is => 'rw', isa => 'Int', required => 1, default => 30 );
 
 sub plot {
     my ($self) = @_;
