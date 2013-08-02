@@ -122,18 +122,22 @@ Bio::Tradis::FilterTags(
 	fastqfile => 'tradis.fastq',
 	tag => 'TAAGAGTGAC', 
 	outfile => 'filtered.fastq'
-	)->filter_tags;
+)->filter_tags;
 Bio::Tradis::RemoveTags(
 	fastqfile => 'filtered.fastq',
 	tag => 'TAAGAGTGAC', 
 	outfile => 'notags.fastq'
-	)->remove_tags;
+)->remove_tags;
 ```
 Create mapping object, index the given reference file and then map the
 fastq file to the reference. This will produce index files for the reference and a mapped SAM file named `tradis_mapped.sam`.
 
 ```Perl
-my $mapping = Bio::Tradis::Map(fastqfile => 'notags.fastq', reference => 'path/to/reference.fa', outfile => 'tradis_mapped.sam');
+my $mapping = Bio::Tradis::Map(
+	fastqfile => 'notags.fastq', 
+	reference => 'path/to/reference.fa', 
+	outfile => 'tradis_mapped.sam'
+);
 $mapping->index_ref;
 $mapping->do_mapping;
 ```
@@ -145,7 +149,12 @@ Bio::Tradis::TradisPlot(mappedfile => 'mapped.bam', mapping_score => 50)->plot;
 Run complete analysis on fastq files listed in `file.list`. This includes filtering and removing the tags allowing one mismatch to the given tag, mapping, BAM sorting and creation of an insertion site plot and stats file for each file listed in `file.list`.
 
 ```Perl
-Bio::Tradis::RunTradis(fastqfile => 'file.list', tag => 'GTTGAGGCCA', reference => 'path/to/reference.fa', mismatch => 1)->run_tradis;
+Bio::Tradis::RunTradis(
+	fastqfile => 'file.list', 
+	tag => 'GTTGAGGCCA', 
+	reference => 'path/to/reference.fa', 
+	mismatch => 1
+)->run_tradis;
 ```
 
 
