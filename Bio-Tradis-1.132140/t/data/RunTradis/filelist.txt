@@ -1,2 +1,0 @@
-test.tagged.fastq
-test2.tagged.fastq
