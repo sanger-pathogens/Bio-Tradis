@@ -272,10 +272,9 @@ sub _make_plot {
     my $ref                   = $self->reference;
     my $outfile               = $self->outfile;
     my $tr_d                  = $self->tagdirection;
-
+	
     my $plot = Bio::Tradis::TradisPlot->new(
         mappedfile    => "$destination_directory/mapped.sort.bam",
-        reference     => "$ref",
         mapping_score => $self->mapping_score,
         outfile       => "$destination_directory/$outfile"
     )->plot;
@@ -284,6 +283,7 @@ sub _make_plot {
     if ( $self->tagdirection eq '5' ) {
         $self->_reverse_plots;
     }
+	return 1;
 }
 
 sub _reverse_plots {
