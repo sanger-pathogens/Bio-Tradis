@@ -47,7 +47,7 @@ sub run {
     }
 	
 	my $tagcheck = Bio::Tradis::DetectTags->new(bamfile => $self->bamfile);
-	$tagcheck->tags_present;
+	print $tagcheck->tags_present . "\n";
 }
 
 sub usage_text {
