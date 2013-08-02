@@ -156,5 +156,20 @@ Bio::Tradis::RunTradis(
 	mismatch => 1
 )->run_tradis;
 ```
+Scripts
+=======
+Executable scripts to carry out all of the listed functions are also available in the `bin`:
+
+* `check_tradis_tags`
+* `add_tradis_tags`
+* `filter_tradis_tags`
+* `remove_tradis_tags`
+* `tradis_plot`
+* `bacteria_tradis`
+
+A help menu for each script can be accessed by running the script with no parameters
+
+
+
 
 
