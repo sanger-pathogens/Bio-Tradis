@@ -1,0 +1,45 @@
+#!/usr/bin/env perl
+
+package Bio::Tradis::Bin::DetectTags;
+
+# ABSTRACT: check if tr tag is present
+# PODNAME: check_tags
+
+
+BEGIN { unshift( @INC, '../lib' ) }
+BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '/software/pathogen/internal/prod/lib/' ) }
+
+use Bio::Tradis::CommandLine::CheckTags;
+
+Bio::Tradis::CommandLine::CheckTags->new(args => \@ARGV, script_name => $0)->run;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+check_tags - check if tr tag is present
+
+=head1 VERSION
+
+version 1.132140
+
+=head1 SYNOPSIS
+
+Checks the presence of tr/tq tags in a given BAM file
+
+=head1 AUTHOR
+
+Carla Cummins <cc21@sanger.ac.uk>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2013 by Wellcome Trust Sanger Institute.
+
+This is free software, licensed under:
+
+  The GNU General Public License, Version 3, June 2007
+
+=cut
