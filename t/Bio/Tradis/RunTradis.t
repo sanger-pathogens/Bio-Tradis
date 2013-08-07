@@ -80,7 +80,7 @@ ok( -e 	"$destination_directory/mapped.sort.bam.bai",
 
 # Plot
 ok( $obj->_make_plot, 'testing plotting' );
-ok( -e 'test.plot.AE004091.insert_site_plot.gz',
+ok( -e "$destination_directory/test.plot.AE004091.insert_site_plot.gz",
     'checking plot file existence' );
 system(
 "gunzip -c $destination_directory/test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped"

@@ -6,7 +6,7 @@ package Bio::Tradis::RunTradis;
 
 Takes a fastq file with tags already attached, filters the tags matching user input,
 removes the tags, maps to a reference (.fa) and generates insertion site plots for use in
-Artemis
+Artemis (or other genome browsers), mapped BAM files for each lane and a statistical summary of the analysis.
 
    use Bio::Tradis::RunTradis;
    
@@ -17,6 +17,31 @@ Artemis
 					tagdirection => '5'|'3'
    );
    $pipeline->run_tradis();
+
+=head1 PARAMETERS
+
+=head2 Required
+
+=over
+=item * C<fastqfile> - file containing a list of fastqs (gzipped or raw) to run the 
+			complete analysis on. This includes all (including 
+			intermediary format conversion and sorting) steps starting from
+			filtering.
+=item * C<tag> - TraDIS tag to filter and then remove
+=item * C<reference> - path to/name of reference genome in fasta format (.fa)
+=back
+
+=head2 Optional
+
+=over
+=item * C<mismatch> - number of mismatches to allow when filtering/removing the tag. Default = 0
+=item * C<tagdirection> - direction of the tag, 5' or 3'. Default = 3
+=item * C<mapping_score> - cutoff value for mapping score when creating insertion site plots. Default = 30
+=back
+
+=head1 METHODS
+
+C<run_tradis> - run complete analysis with given parameters
 
 =cut
 
@@ -32,7 +57,7 @@ has '_unzipped_fastq' =>
   ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__unzipped_fastq' );
 has 'tag' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'tagdirection' =>
-  ( is => 'ro', isa => 'Str', required => 1, default => '5' );
+  ( is => 'ro', isa => 'Str', required => 1, default => '3' );
 has 'mismatch' => ( is => 'rw', isa => 'Int', required => 1, default => 0 );
 has 'mapping_score' =>
   ( is => 'ro', isa => 'Int', required => 1, default => 30 );
@@ -272,10 +297,9 @@ sub _make_plot {
     my $ref                   = $self->reference;
     my $outfile               = $self->outfile;
     my $tr_d                  = $self->tagdirection;
-
+	
     my $plot = Bio::Tradis::TradisPlot->new(
         mappedfile    => "$destination_directory/mapped.sort.bam",
-        reference     => "$ref",
         mapping_score => $self->mapping_score,
         outfile       => "$destination_directory/$outfile"
     )->plot;
@@ -284,6 +308,7 @@ sub _make_plot {
     if ( $self->tagdirection eq '5' ) {
         $self->_reverse_plots;
     }
+	return 1;
 }
 
 sub _reverse_plots {
