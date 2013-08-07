@@ -2,6 +2,10 @@ package Bio::Tradis::DetectTags;
 
 # ABSTRACT: Detect tr tags in BAM file
 
+=head1 NAME
+
+Bio::Tradis::DetectTags
+
 =head1 SYNOPSIS
 
 Detects presence of tr/tq tags in BAM files from Tradis analyses
@@ -9,6 +13,16 @@ Detects presence of tr/tq tags in BAM files from Tradis analyses
    
    my $pipeline = Bio::Tradis::DetectTags->new(bamfile => 'abc');
    $pipeline->tags_present();
+
+=head1 PARAMETERS
+
+=head2 Required
+
+C<bamfile> - path to/name of file to check
+
+=head1 METHODS
+
+C<tags_present> - returns true if TraDIS tags are detected in C<bamfile>
 
 =cut
 

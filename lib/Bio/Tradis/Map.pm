@@ -13,6 +13,42 @@ Maps given fastq files to ref.
    $pipeline->index_ref();
    $pipeline->do_mapping();
 
+=head1 PARAMETERS
+
+=head2 Required
+
+=over
+=item * C<fastqfile> - path to/name of file containing reads to map to the reference
+=item * C<reference> - path to/name of reference genome in fasta format (.fa)
+=back
+
+=head2 Optional
+
+=over
+=item * C<refname> - name to assign to the reference index files. Default = ref.index
+=item * C<outfile> -  name to assign to the mapped SAM file. Default = mapped.sam
+=back
+
+=head1 METHODS
+
+=over
+=item * C<index_ref> - create index files of the reference genome. These are required
+			for the mapping step. Only skip this step if index files already
+			exist. -k and -s options for referencing are calculated based
+			on the length of the reads being mapped as per table:
+=begin html
+<table>
+<tr><th>Read length</th><th>k</th><th>s</th></tr>
+<tr><td><70</td><td>13</td><td>4<td></tr>
+<tr><td>>70 and <100</td><td>13</td><td>6<td></tr>
+<tr><td>>100</td><td>20</td><td>6<td></tr>
+</table>
+=end html
+=item * C<do_mapping> - map C<fastqfile> to C<reference>. Options used for mapping are: C<-r -1 -x -y 0.96>
+=back
+
+For more information on the mapping and indexing options discussed here, see the L<SMALT manual|ftp://ftp.sanger.ac.uk/pub4/resources/software/smalt/smalt-manual-0.7.4.pdf>
+
 =cut
 
 use Moose;
@@ -20,8 +56,10 @@ use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'reference' => ( is => 'rw', isa => 'Str', required => 1 );
-has 'refname'   => ( is => 'rw', isa => 'Str', required => 0 );
-has 'outfile'   => ( is => 'rw', isa => 'Str', required => 0 );
+has 'refname' =>
+  ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
+has 'outfile' =>
+  ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
 
 sub index_ref {
     my ($self)  = @_;
@@ -56,18 +94,6 @@ sub do_mapping {
     my $outfile = $self->outfile;
 
     system("smalt map -x -r -1 -y 0.96 $refname $fqfile 1> $outfile  2> smalt.stderr");
-	#my $smalt_exit = `tail -1 smalt.stderr`;
-	#if($smalt_exit =~ m/wrong FASTQ\/FASTA format/){
-	#	print STDERR "Problem with file format when mapping. Please check the file.\n";
-	#	unlink('smalt.stderr');
-	#	return 0;
-	#}
-	#else{
-	#	print STDERR `cat smalt.stderr`;
-	#	unlink('smalt.stderr');
-	#	return 1;
-	#}
-	
 	unlink('smalt.stderr');
 	return 1;
 }
