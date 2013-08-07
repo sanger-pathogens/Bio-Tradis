@@ -5,6 +5,8 @@ InsertSite.pm   - Take in a bam file and plot the start position of each read
 
 =head1 SYNOPSIS
 
+Takes in a mapped BAM file and plot the start position of each read
+
 use Bio::Tradis::Analysis::InsertSite;
 my $insertsite_plots_from_bam = Bio::Tradis::Analysis::InsertSite->new(
    filename => 'my_file.bam',
