@@ -148,14 +148,14 @@ Run a TraDIS analysis. This involves:
 4: creating an insertion site plot
 5: creating a stats summary
 
-Usage: run_tradis [options]
+Usage: bacteria_tradis [options]
 
 Options:
 -f  : list of fastq files with tradis tags attached
 -t  : tag to search for
+-r  : reference genome in fasta format (.fa)
 -td : tag direction - 3 or 5 (optional. default = 3)
 -mm : number of mismatches allowed when matching tag (optional. default = 0)
--r  : reference genome in fasta format (.fa)
 -m  : mapping quality cutoff score (optional. default = 30)
 
 USAGE
