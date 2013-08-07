@@ -6,12 +6,32 @@ package Bio::Tradis::FilterTags;
 
 Reads in a fastq file with tradis tags already attached to the start of the sequence
 Filters reads that contain the provided tag
-Outputs a file *.tag.fastq unless an out file is specified
+Outputs a file *.tag.fastq unless an alternative outfile name is specified
 
    use Bio::Tradis::FilterTags;
    
    my $pipeline = Bio::Tradis::FilterTags->new(fastqfile => 'abc', tag => 'abc');
    $pipeline->filter_tags();
+
+=head1 PARAMETERS
+
+=head2 Required
+
+=over
+=item * C<fastqfile> - path to/name of file to filter. This may be a gzipped fastq file, in which case a temporary unzipped version is used and removed on completion.
+=item * C<tag> - TraDIS tag to match
+=back
+
+=head2 Optional
+
+=over
+=item * C<mismatch> - number of mismatches to allow when matching the tag. Default = 0
+=item * C<outfile> - output file name. Defaults to C<file.tag.fastq> for an input file named C<file.fastq>
+=back
+
+=head1 METHODS
+
+C<filter_tags> - outputs all reads containing the provided tag to C<outfile>
 
 =cut
 
