@@ -1,16 +1,43 @@
 package Bio::Tradis::AddTagsToSeq;
 
-# ABSTRACT: Add tags to the start of the sequences
+# ABSTRACT: Takes a BAM file and creates a new BAM with tr and tq tags added to the sequence and quality strings.
+
+=head1 NAME
+
+Bio::Tradis::AddTagsToSeq
 
 =head1 SYNOPSIS
 
-Parses BAM files, adds given tags to the start of the sequence and creates temporary SAM file. 
-Then converts to BAM and removes the tmp SAM file.
+Bio::Tradis::AddTagsToSeq parses BAM files, adds given tags to the start of the sequence and creates temporary SAM file,
+which is then converted to BAM
 
    use Bio::Tradis::AddTagsToSeq;
    
    my $pipeline = Bio::Tradis::AddTagsToSeq->new(bamfile => 'abc');
    $pipeline->add_tags_to_seq();
+
+=head1 PARAMETERS
+
+=head2 Required
+
+C<bamfile> - path to/name of file containing reads and tags
+
+=head2 Optional
+
+C<outfile> - name to assign to output BAM. Defaults to C<file.tr.bam> for an input file named C<file.bam>
+
+=head1 METHODS
+
+C<add_tags_to_seq> - add TraDIS tags to reads. For unmapped reads, the tag
+				  is added to the start of the read sequence and quality
+				  strings. For reads where the flag indicates that it is
+				  mapped and reverse complemented, the reverse complemented
+				  tags are added to the end of the read strings.
+				  This is because many conversion tools (e.g. picard) takes
+				  the read orientation into account and will re-reverse the
+				  mapped/rev comp reads during conversion, leaving all tags
+				  in the correct orientation at the start of the sequences
+				  in the resulting FastQ file.
 
 =cut
 

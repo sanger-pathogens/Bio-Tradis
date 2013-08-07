@@ -43,7 +43,7 @@ Objects and Methods
 	* `tag`       - TraDIS tag to match
 * Optional parameters:
 	* `mismatch` - number of mismatches to allow when matching the tag. Default = 0
-	* `outfile`  - defaults to `file.tag.fastq` for and input file named `file.fastq`
+	* `outfile`  - defaults to `file.tag.fastq` for an input file named `file.fastq`
 * Methods:
 	* `filter_tags` - output all reads containing the tag to `outfile`
 	

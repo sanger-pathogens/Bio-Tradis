@@ -1,3 +1,9 @@
+=head1 SYNOPSIS
+
+Basic exception catcher
+
+=cut
+
 package Bio::Tradis::Analysis::Exceptions;
 
 use Exception::Class (
