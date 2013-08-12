@@ -386,7 +386,7 @@ sub _stats {
         $stats .= "$uis_per_seqlen,";
     }
     $stats .= "$total_uis,";
-    my $t_uis_p_l = $total_uis / $total_seq_len;
+    my $t_uis_p_l = $total_seq_len / $total_uis;
     $stats .= "$t_uis_p_l\n";
     print { $self->_stats_handle } $stats;
 }
@@ -405,10 +405,10 @@ sub _write_stats_header {
     print { $self->_stats_handle } join( ",", @fields ) . ",";
     foreach my $sn (@seqnames) {
         print { $self->_stats_handle } "Unique Insertion Sites : $sn,";
-        print { $self->_stats_handle } "UIS/Seq Len : $sn,";
+        print { $self->_stats_handle } "Seq Len/UIS : $sn,";
     }
     print { $self->_stats_handle } "Total Unique Insertion Sites,";
-    print { $self->_stats_handle } "Total UIS/Total Seq Len\n";
+    print { $self->_stats_handle } "Total Seq Len/Total UIS\n";
 }
 
 sub _plotname {

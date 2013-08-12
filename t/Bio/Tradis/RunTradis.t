@@ -80,7 +80,7 @@ ok( -e "$destination_directory/mapped.sort.bam.bai",
 
 #Bamcheck
 ok( $obj->_bamcheck, 'testing bamcheck' );
-ok( -e "$destination_directory/mapped.sort.bamcheck",
+ok( -e "$destination_directory/mapped.bamcheck",
     'checking bamcheck file existence' );
 
 # Plot
