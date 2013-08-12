@@ -31,7 +31,7 @@ ok(
         reference     => $ref,
         tag           => $tag,
         outfile       => $outfile,
-		_destination  => $destination_directory_obj->dirname,
+        _destination  => $destination_directory_obj->dirname,
         _stats_handle => $stats_handle
     ),
     'creating object'
@@ -75,8 +75,13 @@ ok( -e "$destination_directory/mapped.bam", 'checking BAM existence' );
 ok( $obj->_sort_bam, 'testing BAM sorting' );
 ok( -e "$destination_directory/mapped.sort.bam",
     'checking sorted BAM existence' );
-ok( -e 	"$destination_directory/mapped.sort.bam.bai",
-	    'checking indexed BAM existence' );
+ok( -e "$destination_directory/mapped.sort.bam.bai",
+    'checking indexed BAM existence' );
+
+#Bamcheck
+ok( $obj->_bamcheck, 'testing bamcheck' );
+ok( -e "$destination_directory/mapped.sort.bamcheck",
+    'checking bamcheck file existence' );
 
 # Plot
 ok( $obj->_make_plot, 'testing plotting' );
@@ -131,7 +136,8 @@ ok( $obj->run_tradis, 'testing complete analysis with mismatch' );
 ok( -e 'test.plot.AE004091.insert_site_plot.gz',
     'checking plot file existence' );
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
-system("gunzip -c t/data/RunTradis/expected.1mm.plot.gz > expected.plot.unzipped");
+system(
+    "gunzip -c t/data/RunTradis/expected.1mm.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
     read_file('expected.plot.unzipped'),
@@ -161,8 +167,13 @@ ok(
 );
 
 ok( $obj->run_tradis, 'testing complete analysis with gzipped data' );
-ok( -e 'test.plot.AE004091.insert_site_plot.gz',
-    'checking plot file existence (gzipped data)' );
+ok(
+    -e 'test.plot.AE004091.insert_site_plot.gz',
+    'checking plot file existence (gzipped data)'
+);
+ok( -e 'test.plot.mapped.bam', 'checking mapped bam existence');
+ok( -e 'test.plot.mapped.bam.bai', 'checking indexed bam file');
+
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
 system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
 is(
