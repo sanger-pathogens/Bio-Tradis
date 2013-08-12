@@ -190,6 +190,7 @@ sub run_tradis {
       "..........Step 3.5: Convert output from SAM to BAM and sort\n";
     $self->_sam2bam;
     $self->_sort_bam;
+	$self->_bamcheck;
 
     # Step 5: Generate plot
     print STDERR "..........Step 4: Generate plot\n";
@@ -207,6 +208,7 @@ sub run_tradis {
     system(
 "mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai"
     );
+	system("mv $destination_directory/mapped.bamcheck \./$outfile.mapped.bamcheck");
 
     # Clean up
     print STDERR "..........Clean up\n";
@@ -218,7 +220,7 @@ sub run_tradis {
     unlink("$destination_directory/ref.index.smi");
     unlink("$destination_directory/mapped.bam");
     unlink("$destination_directory/tmp.plot");
-	unlink($self->_unzipped_fastq) if ($self->_is_gz);
+    unlink( $self->_unzipped_fastq ) if ( $self->_is_gz );
 
     File::Temp::cleanup();
 
@@ -291,13 +293,21 @@ sub _sort_bam {
     return 1;
 }
 
+sub _bamcheck {
+	my ($self) = @_;
+    my $destination_directory = $self->_destination;
+
+	system("bamcheck $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck");
+	return 1;
+}
+
 sub _make_plot {
     my ($self)                = @_;
     my $destination_directory = $self->_destination;
     my $ref                   = $self->reference;
     my $outfile               = $self->outfile;
     my $tr_d                  = $self->tagdirection;
-	
+
     my $plot = Bio::Tradis::TradisPlot->new(
         mappedfile    => "$destination_directory/mapped.sort.bam",
         mapping_score => $self->mapping_score,
@@ -308,7 +318,7 @@ sub _make_plot {
     if ( $self->tagdirection eq '5' ) {
         $self->_reverse_plots;
     }
-	return 1;
+    return 1;
 }
 
 sub _reverse_plots {
@@ -365,14 +375,13 @@ sub _stats {
         system(
 "gunzip -c $destination_directory/$plotname > $destination_directory/tmp.plot"
         );
-        my $uis =
-`grep -v "^0" $destination_directory/tmp.plot | sort | uniq | wc | awk '{ print \$1 }'`;
+        my $uis = `grep -c -v "0 0" $destination_directory/tmp.plot`;
         chomp($uis);
         $total_uis += $uis;
         $stats .= "$uis,";
         my $seqlen = ${$seq_info}{$si};
         $total_seq_len += $seqlen;
-        my $uis_per_seqlen = $uis / $seqlen;
+        my $uis_per_seqlen = $seqlen / $uis;
         chomp($uis_per_seqlen);
         $stats .= "$uis_per_seqlen,";
     }
