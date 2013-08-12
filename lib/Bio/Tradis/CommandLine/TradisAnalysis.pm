@@ -70,17 +70,29 @@ sub run {
         $self->usage_text;
     }
 
-    #parse list of files and run pipeline for each one
-    open( FILES, "<", $self->fastqfile );
+    #parse list of files and run pipeline for each one if they all exist
+	my $fq = $self->fastqfile;
+    open( FILES, "<", $fq );
     my @filelist = <FILES>;
     my $file_dir = $self->get_file_dir;
-    foreach my $f (@filelist) {
-        chomp($f);
-		if( substr($f, 0, 1) ne "/"){
-			$f = "$file_dir/$f";
+	#check files exist before running
+	my $line_no = 0;
+	foreach my $f1 (@filelist){
+		chomp($f1);
+		$line_no++;
+		unless (-e "$file_dir/$f1"){
+			die "File $file_dir/$f1 does not exist ($fq, line $line_no)\n";
+		}
+	}
+	
+	#if all files exist, continue with analysis
+    foreach my $f2 (@filelist) {
+        chomp($f2);
+		if( substr($f2, 0, 1) ne "/"){
+			$f2 = "$file_dir/$f2";
 		}
         my $analysis = Bio::Tradis::RunTradis->new(
-            fastqfile      => $f,
+            fastqfile      => $f2,
             tag            => $self->tag,
             tagdirection   => $self->tagdirection,
             mismatch       => $self->mismatch,
