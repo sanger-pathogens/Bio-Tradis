@@ -72,28 +72,29 @@ sub run {
 
     #parse list of files and run pipeline for each one if they all exist
 	my $fq = $self->fastqfile;
-    open( FILES, "<", $fq );
+    open( FILES, "<", $fq ) or die "Cannot find $fq";
     my @filelist = <FILES>;
-	my $file_dir = "";
-	unless($fq =~ /^\//){$file_dir = $self->get_file_dir;}
+	my $file_dir = $self->get_file_dir;
 	#check files exist before running
 	my $line_no = 0;
+	my $full_path;
 	foreach my $f1 (@filelist){
 		chomp($f1);
 		$line_no++;
-		unless (-e "$file_dir/$f1"){
-			die "File $file_dir/$f1 does not exist ($fq, line $line_no)\n";
+		if($f1 =~ /^\//){$full_path = $f1;}
+		else{$full_path = "$file_dir/$f1";}
+		unless (-e $full_path){
+			die "File $full_path does not exist ($fq, line $line_no)\n";
 		}
 	}
 	
 	#if all files exist, continue with analysis
     foreach my $f2 (@filelist) {
         chomp($f2);
-		if( substr($f2, 0, 1) ne "/"){
-			$f2 = "$file_dir/$f2";
-		}
+		if($f2 =~ /^\//){$full_path = $f2;}
+		else{$full_path = "$file_dir/$f2";}
         my $analysis = Bio::Tradis::RunTradis->new(
-            fastqfile      => $f2,
+            fastqfile      => $full_path,
             tag            => $self->tag,
             tagdirection   => $self->tagdirection,
             mismatch       => $self->mismatch,
@@ -105,6 +106,7 @@ sub run {
     }
 	$self->_tidy_stats;
     close(FILES);
+	#$self->_combine_plots;
 }
 
 sub _build__stats_handle {
@@ -143,6 +145,13 @@ sub _tidy_stats {
 	system("mv tmp.stats $filelist");
 }
 
+sub _combine_plots{
+	my ($self) = @_;
+    my $filelist = $self->fastqfile;
+	
+	return 1;
+}
+
 sub get_file_dir {
     my ($self) = @_;
     my $fq = $self->fastqfile;
@@ -151,6 +160,7 @@ sub get_file_dir {
     pop(@dirs);
     return join( '/', @dirs );
 }
+
 
 sub usage_text {
     print <<USAGE;
