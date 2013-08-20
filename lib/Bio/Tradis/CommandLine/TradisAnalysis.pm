@@ -74,7 +74,8 @@ sub run {
 	my $fq = $self->fastqfile;
     open( FILES, "<", $fq );
     my @filelist = <FILES>;
-    my $file_dir = $self->get_file_dir;
+	my $file_dir = "";
+	unless($fq =~ /^\//){$file_dir = $self->get_file_dir;}
 	#check files exist before running
 	my $line_no = 0;
 	foreach my $f1 (@filelist){
