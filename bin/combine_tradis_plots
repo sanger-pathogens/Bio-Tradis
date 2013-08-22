@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+
+package Bio::Tradis::Bin::CombineTradisPlots;
+
+# ABSTRACT: Combine multiple plotfiles and generate updated statistics for the combined files
+
+# PODNAME: combine_tradis_plot
+
+=head1 SYNOPSIS
+
+Takes a tab-delimited file with an ID as the first column followed by 
+a list of plotfiles to combine per row. The ID will be used to name the new
+plotfile and as an identifier in the stats file, so ensure these are unique.
+
+=cut
+
+BEGIN { unshift( @INC, '../lib' ) }
+BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '/software/pathogen/internal/prod/lib/' ) }
+
+use Bio::Tradis::CommandLine::PlotCombine;
+
+Bio::Tradis::CommandLine::PlotCombine->new(args => \@ARGV, script_name => $0)->run;
