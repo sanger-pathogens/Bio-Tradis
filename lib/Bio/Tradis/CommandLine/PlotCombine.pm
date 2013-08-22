@@ -83,7 +83,7 @@ will produce
 tradis2.insertion_site_plot.gz, tradis3.insertion_site_plot.gz
 2. a stats file named plots_to_combine.stats
 
-Usage: combine_tradis_plots -p plots.txt [options]
+Usage: combine_tradis_plots -p plots.txt
 
 Options:
 -p|plotfile  : file with plots to be combined
