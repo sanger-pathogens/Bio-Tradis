@@ -313,9 +313,9 @@ sub _make_plot {
         mapping_score => $self->mapping_score,
         outfile       => "$destination_directory/$outfile"
     )->plot;
-
     # if tag direction is 5, reverse plot columns
     if ( $self->tagdirection eq '5' ) {
+		print STDERR "Tag direction = 5. Reversing plot..\n";
         $self->_reverse_plots;
     }
     return 1;
@@ -327,8 +327,11 @@ sub _reverse_plots {
     my $outfile               = $self->outfile;
     my @seqnames              = keys %{ $self->_sequence_info };
 
-    foreach my $sn (@seqnames) {
-        my $plotname = $self->_plotname($sn);
+	my @current_plots = glob("$destination_directory/$outfile.*.insert_site_plot.gz");
+
+    foreach my $plotname (@current_plots) {
+		print STDERR "Reversing $plotname\n";
+        #my $plotname = $self->_plotname($sn);
         system("gunzip -c $plotname > $destination_directory/tmp.plot");
         system(
 "awk '{ t = \$1; \$1 = \$2; \$2 = t; print; }' $destination_directory/tmp.plot > rv_plot"
@@ -381,7 +384,8 @@ sub _stats {
         $stats .= "$uis,";
         my $seqlen = ${$seq_info}{$si};
         $total_seq_len += $seqlen;
-        my $uis_per_seqlen = $seqlen / $uis;
+        my $uis_per_seqlen = "NaN";
+		$uis_per_seqlen = $seqlen / $uis if($uis > 0);
         chomp($uis_per_seqlen);
         $stats .= "$uis_per_seqlen,";
     }
