@@ -110,11 +110,8 @@ sub combine {
 
     system("mkdir combined") unless ( -d "combined" );
     while ( my $line = <$plot_handle> ) {
-
         #parse line into hash. keys = id, len, files. unzips files if needed.
         my %plothash = $self->_parse_line($line);
-
-		print Dumper \%plothash;
 
         my $id       = $plothash{'id'};
 
@@ -129,7 +126,7 @@ sub combine {
             @currentlines = ();
             foreach my $curr_fh ( @{ $plothash{'files'} } ) {
                 $this_line = <$curr_fh>;
-                push( @currentlines, $this_line );
+                push( @currentlines, $this_line ) if($line ne "");
             }
             my $comb_line = $self->_combine_lines( \@currentlines );
             $comb_plot_cont .= "$comb_line\n";
@@ -187,6 +184,10 @@ sub _combine_lines {
 
     my @totals = ( 0, 0 );
     foreach my $l ( @{$lines} ) {
+		if(!defined($l)){
+			return "";
+			next;
+		}
         my @cols = split( /\s+/, $l );
         $totals[0] += $cols[0];
         $totals[1] += $cols[1];
