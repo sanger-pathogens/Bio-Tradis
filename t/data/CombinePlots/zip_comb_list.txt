@@ -1,0 +1,1 @@
+zip_combined	sample1.sm.plot.gz	sample2.sm.plot.gz

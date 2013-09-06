@@ -18,7 +18,7 @@ my ( $plotfile, $obj );
 
 $plotfile = "t/data/CombinePlots/comb_sample.txt";
 
-ok( $obj = Bio::Tradis::CombinePlots->new( plotfile => $plotfile ),
+ok( $obj = Bio::Tradis::CombinePlots->new( plotfile => $plotfile, _destination  => $destination_directory ),
     'creating object' );
 
 ok( $obj->combine, 'combining plots' );
@@ -53,6 +53,30 @@ is(
 	'checking stats file contents'
 );
 
+#check with gzipped plots
+$plotfile = "t/data/CombinePlots/zip_comb_list.txt";
+
+ok( $obj = Bio::Tradis::CombinePlots->new( plotfile => $plotfile, _destination  => $destination_directory ),
+    'creating object' );
+
+ok( $obj->combine, 'combining plots' );
+ok(
+    -e 'combined/zip_combined.insert_site_plot.gz',
+    'checking first combined plot file exists'
+);
+system("gunzip -c combined/zip_combined.insert_site_plot.gz > zip_combined.test.plot");
+is(
+    read_file('zip_combined.test.plot'),
+    read_file('t/data/CombinePlots/zip_comb_exp.plot'),
+    'checking zipped file contents'
+);
+is(
+	read_file('zip_comb_list.stats'),
+	read_file('t/data/CombinePlots/zip_comb_exp.stats'),
+	'checking stats file contents'
+);
+
 unlink('first.test.plot');
 unlink('second.test.plot');
+unlink('zip_combined.test.plot');
 done_testing();
