@@ -35,14 +35,16 @@ tradis2.insertion_site_plot.gz, tradis3.insertion_site_plot.gz
 use Moose;
 use strict;
 use warnings;
+use File::Temp;
+use Data::Dumper;
 
 has 'plotfile' => ( is => 'rw', isa => 'Str', required => 1 );
-has '_plot_hash' => (
-    is       => 'rw',
-    isa      => 'HashRef',
+has '_plot_handle' => (
+    is       => 'ro',
+    isa      => 'FileHandle',
     required => 0,
     lazy     => 1,
-    builder  => '_build__plot_hash'
+    builder  => '_build__plot_handle'
 );
 has '_stats_handle' => (
     is       => 'ro',
@@ -51,20 +53,6 @@ has '_stats_handle' => (
     lazy     => 1,
     builder  => '_build__stats_handle'
 );
-has '_filehandle_hash' => (
-    is       => 'rw',
-    isa      => 'HashRef',
-    required => 0,
-    lazy     => 1,
-    builder  => '_build__filehandle_hash'
-);
-has '_file_length_hash' => (
-    is       => 'rw',
-    isa      => 'HashRef',
-    required => 0,
-    lazy     => 1,
-    builder  => '_build__file_length_hash'
-);
 has '_ordered_plot_ids' => (
     is       => 'rw',
     isa      => 'ArrayRef',
@@ -72,21 +60,17 @@ has '_ordered_plot_ids' => (
     lazy     => 1,
     builder  => '_build__ordered_plot_ids'
 );
+has '_destination' => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    lazy     => 1,
+    builder  => '_build__destination'
+);
 
-sub _build__plot_hash {
-    my ($self) = @_;
-    my $plotfile = $self->plotfile;
-
-    my %plot_hash;
-    open( my $plots, $plotfile ) or die "Cannot find $plotfile";
-    while ( my $line = <$plots> ) {
-        my @fields     = split( /\s+/, $line );
-        my $plot_id    = shift(@fields);
-        my @full_paths = @{ $self->_abs_path_list( \@fields ) };
-        $plot_hash{$plot_id} = [@full_paths];
-    }
-    close($plots);
-    return \%plot_hash;
+sub _build__destination {
+    my $tmp_dir = File::Temp->newdir( CLEANUP => 0 );
+    return $tmp_dir->dirname;
 }
 
 sub _build__stats_handle {
@@ -99,77 +83,51 @@ sub _build__stats_handle {
     return $stats;
 }
 
-sub _build__filehandle_hash {
+sub _build__plot_handle {
     my ($self) = @_;
-    my $plots = $self->_plot_hash;
-
-    my %fh_hash;
-    foreach my $key ( keys %{$plots} ) {
-
-        #open a filehandle for each file to be combined
-        my @filehandles;
-        foreach my $p ( @{ ${$plots}{$key} } ) {
-            open( my $p_fh, $p );
-            push( @filehandles, $p_fh );
-        }
-        $fh_hash{$key} = [@filehandles];
-    }
-    return \%fh_hash;
+	my $plot = $self->plotfile;
+    open( my $plot_h, "<", $plot );
+    return $plot_h;
 }
 
-sub _build__file_length_hash {
+sub _build__ordered_plot_ids {
     my ($self) = @_;
-    my $plots = $self->_plot_hash;
-
-    my %lens_hash;
-    foreach my $key ( keys %{$plots} ) {
-        my ( $len, $wc );
-        foreach my $p ( @{ ${$plots}{$key} } ) {
-            $wc = `wc $p | awk '{print \$1}'`;
-            chomp $wc;
-            if ( defined $len && $wc != $len ) {
-                die "Input files for ID $key are not of equal lengths\n";
-            }
-            elsif ( !defined $len ) {
-                $len = $wc;
-            }
-        }
-        $lens_hash{$key} = $len;
-    }
-    return \%lens_hash;
-}
-
-sub _build__ordered_plot_ids{
-	my ($self) = @_;
     my $filelist = $self->plotfile;
 
-	my @id_order = `awk '{print \$1}' $filelist`;
-	foreach my $id (@id_order){
-		chomp($id);
-	}
-	return \@id_order;
+    my @id_order = `awk '{print \$1}' $filelist`;
+    foreach my $id (@id_order) {
+        chomp($id);
+    }
+    return \@id_order;
 }
 
 sub combine {
-    my ($self) = @_;
-    my $fhs    = $self->_filehandle_hash;
-    my $lens   = $self->_file_length_hash;
-	my $ordered_keys = $self->_ordered_plot_ids;
+    my ($self)       = @_;
+    my $ordered_keys = $self->_ordered_plot_ids;
+    my $plot_handle  = $self->_plot_handle;
+
     $self->_write_stats_header;
 
     system("mkdir combined") unless ( -d "combined" );
-    foreach my $key ( @{ $ordered_keys } ) {
+    while ( my $line = <$plot_handle> ) {
+
+        #parse line into hash. keys = id, len, files. unzips files if needed.
+        my %plothash = $self->_parse_line($line);
+
+		print Dumper \%plothash;
+
+        my $id       = $plothash{'id'};
 
         #create output plot file
-        my $comb_plot_name = "combined/$key.insert_site_plot";
+        my $comb_plot_name = "combined/$id.insert_site_plot";
         my $comb_plot_cont = "";
 
-        my $filelen = ${$lens}{$key};
+        my $filelen = $plothash{'len'};
         my ( @currentlines, $this_line );
 
         foreach my $i ( 0 .. $filelen ) {
             @currentlines = ();
-            foreach my $curr_fh ( @{ ${$fhs}{$key} } ) {
+            foreach my $curr_fh ( @{ $plothash{'files'} } ) {
                 $this_line = <$curr_fh>;
                 push( @currentlines, $this_line );
             }
@@ -180,10 +138,48 @@ sub combine {
         print CPLOT $comb_plot_cont;
         close(CPLOT);
 
-        $self->_write_stats($key);
+        $self->_write_stats($id);
         system("gzip $comb_plot_name");
     }
+	File::Temp::cleanup();
     return 1;
+}
+
+sub _parse_line {
+    my ( $self, $line ) = @_;
+    chomp $line;
+    my @fields = split( "\t", $line );
+    my $id     = shift @fields;
+	my @files = @{ $self->_unzip_plots(\@fields) };
+    my $len    = $self->_get_file_len( \@files );
+    if ( $len == 0 ){
+		die "\nPlots with ID $id not of equal length.\n";
+	}
+	#build file handles for each file
+	my @file_hs;
+	foreach my $f (@files){
+		open(my $fh, "<", $f);
+		push(@file_hs, $fh);
+	}
+    return ( id => $id, len => $len, files => \@file_hs );
+}
+
+sub _get_file_len {
+    my ( $self, $files ) = @_;
+
+    #check all files are of equal lens and return len if true
+    my @lens;
+    for my $f ( @{$files} ) {
+        my $wc = `wc $f | awk '{print \$1}'`;
+        chomp $wc;
+        push( @lens, $wc );
+    }
+
+    my $l = shift @lens;
+    for my $x (@lens) {
+        return 0 if ( $x != $l );
+    }
+    return $l;
 }
 
 sub _combine_lines {
@@ -214,7 +210,8 @@ sub _write_stats {
     chomp($seq_len);
     my $uis = `grep -c -v "0 0" $comb_plot`;
     chomp($uis);
-    my $sl_per_uis = $seq_len / $uis;
+    my $sl_per_uis = "NaN";
+	$sl_per_uis = $seq_len / $uis if($uis > 0);
 
     my $stats = "$id,$seq_len,$uis,$sl_per_uis\n";
     print { $self->_stats_handle } $stats;
@@ -242,6 +239,38 @@ sub _get_plotfile_path {
     pop(@dirs);
     my $path2plot = join( '/', @dirs );
     return "$path2plot/";
+}
+
+sub _is_gz {
+    my ( $self, $plotname ) = @_;
+
+    if ( $plotname =~ /\.gz/ ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+sub _unzip_plots {
+    my ( $self, $files ) = @_;
+    my $destination_directory = $self->_destination;
+
+	my @filelist = @{ $self->_abs_path_list($files) };
+    my @unz_plots;
+    foreach my $plotname ( @filelist ) {
+        if ( $self->_is_gz($plotname) ) {
+            $plotname =~ /([^\/]+$)/;
+			my $unz = $1;
+            $unz =~ s/\.gz//;
+            system("gunzip -c $plotname > $destination_directory/$unz");
+            push(@unz_plots, "$destination_directory/$unz");
+        }
+        else {
+            push(@unz_plots, $plotname);
+        }
+    }
+	return \@unz_plots;
 }
 
 __PACKAGE__->meta->make_immutable;
