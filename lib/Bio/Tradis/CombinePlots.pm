@@ -136,7 +136,7 @@ sub combine {
         close(CPLOT);
 
         $self->_write_stats($id);
-        system("gzip $comb_plot_name");
+        system("gzip -f $comb_plot_name");
     }
 	File::Temp::cleanup();
     return 1;
