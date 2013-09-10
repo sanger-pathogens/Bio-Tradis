@@ -132,6 +132,7 @@ sub combine {
             $comb_plot_cont .= "$comb_line\n";
         }
         open( CPLOT, '>', $comb_plot_name );
+		chomp $comb_plot_cont;
         print CPLOT $comb_plot_cont;
         close(CPLOT);
 
