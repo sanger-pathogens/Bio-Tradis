@@ -24,7 +24,7 @@ has 'tagdirection' =>
 has 'reference' => ( is => 'rw', isa => 'Str',  required => 0 );
 has 'help'      => ( is => 'rw', isa => 'Bool', required => 0 );
 has 'mapping_score' =>
-  ( is => 'ro', isa => 'Int', required => 0, default => 30 );
+  ( is => 'rw', isa => 'Int', required => 0, default => 30 );
 has '_stats_handle' => (
     is       => 'ro',
     isa      => 'FileHandle',
