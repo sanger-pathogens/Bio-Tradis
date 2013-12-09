@@ -60,6 +60,8 @@ has 'refname' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
 has 'outfile' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
+has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 
 sub index_ref {
     my ($self)  = @_;
@@ -70,21 +72,39 @@ sub index_ref {
     my $pars = Bio::Tradis::Parser::Fastq->new( file => $self->fastqfile );
     $pars->next_read;
     my @read = $pars->read_info;
-    my ( $k, $s );
-    ( $k, $s ) = ( 13, 4 );
-    my $seq = $read[1];
-    if ( length($seq) < 70 ) {
-        ( $k, $s ) = ( 13, 4 );
-    }
-    elsif ( length($seq) > 70 && length($seq) < 100 ) {
-        ( $k, $s ) = ( 13, 6 );
-    }
-    else {
-        ( $k, $s ) = ( 20, 13 );
-    }
+	my $read_len = length($read[1]);
+    my ( $k, $s ) = $self->_calculate_index_parameters($read_len);
 
-    system("smalt index -k $k -s $s $refname $ref");
+	my $cmd = "smalt index -k $k -s $s $refname $ref";
+	print STDERR "CMD: $cmd\n";
+    system($cmd);
     return 1;
+}
+
+sub _calculate_index_parameters {
+	my ($self, $read_len)  = @_;
+	my ( $k, $s );
+	
+	if( defined $self->smalt_k ){ $k = $self->smalt_k; }
+	else{ $k = $self->_smalt_k_default($read_len); }
+	
+	if( defined $self->smalt_s ){ $s = $self->smalt_s; }
+	else{ $s = $self->_smalt_s_default($read_len); }
+	
+	return ( $k, $s );
+}
+
+sub _smalt_k_default {
+	my ($self, $read_len)  = @_;
+	if($read_len < 100){ return 13; }
+	else{ return 20; }
+}
+
+sub _smalt_s_default {
+	my ( $self, $read_len )  = @_;
+	if( $read_len < 70 ){ return 4; }
+	elsif( $read_len > 100 ){ return 13; }
+	else{ return 6; }
 }
 
 sub do_mapping {

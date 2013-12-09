@@ -25,6 +25,9 @@ has 'reference' => ( is => 'rw', isa => 'Str',  required => 0 );
 has 'help'      => ( is => 'rw', isa => 'Bool', required => 0 );
 has 'mapping_score' =>
   ( is => 'rw', isa => 'Int', required => 0, default => 30 );
+has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+
 has '_stats_handle' => (
     is       => 'ro',
     isa      => 'FileHandle',
@@ -36,7 +39,10 @@ has '_stats_handle' => (
 sub BUILD {
     my ($self) = @_;
 
-    my ( $fastqfile, $tag, $td, $mismatch, $ref, $map_score, $help );
+    my (
+        $fastqfile, $tag,     $td,      $mismatch, $ref,
+        $map_score, $smalt_k, $smalt_s, $help
+    );
 
     GetOptionsFromArray(
         $self->args,
@@ -46,6 +52,8 @@ sub BUILD {
         'mm|mismatch=i'     => \$mismatch,
         'r|reference=s'     => \$ref,
         'm|mapping_score=i' => \$map_score,
+        'sk|smalt_k=i'      => \$smalt_k,
+        'ss|smalt_s=i'      => \$smalt_s,
         'h|help'            => \$help
     );
 
@@ -55,10 +63,12 @@ sub BUILD {
     $self->mismatch($mismatch)               if ( defined($mismatch) );
     $self->reference( abs_path($ref) )       if ( defined($ref) );
     $self->mapping_score($map_score)         if ( defined($map_score) );
+    $self->smalt_k($smalt_k)                 if ( defined($smalt_k) );
+    $self->smalt_s($smalt_s)                 if ( defined($smalt_s) );
     $self->help($help)                       if ( defined($help) );
 
-	# print usage text if required parameters are not present
-	($fastqfile && $tag && $ref) or die $self->usage_text;
+    # print usage text if required parameters are not present
+    ( $fastqfile && $tag && $ref ) or die $self->usage_text;
 }
 
 sub run {
@@ -71,42 +81,46 @@ sub run {
     }
 
     #parse list of files and run pipeline for each one if they all exist
-	my $fq = $self->fastqfile;
+    my $fq = $self->fastqfile;
     open( FILES, "<", $fq ) or die "Cannot find $fq";
     my @filelist = <FILES>;
-	my $file_dir = $self->get_file_dir;
-	#check files exist before running
-	my $line_no = 0;
-	my $full_path;
-	foreach my $f1 (@filelist){
-		chomp($f1);
-		$line_no++;
-		if($f1 =~ /^\//){$full_path = $f1;}
-		else{$full_path = "$file_dir/$f1";}
-		unless (-e $full_path){
-			die "File $full_path does not exist ($fq, line $line_no)\n";
-		}
-	}
-	
-	#if all files exist, continue with analysis
+    my $file_dir = $self->get_file_dir;
+
+    #check files exist before running
+    my $line_no = 0;
+    my $full_path;
+    foreach my $f1 (@filelist) {
+        chomp($f1);
+        $line_no++;
+        if   ( $f1 =~ /^\// ) { $full_path = $f1; }
+        else                  { $full_path = "$file_dir/$f1"; }
+        unless ( -e $full_path ) {
+            die "File $full_path does not exist ($fq, line $line_no)\n";
+        }
+    }
+
+    #if all files exist, continue with analysis
     foreach my $f2 (@filelist) {
         chomp($f2);
-		if($f2 =~ /^\//){$full_path = $f2;}
-		else{$full_path = "$file_dir/$f2";}
+        if   ( $f2 =~ /^\// ) { $full_path = $f2; }
+        else                  { $full_path = "$file_dir/$f2"; }
         my $analysis = Bio::Tradis::RunTradis->new(
-            fastqfile      => $full_path,
-            tag            => $self->tag,
-            tagdirection   => $self->tagdirection,
-            mismatch       => $self->mismatch,
-            reference      => $self->reference,
-            mapping_score  => $self->mapping_score,
-            _stats_handle  => $self->_stats_handle
+            fastqfile     => $full_path,
+            tag           => $self->tag,
+            tagdirection  => $self->tagdirection,
+            mismatch      => $self->mismatch,
+            reference     => $self->reference,
+            mapping_score => $self->mapping_score,
+            _stats_handle => $self->_stats_handle,
+            smalt_k       => $self->smalt_k,
+            smalt_s       => $self->smalt_s
         );
         $analysis->run_tradis;
     }
-	$self->_tidy_stats;
+    $self->_tidy_stats;
     close(FILES);
-	#$self->_combine_plots;
+
+    #$self->_combine_plots;
 }
 
 sub _build__stats_handle {
@@ -120,36 +134,36 @@ sub _build__stats_handle {
 }
 
 sub _tidy_stats {
-	my ($self)   = @_;
+    my ($self)   = @_;
     my $filelist = $self->fastqfile;
     my $dir      = $self->get_file_dir;
     $filelist =~ s/$dir\///;
     $filelist =~ s/[^\.]+$/stats/;
-	open(STATS, '<', $filelist);
-	open(TMP, '>', 'tmp.stats');
+    open( STATS, '<', $filelist );
+    open( TMP,   '>', 'tmp.stats' );
 
-	my $header = 0;
-	while(my $line = <STATS>){
-		if($line =~ /^File/){
-			if($header == 0){
-				print TMP "$line";
-				$header = 1;
-			}
-		}
-		else{
-			print TMP "$line";
-		}
-	}
-	close(TMP);
-	close(STATS);
-	system("mv tmp.stats $filelist");
+    my $header = 0;
+    while ( my $line = <STATS> ) {
+        if ( $line =~ /^File/ ) {
+            if ( $header == 0 ) {
+                print TMP "$line";
+                $header = 1;
+            }
+        }
+        else {
+            print TMP "$line";
+        }
+    }
+    close(TMP);
+    close(STATS);
+    system("mv tmp.stats $filelist");
 }
 
-sub _combine_plots{
-	my ($self) = @_;
+sub _combine_plots {
+    my ($self) = @_;
     my $filelist = $self->fastqfile;
-	
-	return 1;
+
+    return 1;
 }
 
 sub get_file_dir {
@@ -160,7 +174,6 @@ sub get_file_dir {
     pop(@dirs);
     return join( '/', @dirs );
 }
-
 
 sub usage_text {
     print <<USAGE;
@@ -174,13 +187,14 @@ Run a TraDIS analysis. This involves:
 Usage: bacteria_tradis [options]
 
 Options:
--f  : list of fastq files with tradis tags attached
--t  : tag to search for
--r  : reference genome in fasta format (.fa)
--td : tag direction - 3 or 5 (optional. default = 3)
--mm : number of mismatches allowed when matching tag (optional. default = 0)
--m  : mapping quality cutoff score (optional. default = 30)
-
+-f        : list of fastq files with tradis tags attached
+-t        : tag to search for
+-r        : reference genome in fasta format (.fa)
+-td       : tag direction - 3 or 5 (optional. default = 3)
+-mm       : number of mismatches allowed when matching tag (optional. default = 0)
+-m        : mapping quality cutoff score (optional. default = 30)
+--smalt_k : custom k-mer value for SMALT mapping
+--smalt_s : custom step size for SMALT mapping
 USAGE
     exit;
 }
