@@ -76,7 +76,6 @@ sub index_ref {
     my ( $k, $s ) = $self->_calculate_index_parameters($read_len);
 
 	my $cmd = "smalt index -k $k -s $s $refname $ref";
-	print STDERR "CMD: $cmd\n";
     system($cmd);
     return 1;
 }
