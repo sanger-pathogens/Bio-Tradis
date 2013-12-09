@@ -23,25 +23,31 @@ has 'refname' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
 has 'outfile' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
+has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 
 sub BUILD {
     my ($self) = @_;
 
-    my ( $fastqfile, $ref, $refname, $outfile, $help );
+    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $help );
 
     GetOptionsFromArray(
         $self->args,
-        'f|fastqfile=s' => \$fastqfile,
-        'r|reference=s' => \$ref,
-        'rn|refname=s'  => \$refname,
-        'o|outfile=s'   => \$outfile,
-        'h|help'        => \$help
+        'f|fastqfile=s'   => \$fastqfile,
+        'r|reference=s'   => \$ref,
+        'rn|refname=s'    => \$refname,
+        'o|outfile=s'     => \$outfile,
+		'sk|smalt_k=i'    => \$smalt_k,
+		'ss|smalt_s=i'    => \$smalt_s,
+        'h|help'          => \$help
     );
 
     $self->fastqfile( abs_path($fastqfile) ) if ( defined($fastqfile) );
     $self->reference( abs_path($ref) )       if ( defined($ref) );
     $self->refname($refname)                 if ( defined($refname) );
     $self->outfile( abs_path($outfile) )     if ( defined($outfile) );
+	$self->smalt_k( $smalt_k )               if ( defined($smalt_k) );
+	$self->smalt_s( $smalt_s )               if ( defined($smalt_s) );
     $self->help($help)                       if ( defined($help) );
 
 	# print usage text if required parameters are not present
@@ -60,7 +66,9 @@ sub run {
         fastqfile => $self->fastqfile,
         reference => $self->reference,
         refname   => $self->refname,
-        outfile   => $self->outfile
+        outfile   => $self->outfile,
+		smalt_k   => $self->smalt_k,
+		smalt_s   => $self->smalt_s
     );
     $mapping->index_ref;
     $mapping->do_mapping;
@@ -70,7 +78,8 @@ sub usage_text {
       print <<USAGE;
 Indexes the reference genome and maps the given fastq file.
 -k and -s options for indexing are calculated for the length of
-the read as follows
+the read as follows unless otherwise specified ( --smalt_k & 
+--smalt_s options )
 Read length    | k  |  s
 ---------------+----+-----
 <70            | 13 |  4
@@ -80,10 +89,12 @@ Read length    | k  |  s
 Usage: run_mapping -f file.fastq -r ref.fa [options]
 
 Options:
--f  : fastq file to map
--r	: reference in fasta format
--rn : reference index name (optional. default: ref.index)
--o  : mapped SAM output name (optional. default: mapped.sam)
+-f        : fastq file to map
+-r        : reference in fasta format
+-rn       : reference index name (optional. default: ref.index)
+-o        : mapped SAM output name (optional. default: mapped.sam)
+--smalt_k : custom k-mer value for SMALT mapping
+--smalt_s : custom step size for SMALT mapping
 
 USAGE
       exit;
