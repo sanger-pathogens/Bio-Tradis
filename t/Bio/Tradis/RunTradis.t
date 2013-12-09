@@ -151,8 +151,6 @@ unlink('expected.plot.unzipped');
 unlink('test.plot.unzipped');
 
 # Test pipeline with gzipped input
-print "Gzipped file, no mismatch\n";
-
 $fastqfile = "t/data/RunTradis/test.tagged.fastq.gz";
 ok(
     $obj = Bio::Tradis::RunTradis->new(
@@ -181,6 +179,25 @@ is(
     read_file('expected.plot.unzipped'),
     'checking completed pipeline with gzipped data file contents'
 );
+
+# Test mapping stage with custom smalt parameters
+ok(
+    $obj = Bio::Tradis::RunTradis->new(
+        fastqfile     => $fastqfile,
+        reference     => $ref,
+        tag           => $tag,
+        outfile       => $outfile,
+        _destination  => $destination_directory_obj->dirname,
+        _stats_handle => $stats_handle,
+		smalt_k       => 10,
+		smalt_s       => 2
+    ),
+    'creating object with custom smalt parameters'
+);
+# Filtering step
+$obj->_filter;
+$obj->_remove;
+ok( $obj->_map, 'mapping with custom parameters fine' );
 
 File::Temp::cleanup();
 done_testing();
