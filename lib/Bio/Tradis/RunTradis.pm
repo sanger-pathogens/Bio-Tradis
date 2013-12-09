@@ -74,6 +74,9 @@ has 'outfile' => (
         return $o;
     }
 );
+has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+
 has '_destination' => (
     is       => 'rw',
     isa      => 'Str',
@@ -190,7 +193,7 @@ sub run_tradis {
       "..........Step 3.5: Convert output from SAM to BAM and sort\n";
     $self->_sam2bam;
     $self->_sort_bam;
-	$self->_bamcheck;
+    $self->_bamcheck;
 
     # Step 5: Generate plot
     print STDERR "..........Step 4: Generate plot\n";
@@ -208,7 +211,9 @@ sub run_tradis {
     system(
 "mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai"
     );
-	system("mv $destination_directory/mapped.bamcheck \./$outfile.mapped.bamcheck");
+    system(
+        "mv $destination_directory/mapped.bamcheck \./$outfile.mapped.bamcheck"
+    );
 
     # Clean up
     print STDERR "..........Clean up\n";
@@ -266,7 +271,9 @@ sub _map {
         fastqfile => "$destination_directory/tags_removed.fastq",
         reference => "$ref",
         refname   => "$destination_directory/ref.index",
-        outfile   => "$destination_directory/mapped.sam"
+        outfile   => "$destination_directory/mapped.sam",
+        smalt_k   => $self->smalt_k,
+        smalt_s   => $self->smalt_s
     );
     $mapping->index_ref;
     $mapping->do_mapping;
@@ -294,11 +301,13 @@ sub _sort_bam {
 }
 
 sub _bamcheck {
-	my ($self) = @_;
+    my ($self) = @_;
     my $destination_directory = $self->_destination;
 
-	system("bamcheck $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck");
-	return 1;
+    system(
+"bamcheck $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
+    );
+    return 1;
 }
 
 sub _make_plot {
@@ -313,9 +322,10 @@ sub _make_plot {
         mapping_score => $self->mapping_score,
         outfile       => "$destination_directory/$outfile"
     )->plot;
+
     # if tag direction is 5, reverse plot columns
     if ( $self->tagdirection eq '5' ) {
-		print STDERR "Tag direction = 5. Reversing plot..\n";
+        print STDERR "Tag direction = 5. Reversing plot..\n";
         $self->_reverse_plots;
     }
     return 1;
@@ -327,10 +337,12 @@ sub _reverse_plots {
     my $outfile               = $self->outfile;
     my @seqnames              = keys %{ $self->_sequence_info };
 
-	my @current_plots = glob("$destination_directory/$outfile.*.insert_site_plot.gz");
+    my @current_plots =
+      glob("$destination_directory/$outfile.*.insert_site_plot.gz");
 
     foreach my $plotname (@current_plots) {
-		print STDERR "Reversing $plotname\n";
+        print STDERR "Reversing $plotname\n";
+
         #my $plotname = $self->_plotname($sn);
         system("gunzip -c $plotname > $destination_directory/tmp.plot");
         system(
@@ -385,7 +397,7 @@ sub _stats {
         my $seqlen = ${$seq_info}{$si};
         $total_seq_len += $seqlen;
         my $uis_per_seqlen = "NaN";
-		$uis_per_seqlen = $seqlen / $uis if($uis > 0);
+        $uis_per_seqlen = $seqlen / $uis if ( $uis > 0 );
         chomp($uis_per_seqlen);
         $stats .= "$uis_per_seqlen,";
     }
