@@ -1,8 +1,14 @@
+#!/software/R-3.0.0/bin/Rscript
 library("MASS")
 options(warn=-1)
 
 args <- commandArgs(trailingOnly = TRUE)
 input = args[1]
+
+if( is.null(input) ){
+	cat(paste("Usage: tradis_essentiality.R data.tab"))
+	q(status=1)
+}
 
 STM_baseline <- read.table(input, sep="\t",header=TRUE,stringsAsFactors=F)
 

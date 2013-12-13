@@ -12,7 +12,7 @@ opt = getopt(matrix( c('help', 'h', 0, "logical",
 
 if(! is.null(opt$help) || is.null(opt$controls )  || is.null(opt$conditions ) )
 {
-  cat(paste("Usage: tradis_essentiality.R [-h] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt"));
+  cat(paste("Usage: tradis_comparison.R [-h] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
   q(status=1);
 }
 
