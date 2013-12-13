@@ -2,7 +2,6 @@
 library("edgeR")
 library("getopt")
 
-
 opt = getopt(matrix( c('help', 'h', 0, "logical", 
                        'verbose', 'v', 0, "integer",
                        'controls', 'c', 1, "character",
@@ -11,7 +10,7 @@ opt = getopt(matrix( c('help', 'h', 0, "logical",
                        'plot', 'p', 1, "character"
 ), ncol=4, byrow=TRUE ) );
 
-if(! is.null(opt$help) || is.null(opt$control1 )  || is.null(opt$control2 )  ||is.null(opt$condition1 )  ||is.null(opt$condition2 ) )
+if(! is.null(opt$help) || is.null(opt$controls )  || is.null(opt$conditions ) )
 {
   cat(paste("Usage: tradis_essentiality.R [-h] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt"));
   q(status=1);
@@ -41,22 +40,24 @@ for(i in 1:length(condition_files)){
 if ( is.null(opt$output ) ) { opt$output = paste(opt$condition1,opt$control1, ".output.csv",sep = "")}
 
 #only look at genes with counts > 0 in some condition
-all_list <- c(condition_list, control_list)
-noness_list = list()
-for(x in 1:length(all_list)){
-	current_table = all
-	noness_list <- all_list[i]
-}
+all_list <- c(control_list, condition_list)
 
+# make list of rows where read count = 0 in all controls and conditions
+read_counts = do.call(cbind, lapply(all_list, function(x){ x$read_count }))
+zeros = apply( apply(read_counts, 1, ">", 0), 2, any )
 
-cond1_noness <- cond1[ (cond1$read_count > 0 | cond2$read_count > 0 | ctrl1$read_count > 0 | ctrl2$read_count >0),]
-cond2_noness <- cond2[ (cond1$read_count > 0 | cond2$read_count > 0 | ctrl1$read_count > 0 | ctrl2$read_count >0),]
-ctrl1_noness <- ctrl1[ (cond1$read_count > 0 | cond2$read_count > 0 | ctrl1$read_count > 0 | ctrl2$read_count >0),]
-ctrl2_noness <- ctrl2[ (cond1$read_count > 0 | cond2$read_count > 0 | ctrl1$read_count > 0 | ctrl2$read_count >0),]
+# remove these rows
+noness_list = lapply(all_list, function(x){ x[zeros,] } )
 
 #build count matrix
-count_mat <- cbind(ctrl1_noness[,7], ctrl2_noness[,7], cond1_noness[,7],cond2_noness[,7])
-conds <- c("ctrl","ctrl","cond","cond")
+count_mat <- do.call(cbind, lapply(noness_list, function(x){x[,7]}))
+conds = c()
+for(i in 1:length(control_files)){
+	conds <- c(conds, "ctrl")
+}
+for(i in 1:length(condition_files)){
+	conds <- c(conds, "cond")
+}
 conds <- as.factor(conds)
 
 
@@ -71,6 +72,7 @@ d <- estimateCommonDisp(d)
 d <- estimateTagwiseDisp(d)
 de.tgw <- exactTest(d,pair=c("ctrl","cond"))
 
+ctrl1_noness <- noness_list[[1]]
 diff <- cbind(ctrl1_noness[,1:2],ctrl1_noness[,11],de.tgw$table,q.value=p.adjust(de.tgw$table$PValue,"BH"))
 
 
