@@ -1,2 +1,2 @@
-first	/Users/cc21/Development/Bio-Tradis/t/data/CombinePlots/test1.plot	/Users/cc21/Development/Bio-Tradis/t/data/CombinePlots/test2.plot
-second	/Users/cc21/Development/Bio-Tradis/t/data/CombinePlots/test3.plot	/Users/cc21/Development/Bio-Tradis/t/data/CombinePlots/test4.plot
+first	test1.plot	test2.plot
+second	test3.plot	test4.plot
