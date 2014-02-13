@@ -1,8 +1,9 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use File::Temp;
 use File::Slurp;
+use Cwd;
+use File::Path qw( remove_tree );
 
 BEGIN { unshift( @INC, '../lib' ) }
 
@@ -11,14 +12,11 @@ BEGIN {
     use_ok('Bio::Tradis::CombinePlots');
 }
 
-my $destination_directory_obj = File::Temp->newdir( CLEANUP => 1 );
-my $destination_directory = $destination_directory_obj->dirname();
-
 my ( $plotfile, $obj );
 
 $plotfile = "t/data/CombinePlots/comb_sample.txt";
 
-ok( $obj = Bio::Tradis::CombinePlots->new( plotfile => $plotfile, _destination  => $destination_directory ),
+ok( $obj = Bio::Tradis::CombinePlots->new( plotfile => $plotfile ),
     'creating object' );
 
 ok( $obj->combine, 'combining plots' );
@@ -56,7 +54,7 @@ is(
 #check with gzipped plots
 $plotfile = "t/data/CombinePlots/zip_comb_list.txt";
 
-ok( $obj = Bio::Tradis::CombinePlots->new( plotfile => $plotfile, _destination  => $destination_directory ),
+ok( $obj = Bio::Tradis::CombinePlots->new( plotfile => $plotfile ),
     'creating object' );
 
 ok( $obj->combine, 'combining plots' );
@@ -79,4 +77,7 @@ is(
 unlink('first.test.plot');
 unlink('second.test.plot');
 unlink('zip_combined.test.plot');
+unlink('comb_sample.stats');
+unlink('zip_comb_list.stats');
+remove_tree('combined');
 done_testing();

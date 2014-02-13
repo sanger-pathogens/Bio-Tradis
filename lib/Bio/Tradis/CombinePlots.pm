@@ -36,7 +36,9 @@ use Moose;
 use strict;
 use warnings;
 use File::Temp;
+use File::Path qw( remove_tree );
 use Data::Dumper;
+use Cwd;
 
 has 'plotfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has '_plot_handle' => (
@@ -69,7 +71,7 @@ has '_destination' => (
 );
 
 sub _build__destination {
-    my $tmp_dir = File::Temp->newdir( CLEANUP => 0 );
+    my $tmp_dir = File::Temp->newdir( DIR=> getcwd, CLEANUP => 0 );
     return $tmp_dir->dirname;
 }
 
@@ -122,6 +124,8 @@ sub combine {
         my $filelen = $plothash{'len'};
         my ( @currentlines, $this_line );
 
+        #print Dumper \%plothash;
+
         foreach my $i ( 0 .. $filelen ) {
             @currentlines = ();
             foreach my $curr_fh ( @{ $plothash{'files'} } ) {
@@ -136,17 +140,19 @@ sub combine {
         print CPLOT $comb_plot_cont;
         close(CPLOT);
 
-        $self->_write_stats($id);
+        $self->_write_stats($id, $filelen);
         system("gzip -f $comb_plot_name");
     }
 	File::Temp::cleanup();
+    # double check tmp dir is deleted. cleanup not working properly
+    remove_tree($self->_destination);
     return 1;
 }
 
 sub _parse_line {
     my ( $self, $line ) = @_;
     chomp $line;
-    my @fields = split( "\t", $line );
+    my @fields = split( /\s+/, $line );
     my $id     = shift @fields;
 	my @files = @{ $self->_unzip_plots(\@fields) };
     my $len    = $self->_get_file_len( \@files );
@@ -166,6 +172,7 @@ sub _get_file_len {
     my ( $self, $files ) = @_;
 
     #check all files are of equal lens and return len if true
+    #wc misses last line - return $l++
     my @lens;
     for my $f ( @{$files} ) {
         my $wc = `wc $f | awk '{print \$1}'`;
@@ -177,7 +184,7 @@ sub _get_file_len {
     for my $x (@lens) {
         return 0 if ( $x != $l );
     }
-    return $l;
+    return $l+1;
 }
 
 sub _combine_lines {
@@ -205,11 +212,11 @@ sub _write_stats_header {
 }
 
 sub _write_stats {
-    my ( $self, $id ) = @_;
+    my ( $self, $id, $seq_len ) = @_;
     my $comb_plot = "combined/$id.insert_site_plot";
 
-    my $seq_len = `wc $comb_plot | awk '{print \$1}'`;
-    chomp($seq_len);
+    #my $seq_len = `wc $comb_plot | awk '{print \$1}'`;
+    #chomp($seq_len);
     my $uis = `grep -c -v "0 0" $comb_plot`;
     chomp($uis);
     my $sl_per_uis = "NaN";
@@ -265,7 +272,8 @@ sub _unzip_plots {
             $plotname =~ /([^\/]+$)/;
 			my $unz = $1;
             $unz =~ s/\.gz//;
-            system("gunzip -c $plotname > $destination_directory/$unz");
+            my $unzip_cmd = "gunzip -c $plotname > $destination_directory/$unz";
+            system($unzip_cmd);
             push(@unz_plots, "$destination_directory/$unz");
         }
         else {
