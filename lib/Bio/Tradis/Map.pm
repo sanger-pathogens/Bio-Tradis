@@ -76,9 +76,9 @@ sub index_ref {
 	my $read_len = length($read[1]);
     my ( $k, $s ) = $self->_calculate_index_parameters($read_len);
 
-	my $cmd = "smalt index -k $k -s $s $refname $ref";
+    my $cmd = "smalt index -k $k -s $s $refname $ref";
     system($cmd);
-    return 1;
+    return $cmd;
 }
 
 sub _calculate_index_parameters {
@@ -119,7 +119,7 @@ sub do_mapping {
     system($smalt);
     unlink('smalt.stderr');
     
-    return 1;
+    return $smalt;
 }
 
 __PACKAGE__->meta->make_immutable;

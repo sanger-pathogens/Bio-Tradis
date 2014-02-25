@@ -4,7 +4,10 @@ use warnings;
 use File::Temp;
 use File::Slurp;
 
-BEGIN { unshift( @INC, '../lib' ) }
+BEGIN { 
+        unshift( @INC, '../lib' );
+        unshift( @INC, './lib' );
+}
 
 BEGIN {
     use Test::Most;
@@ -43,6 +46,30 @@ is(
     read_file('expected.nohead.mapped'),
     'checking file contents'
 );
+
+# test optional smalt parameters
+ok(
+    $obj = Bio::Tradis::Map->new(
+        fastqfile => $fastqfile,
+        reference => $ref,
+        refname   => $refname,
+        outfile   => $outfile,
+        smalt_k   => 10,
+        smalt_s   => 10,
+        smalt_y   => 0.9
+    ),
+    'creating object'
+);
+
+my $index_cmd = $obj->index_ref;
+my $index_exp = "smalt index -k 10 -s 10 $refname $ref";
+is( $index_cmd, $index_exp, "indexing args correct" );
+
+my $map_cmd = $obj->do_mapping;
+my $map_exp = "smalt map -x -r -1 -y 0.9 $refname $fastqfile 1> $outfile  2> smalt.stderr";
+is( $map_cmd, $map_exp, "mapping args correct" );
+
+
 
 unlink('t/data/Map/test.ref.sma');
 unlink('t/data/Map/test.ref.smi');
