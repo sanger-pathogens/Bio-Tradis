@@ -27,6 +27,7 @@ has 'mapping_score' =>
   ( is => 'rw', isa => 'Int', required => 0, default => 30 );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0 );
 
 has '_stats_handle' => (
     is       => 'ro',
@@ -41,7 +42,7 @@ sub BUILD {
 
     my (
         $fastqfile, $tag,     $td,      $mismatch, $ref,
-        $map_score, $smalt_k, $smalt_s, $help
+        $map_score, $smalt_k, $smalt_s, $smalt_y, $help
     );
 
     GetOptionsFromArray(
@@ -54,6 +55,7 @@ sub BUILD {
         'm|mapping_score=i' => \$map_score,
         'sk|smalt_k=i'      => \$smalt_k,
         'ss|smalt_s=i'      => \$smalt_s,
+        'sy|smalt_y=f'      => \$smalt_y,
         'h|help'            => \$help
     );
 
@@ -65,6 +67,7 @@ sub BUILD {
     $self->mapping_score($map_score)         if ( defined($map_score) );
     $self->smalt_k($smalt_k)                 if ( defined($smalt_k) );
     $self->smalt_s($smalt_s)                 if ( defined($smalt_s) );
+    $self->smalt_y($smalt_y)                 if ( defined($smalt_y) );
     $self->help($help)                       if ( defined($help) );
 
     # print usage text if required parameters are not present
@@ -113,7 +116,8 @@ sub run {
             mapping_score => $self->mapping_score,
             _stats_handle => $self->_stats_handle,
             smalt_k       => $self->smalt_k,
-            smalt_s       => $self->smalt_s
+            smalt_s       => $self->smalt_s,
+            smalt_y       => $self->smalt_y
         );
         $analysis->run_tradis;
     }
@@ -195,6 +199,7 @@ Options:
 -m        : mapping quality cutoff score (optional. default = 30)
 --smalt_k : custom k-mer value for SMALT mapping
 --smalt_s : custom step size for SMALT mapping
+--smalt_y : custom 
 USAGE
     exit;
 }
