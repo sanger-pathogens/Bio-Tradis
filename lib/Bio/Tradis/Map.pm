@@ -62,6 +62,7 @@ has 'outfile' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 
 sub index_ref {
     my ($self)  = @_;
@@ -111,10 +112,14 @@ sub do_mapping {
     my $fqfile  = $self->fastqfile;
     my $refname = $self->refname;
     my $outfile = $self->outfile;
+    my $y = $self->smalt_y;
 
-    system("smalt map -x -r -1 -y 0.96 $refname $fqfile 1> $outfile  2> smalt.stderr");
-	unlink('smalt.stderr');
-	return 1;
+    my $smalt = "smalt map -x -r -1 -y $y $refname $fqfile 1> $outfile  2> smalt.stderr";
+
+    system($smalt);
+    unlink('smalt.stderr');
+    
+    return 1;
 }
 
 __PACKAGE__->meta->make_immutable;

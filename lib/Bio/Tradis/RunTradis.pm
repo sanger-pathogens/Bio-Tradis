@@ -74,8 +74,9 @@ has 'outfile' => (
         return $o;
     }
 );
-has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
-has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
+has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
+has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 
 has '_destination' => (
     is       => 'rw',
@@ -208,12 +209,8 @@ sub run_tradis {
     my $outfile = $self->outfile;
     system("mv $destination_directory/$outfile* \.");
     system("mv $destination_directory/mapped.sort.bam \./$outfile.mapped.bam");
-    system(
-"mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai"
-    );
-    system(
-        "mv $destination_directory/mapped.bamcheck \./$outfile.mapped.bamcheck"
-    );
+    system("mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai");
+    system("mv $destination_directory/mapped.bamcheck \./$outfile.mapped.bamcheck");
 
     # Clean up
     print STDERR "..........Clean up\n";
@@ -273,7 +270,8 @@ sub _map {
         refname   => "$destination_directory/ref.index",
         outfile   => "$destination_directory/mapped.sam",
         smalt_k   => $self->smalt_k,
-        smalt_s   => $self->smalt_s
+        smalt_s   => $self->smalt_s,
+        smalt_y   => $self->smalt_y
     );
     $mapping->index_ref;
     $mapping->do_mapping;

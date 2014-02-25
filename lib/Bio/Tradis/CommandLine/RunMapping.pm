@@ -25,11 +25,12 @@ has 'outfile' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0 );
 
 sub BUILD {
     my ($self) = @_;
 
-    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $help );
+    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $smalt_y, $help );
 
     GetOptionsFromArray(
         $self->args,
@@ -37,8 +38,9 @@ sub BUILD {
         'r|reference=s'   => \$ref,
         'rn|refname=s'    => \$refname,
         'o|outfile=s'     => \$outfile,
-		'sk|smalt_k=i'    => \$smalt_k,
-		'ss|smalt_s=i'    => \$smalt_s,
+	'sk|smalt_k=i'    => \$smalt_k,
+	'ss|smalt_s=i'    => \$smalt_s,
+	'sy|smalt_y=f'    => \$smalt_y,
         'h|help'          => \$help
     );
 
@@ -46,8 +48,9 @@ sub BUILD {
     $self->reference( abs_path($ref) )       if ( defined($ref) );
     $self->refname($refname)                 if ( defined($refname) );
     $self->outfile( abs_path($outfile) )     if ( defined($outfile) );
-	$self->smalt_k( $smalt_k )               if ( defined($smalt_k) );
-	$self->smalt_s( $smalt_s )               if ( defined($smalt_s) );
+    $self->smalt_k( $smalt_k )               if ( defined($smalt_k) );
+    $self->smalt_s( $smalt_s )               if ( defined($smalt_s) );
+    $self->smalt_y( $smalt_y )               if ( defined($smalt_y) );
     $self->help($help)                       if ( defined($help) );
 
 	# print usage text if required parameters are not present
@@ -67,8 +70,9 @@ sub run {
         reference => $self->reference,
         refname   => $self->refname,
         outfile   => $self->outfile,
-		smalt_k   => $self->smalt_k,
-		smalt_s   => $self->smalt_s
+	smalt_k   => $self->smalt_k,
+	smalt_s   => $self->smalt_s,
+	smalt_y   => $self->smalt_y
     );
     $mapping->index_ref;
     $mapping->do_mapping;
