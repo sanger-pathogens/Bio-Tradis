@@ -199,7 +199,7 @@ Options:
 -m        : mapping quality cutoff score (optional. default = 30)
 --smalt_k : custom k-mer value for SMALT mapping
 --smalt_s : custom step size for SMALT mapping
---smalt_y : custom 
+--smalt_y : custom y parameter for SMALT (default = 0.96)
 USAGE
     exit;
 }
