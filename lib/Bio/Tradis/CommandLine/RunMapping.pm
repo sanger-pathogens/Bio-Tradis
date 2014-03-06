@@ -25,7 +25,7 @@ has 'outfile' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
-has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0 );
+has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 
 sub BUILD {
     my ($self) = @_;

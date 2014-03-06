@@ -27,7 +27,7 @@ has 'mapping_score' =>
   ( is => 'rw', isa => 'Int', required => 0, default => 30 );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
-has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0 );
+has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 
 has '_stats_handle' => (
     is       => 'ro',
