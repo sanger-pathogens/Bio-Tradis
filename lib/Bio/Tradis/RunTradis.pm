@@ -433,6 +433,7 @@ sub _plotname {
     my ( $self, $seq_name ) = @_;
     my $outfile = $self->outfile;
 
+    $seq_name =~ s/[^\w\d\.]/_/g;
     my $plotfile_name = "$outfile.$seq_name.insert_site_plot.gz";
     return $plotfile_name;
 }
