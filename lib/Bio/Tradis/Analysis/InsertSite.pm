@@ -65,12 +65,15 @@ sub _build__sequence_base_counters {
 
 sub _build__output_file_handles {
     my ($self) = @_;
+    my $out = $self->output_base_filename;
+    chomp $out;
+    
     my %output_file_handles;
     for my $sequence_name ( @{ $self->_sequence_names } ) {
-        open( $output_file_handles{$sequence_name}, '|-',
-                " gzip >"
-              . $self->output_base_filename
-              . ".$sequence_name.insert_site_plot.gz" )
+        my $file_sequence_name = $sequence_name;
+        $file_sequence_name =~ s/[^\w\d\.]/_/g;
+        my $cmd = "gzip > $out.$file_sequence_name.insert_site_plot.gz";
+        open( $output_file_handles{$sequence_name}, '|-', $cmd )
           || Bio::Tradis::Analysis::Exceptions::FailedToCreateOutputFileHandle
           ->throw( error =>
 "Couldnt create output file handle for saving insertsite plot results for "
