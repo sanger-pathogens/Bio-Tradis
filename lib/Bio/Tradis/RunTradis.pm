@@ -51,6 +51,7 @@ use Bio::Tradis::FilterTags;
 use Bio::Tradis::RemoveTags;
 use Bio::Tradis::Map;
 use Bio::Tradis::TradisPlot;
+use Bio::Tradis::Exception;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has '_unzipped_fastq' =>
@@ -173,6 +174,9 @@ sub run_tradis {
     my ($self)                = @_;
     my $destination_directory = $self->_destination;
     my $fq                    = $self->fastqfile;
+    
+    my $ref                   = $self->reference;
+    Bio::Tradis::Exception::RefNotFound->throw( error => "$ref not found\n" ) unless( -e $ref );
 
     print STDERR "::::::::::::::::::\n$fq\n::::::::::::::::::\n\n";
 
