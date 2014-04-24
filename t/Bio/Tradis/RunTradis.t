@@ -11,6 +11,7 @@ BEGIN {
 
 BEGIN {
     use Test::Most;
+    use Test::Exception;
     use_ok('Bio::Tradis::RunTradis');
 }
 
@@ -201,6 +202,23 @@ ok(
 $obj->_filter;
 $obj->_remove;
 ok( $obj->_map, 'mapping with custom parameters fine' );
+
+# Check die if ref is not found
+ok(
+    $obj = Bio::Tradis::RunTradis->new(
+        fastqfile     => $fastqfile,
+        reference     => "not_really_a_ref.fa",
+        tag           => $tag,
+        outfile       => $outfile,
+        _destination  => $destination_directory_obj->dirname,
+        _stats_handle => $stats_handle,
+		smalt_k       => 10,
+		smalt_s       => 2
+    ),
+    'creating object with custom smalt parameters'
+);
+throws_ok {$obj->run_tradis} 'Bio::Tradis::Exception::RefNotFound', 'correct error thrown'; 
+
 
 File::Temp::cleanup();
 done_testing();
