@@ -39,6 +39,7 @@ use File::Temp;
 use File::Path qw( remove_tree );
 use Data::Dumper;
 use Cwd;
+use Bio::Tradis::Analysis::Exceptions;
 
 has 'plotfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has '_plot_handle' => (
@@ -119,25 +120,22 @@ sub combine {
 
         #create output plot file
         my $comb_plot_name = "combined/$id.insert_site_plot";
-        my $comb_plot_cont = "";
-
         my $filelen = $plothash{'len'};
         my ( @currentlines, $this_line );
 
-        #print Dumper \%plothash;
-
+        my @full_plot;
         foreach my $i ( 0 .. $filelen ) {
             @currentlines = ();
             foreach my $curr_fh ( @{ $plothash{'files'} } ) {
                 $this_line = <$curr_fh>;
-                push( @currentlines, $this_line ) if($line ne "");
+                push( @currentlines, $this_line ) if( defined $line && $line ne "");
             }
             my $comb_line = $self->_combine_lines( \@currentlines );
-            $comb_plot_cont .= "$comb_line\n";
+            push(@full_plot, $comb_line) if ( $comb_line ne '' );
         }
+
         open( CPLOT, '>', $comb_plot_name );
-		chomp $comb_plot_cont;
-        print CPLOT $comb_plot_cont;
+        print CPLOT join("\n", @full_plot);
         close(CPLOT);
 
         $self->_write_stats($id, $filelen);
@@ -268,6 +266,7 @@ sub _unzip_plots {
 	my @filelist = @{ $self->_abs_path_list($files) };
     my @unz_plots;
     foreach my $plotname ( @filelist ) {
+        Bio::Tradis::Analysis::Exceptions::FileNotFound->throw("Cannot find $plotname\n") unless ( -e $plotname );
         if ( $self->_is_gz($plotname) ) {
             $plotname =~ /([^\/]+$)/;
 			my $unz = $1;
