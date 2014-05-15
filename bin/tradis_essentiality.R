@@ -20,7 +20,7 @@ ii <- STM_baseline$ins_index
 #identify second maxima
 h <- hist(ii, breaks=100,plot=FALSE)
 maxindex <- which.max(h$density[3:length(h$density)])
-maxval <- h$mids[maxindex]
+maxval <- h$mids[maxindex+2]
 
 # print pdf of loess curve and later on, histogram
 pdf(paste(input, "QC_and_changepoint_plots", "pdf", sep = "."))
