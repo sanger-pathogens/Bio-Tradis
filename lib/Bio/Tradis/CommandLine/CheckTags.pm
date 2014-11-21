@@ -34,16 +34,33 @@ sub BUILD {
     $self->bamfile(abs_path($bamfile))                   if ( defined($bamfile) );
 	$self->help($help)                                   if ( defined($help) );
 
+	# print usage text if required parameters are not present
+	($bamfile) or die $self->usage_text;
 }
 
 sub run {
 	my ($self) = @_;
-	if(defined($self->help)){
-		print "Help here";
-	}
+	
+	if ( defined( $self->help ) ) {
+    #if ( scalar( @{ $self->args } ) == 0 ) {
+          $self->usage_text;
+    }
 	
 	my $tagcheck = Bio::Tradis::DetectTags->new(bamfile => $self->bamfile);
-	$tagcheck->tags_present;
+	print $tagcheck->tags_present . "\n";
+}
+
+sub usage_text {
+      print <<USAGE;
+Check for the existence of tradis tags in a bam
+
+Usage: check_tags -b file.bam
+
+Options:
+-b  : bam file with tradis tags
+
+USAGE
+      exit;
 }
 
 __PACKAGE__->meta->make_immutable;
