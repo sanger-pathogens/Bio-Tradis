@@ -6,53 +6,149 @@ package Bio::Tradis::FilterTags;
 
 Reads in a fastq file with tradis tags already attached to the start of the sequence
 Filters reads that contain the provided tag
-Outputs a file *.tag.fastq unless an out file is specified
+Outputs a file *.tag.fastq unless an alternative outfile name is specified
 
    use Bio::Tradis::FilterTags;
    
    my $pipeline = Bio::Tradis::FilterTags->new(fastqfile => 'abc', tag => 'abc');
    $pipeline->filter_tags();
 
+=head1 PARAMETERS
+
+=head2 Required
+
+=over
+=item * C<fastqfile> - path to/name of file to filter. This may be a gzipped fastq file, in which case a temporary unzipped version is used and removed on completion.
+=item * C<tag> - TraDIS tag to match
+=back
+
+=head2 Optional
+
+=over
+=item * C<mismatch> - number of mismatches to allow when matching the tag. Default = 0
+=item * C<outfile> - output file name. Defaults to C<file.tag.fastq> for an input file named C<file.fastq>
+=back
+
+=head1 METHODS
+
+C<filter_tags> - outputs all reads containing the provided tag to C<outfile>
+
 =cut
 
 use Moose;
-use VertRes::Parser::fastq;
+use Bio::Tradis::Parser::Fastq;
 
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
-has 'tag'       => ( is => 'rw', isa => 'Str', required => 1 );
-has 'outfile'   => ( is => 'rw', isa => 'Str', required => 0 );
+has '_unzipped_fastq' =>
+  ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__unzipped_fastq' );
+has 'tag'      => ( is => 'rw', isa => 'Str', required => 1 );
+has 'mismatch' => ( is => 'rw', isa => 'Int', required => 0 );
+has 'outfile'  => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    default  => sub {
+        my ($self) = @_;
+        my $o = $self->fastqfile;
+        $o =~ s/\.fastq/\.tag\.fastq/;
+        return $o;
+    }
+);
+has '_currentread' => (
+    is       => 'rw',
+    isa      => 'ArrayRef',
+    required => 0,
+    writer   => '_set_currentread'
+);
 
-sub filter_tags {
+sub _is_gz {
     my ($self) = @_;
-    my $tag = $self->tag;
+    my $fq = $self->fastqfile;
 
-    #set up fastq parser
-    my $filename      = $self->fastqfile;
-    my $pars          = VertRes::Parser::fastq->new( file => $filename );
-    my $result_holder = $pars->result_holder();
-
-    my $outfile = $filename;
-    if ( defined( $self->outfile ) ) {
-        $outfile = $self->outfile;
+    if ( $fq =~ /\.gz/ ) {
+        return 1;
     }
     else {
-        $outfile =~ s/\.fastq/\.tag\.fastq/;
+        return 0;
     }
+}
+
+sub _build__unzipped_fastq {
+    my ($self) = @_;
+    my $fq = $self->fastqfile;
+
+    if ( $self->_is_gz ) {
+        $fq =~ /([^\/]+)$/;
+        my $newfq = $1;
+        $newfq =~ s/\.gz//;
+        if ( !-e $newfq ) {
+            `gunzip -c $fq > $newfq`;
+        }
+        return $newfq;
+    }
+    else {
+        return $fq;
+    }
+}
+
+sub filter_tags {
+    my ($self)  = @_;
+    my $tag     = uc( $self->tag );
+    my $outfile = $self->outfile;
+
+    #set up fastq parser
+    my $filename = $self->_unzipped_fastq;
+    my $pars = Bio::Tradis::Parser::Fastq->new( file => $filename );
+
     open( OUTFILE, ">$outfile" );
 
-    while ( $pars->next_result() ) {
-        my $id          = $result_holder->[0];
-        my $seq_string  = $result_holder->[1];
-        my $qual_string = $result_holder->[2];
+    while ( $pars->next_read ) {
+        my @read = $pars->read_info;
+        $self->_set_currentread( \@read );
+        my $id          = $read[0];
+        my $seq_string  = $read[1];
+        my $qual_string = $read[2];
 
-        if ( $seq_string =~ /^$tag/ ) {
+        my $print_out = 0;
+        if ( $self->mismatch == 0 ) {
+            if ( $seq_string =~ /^$tag/ ) {
+                $print_out = 1;
+            }
+        }
+        else {
+            my $mm = $self->_tag_mismatch($seq_string);
+            if ( $mm <= $self->mismatch ) {
+                $print_out = 1;
+            }
+        }
+
+        if ($print_out) {
             print OUTFILE "\@$id\n";
             print OUTFILE $seq_string . "\n+\n";
             print OUTFILE $qual_string . "\n";
         }
     }
-	close OUTFILE;
+    if ( $self->_is_gz ) {
+        unlink( $self->_unzipped_fastq );
+    }
+    close OUTFILE;
     return 1;
+}
+
+sub _tag_mismatch {
+    my ($self)     = @_;
+    my $tag_len    = length( $self->tag );
+    my $seq_string = ${ $self->_currentread }[1];
+
+    my @tag = split( "", $self->tag );
+    my @seq = split( "", substr( $seq_string, 0, $tag_len ) );
+    my $mismatches = 0;
+    foreach my $i ( 0 .. ( $tag_len - 1 ) ) {
+        if ( $tag[$i] ne $seq[$i] ) {
+            $mismatches++;
+        }
+    }
+    return $mismatches;
 }
 
 __PACKAGE__->meta->make_immutable;
