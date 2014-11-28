@@ -1,4 +1,4 @@
-#!/software/R-3.0.0/bin/Rscript
+#!/usr/bin/Rscript
 
 # PODNAME: tradis_comparison.R
 
@@ -11,12 +11,12 @@ opt = getopt(matrix( c('help', 'h', 0, "logical",
                        'conditions', 'm', 1, "character",
                        'output', 'o', 1, "character",
                        'plot', 'p', 1, "character",
-			'mincount', 'm', 1, "interger"
+			'mincount', 't', 1, "interger"
 ), ncol=4, byrow=TRUE ) );
 
 if(! is.null(opt$help) || is.null(opt$controls )  || is.null(opt$conditions ) )
 {
-  cat(paste("Usage: tradis_comparison.R [-h] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
+  cat(paste("Usage: tradis_comparison.R [-h] [-t read cutoff] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
   q(status=1);
 }
 
