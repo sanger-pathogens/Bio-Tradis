@@ -1,4 +1,4 @@
-#!/software.R-3.0.0/bin/Rscript
+#!/software/R-3.0.0/bin/Rscript
 
 # PODNAME: tradis_comparison.R
 
