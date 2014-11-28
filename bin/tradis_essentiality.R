@@ -13,7 +13,7 @@ if( is.null(input) ){
 	q(status=1)
 }
 
-STM_baseline <- read.table(input, sep="\t",header=TRUE,stringsAsFactors=F)
+STM_baseline <- read.table(input, sep="\t",header=TRUE,stringsAsFactors=F, quote="\"")
 
 ii <- STM_baseline$ins_index
 
