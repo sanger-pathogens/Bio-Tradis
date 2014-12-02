@@ -11,7 +11,7 @@ opt = getopt(matrix( c('help', 'h', 0, "logical",
                        'conditions', 'm', 1, "character",
                        'output', 'o', 1, "character",
                        'plot', 'p', 1, "character",
-			'mincount', 't', 1, "interger"
+			'mincount', 't', 1, "integer"
 ), ncol=4, byrow=TRUE ) );
 
 if(! is.null(opt$help) || is.null(opt$controls )  || is.null(opt$conditions ) )
