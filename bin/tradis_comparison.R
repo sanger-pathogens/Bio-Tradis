@@ -11,15 +11,17 @@ opt = getopt(matrix( c('help', 'h', 0, "logical",
                        'conditions', 'm', 1, "character",
                        'output', 'o', 1, "character",
                        'plot', 'p', 1, "character",
+			'filter', 'f', 0, "logical",
 			'mincount', 't', 1, "integer"
 ), ncol=4, byrow=TRUE ) );
 
 if(! is.null(opt$help) || is.null(opt$controls )  || is.null(opt$conditions ) )
 {
-  cat(paste("Usage: tradis_comparison.R [-h] [-t read cutoff] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
+  cat(paste("Usage: tradis_comparison.R [-h] [-f] [-t read cutoff] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
   q(status=1);
 }
 
+if( is.null(opt$filter)) {opt$filter=FALSE}
 if( is.null(opt$mincount)) {opt$mincount = 0}
 
 # parse contols and conditions files to lists
@@ -52,11 +54,13 @@ all_list <- c(control_list, condition_list)
 read_counts = do.call(cbind, lapply(all_list, function(x){ x$read_count }))
 
 #old case for only 0.
-#zeros = apply( apply(read_counts, 1, ">", 0), 2, any )
-
-zeros_cont = apply( apply(read_counts[,1:length(control_files)], 1, ">", opt$mincount), 2, all )
-zeros_cond = apply( apply(read_counts[,(length(control_files) + 1):(length(control_files) + length(condition_files))], 1, ">", opt$mincount), 2, all )
-zeros = intersect(zeros_cont, zeros_cond)
+if(! opt$filter){
+	zeros = apply( apply(read_counts, 1, ">", 0), 2, any )
+} else {
+	zeros_cont = apply( apply(read_counts[,1:length(control_files)], 1, ">", opt$mincount), 2, all )
+	zeros_cond = apply( apply(read_counts[,(length(control_files) + 1):(length(control_files) + length(condition_files))], 1, ">", opt$mincount), 2, all )
+	zeros = intersect(zeros_cont, zeros_cond)
+}
 
 
 # remove these rows
