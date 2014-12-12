@@ -9,6 +9,7 @@ BEGIN { unshift( @INC, '../lib' ) }
 
 BEGIN {
     use Test::Most;
+    use Test::Files;
     use_ok('Bio::Tradis::CombinePlots');
 }
 
@@ -62,6 +63,29 @@ ok(
     -e 'combined/zip_combined.insert_site_plot.gz',
     'checking first combined plot file exists'
 );
+ok(
+    -e 'combined/tabix_sorted.insert_site_plot.gz',
+    'checking tabix sorted combined plot file exists'
+);
+
+ok(
+    -e 'combined/tabix_sorted.insert_site_plot.gz.tbi',
+    'checking tabix index file exists'
+);
+
+compare_ok(
+	   'combined/tabix_sorted.insert_site_plot.gz',
+	   't/data/CombinePlots/tabix_sorted.insert_site_plot.gz',
+	   'tabix sorted files are the same'
+);
+
+compare_ok(
+	   'combined/tabix_sorted.insert_site_plot.gz.tbi',
+	   't/data/CombinePlots/tabix_sorted.insert_site_plot.gz.tbi',
+	   'tabix index files are the same'
+);
+
+
 system("gunzip -c combined/zip_combined.insert_site_plot.gz > zip_combined.test.plot");
 is(
     read_file('zip_combined.test.plot'),
