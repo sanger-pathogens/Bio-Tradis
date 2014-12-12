@@ -74,10 +74,10 @@ is(
 	'checking stats file contents'
 );
 
-unlink('first.test.plot');
-unlink('second.test.plot');
-unlink('zip_combined.test.plot');
-unlink('comb_sample.stats');
-unlink('zip_comb_list.stats');
-remove_tree('combined');
+#unlink('first.test.plot');
+#unlink('second.test.plot');
+#unlink('zip_combined.test.plot');
+#unlink('comb_sample.stats');
+#unlink('zip_comb_list.stats');
+#remove_tree('combined');
 done_testing();
