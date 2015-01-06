@@ -45,6 +45,8 @@ use Moose;
 use Bio::Seq;
 use Bio::Tradis::Parser::Bam;
 
+no warnings qw(uninitialized);
+
 has 'bamfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'outfile' => (
     is       => 'rw',
@@ -118,7 +120,7 @@ sub add_tags_to_seq {
 
         }
         else {
-			print STDERR "$line\n" if(!defined($tqtag));
+			#print STDERR "$line\n" if(!defined($tqtag));
             $seq_tagged  = $trtag . $seq_tagged;
             $qual_tagged = $tqtag . $qual_tagged;
         }
