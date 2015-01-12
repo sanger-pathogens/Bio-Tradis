@@ -62,7 +62,7 @@ ok(
 );
 
 my $index_cmd = $obj->index_ref;
-my $index_exp = "smalt index -k 10 -s 10 $refname $ref";
+my $index_exp = "smalt index -k 10 -s 10 $refname $ref > /dev/null 2>&1";
 is( $index_cmd, $index_exp, "indexing args correct" );
 
 my $map_cmd = $obj->do_mapping;
