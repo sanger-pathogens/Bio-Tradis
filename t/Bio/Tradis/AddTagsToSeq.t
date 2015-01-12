@@ -27,6 +27,9 @@ ok(
     ),
     'creating object'
 );
+
+is($obj->_output_switch, '-b', 'correctly select the bam output switch');
+
 ok( $obj->add_tags_to_seq,  'testing output' );
 ok( -e 't/data/output.bam', 'checking file existence' );
 `$samtools_exec view -h -o t/data/output.sam t/data/output.bam`;
@@ -36,8 +39,9 @@ is(
     read_file('t/data/AddTags/expected_tradis.sam'),
     'checking file contents'
 );
-$bamfile = "t/data/AddTags/sample_sm_no_tr.bam";
 
+
+$bamfile = "t/data/AddTags/sample_sm_no_tr.bam";
 ok(
     $obj = Bio::Tradis::AddTagsToSeq->new(
         bamfile     => $bamfile,
@@ -61,6 +65,31 @@ is(
     'number of reads as expected'
 );
 
+my $cramfile = "t/data/AddTags/sample_sm_tr.cram";
+
+ok(
+    $obj = Bio::Tradis::AddTagsToSeq->new(
+        bamfile     => $cramfile,
+        script_name => 'name_of_script',
+        outfile     => 't/data/output.cram'
+    ),
+    'creating object with cram file'
+);
+
+is($obj->_output_switch, '-C', 'correctly select the cram output switch');
+
+ok( $obj->add_tags_to_seq,  'testing output' );
+ok( -e 't/data/output.cram', 'checking file existence' );
+`$samtools_exec view -h -o t/data/output.sam t/data/output.cram`;
+`$samtools_exec view -h -o t/data/AddTags/expected_tradis.sam t/data/AddTags/expected_tradis.cram`;
+is(
+    read_file('t/data/output.sam'),
+    read_file('t/data/AddTags/expected_tradis.sam'),
+    'checking file contents'
+);
+
+
+unlink('t/data/output.cram');
 unlink('t/data/output.bam');
 unlink('t/data/output.sam');
 unlink('t/data/AddTags/expected_tradis.sam');

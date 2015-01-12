@@ -27,6 +27,20 @@ ok(
 );
 is( $obj->tags_present, 1, 'testing output' );
 
+
+my $cramfile = "t/data/DetectTags/sample_sm_tr.cram";
+
+ok(
+    $obj = Bio::Tradis::DetectTags->new(
+        bamfile     => $cramfile,
+        script_name => 'name_of_script'
+    ),
+    'testing tag checker for cram- tradis'
+);
+is( $obj->tags_present, 1, 'testing output cram' );
+
+
+
 $bamfile = "t/data/DetectTags/sample_sm_no_tr.bam";
 
 ok(
