@@ -63,4 +63,5 @@ is(
 unlink('t/data/output.bam');
 unlink('t/data/output.sam');
 unlink('t/data/AddTags/expected_tradis.sam');
+unlink('t/data/AddTags/sample_sm_no_tr.sam');
 done_testing();
