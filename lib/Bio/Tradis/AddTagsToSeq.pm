@@ -44,9 +44,11 @@ C<add_tags_to_seq> - add TraDIS tags to reads. For unmapped reads, the tag
 use Moose;
 use Bio::Seq;
 use Bio::Tradis::Parser::Bam;
+use File::Basename;
 
 no warnings qw(uninitialized);
 
+has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 has 'bamfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'outfile' => (
@@ -61,6 +63,16 @@ has 'outfile' => (
     }
 );
 
+has '_file_extension' => ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__file_extension' );
+has 'extension_to_output_switch' => ( is => 'rw', isa => 'HashRef', default => sub{ {cram => '-C', bam => '-b'} } );
+
+sub _build__file_extension
+{
+  my ($self) = @_;
+  my($filename, $dirs, $suffix) = fileparse($self->bamfile,qr/[^.]*/);
+  return lc($suffix);
+}
+
 sub add_tags_to_seq {
     my ($self) = @_;
 
@@ -69,12 +81,12 @@ sub add_tags_to_seq {
     my $outfile   = $self->outfile;
 
     #open temp file in SAM format and output headers from current BAM to it
-    print STDERR "Reading BAM header\n";
+    print STDERR "Reading ".uc($self->_file_extension)." header\n" if($self->verbose);
     system($self->samtools_exec." view -H $filename > tmp.sam");
     open( TMPFILE, '>>tmp.sam' );
 
     #open BAM file
-    print STDERR "Reading BAM file\n";
+    print STDERR "Reading ".uc($self->_file_extension)." file\n" if($self->verbose);
     my $pars = Bio::Tradis::Parser::Bam->new( file => $filename );
     my $read_info = $pars->read_info;
 
@@ -146,8 +158,10 @@ sub add_tags_to_seq {
     close TMPFILE;
 
     #convert tmp.sam to bam
-    print STDERR "Convert SAM to BAM\n";
-    system($self->samtools_exec." view -h -S -b -o $outfile tmp.sam");
+    print STDERR "Convert SAM to ".uc($self->_file_extension)."\n" if($self->verbose);
+    
+    
+    system($self->samtools_exec." view -h -S ".$self->_output_switch." -o $outfile tmp.sam");
 
     if ( $self->_number_of_lines_in_bam_file($outfile) !=
         $self->_number_of_lines_in_bam_file($filename) )
@@ -159,6 +173,19 @@ sub add_tags_to_seq {
     #remove tmp file
     unlink("tmp.sam");
     return 1;
+}
+
+sub _output_switch
+{
+  my ( $self ) = @_;
+  if(defined($self->extension_to_output_switch->{$self->_file_extension}))
+  {
+    return $self->extension_to_output_switch->{$self->_file_extension};
+  }
+  else
+  {
+    return '';
+  }
 }
 
 sub _number_of_lines_in_bam_file {
