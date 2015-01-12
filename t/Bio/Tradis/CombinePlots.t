@@ -5,8 +5,8 @@ use File::Slurp;
 use Cwd;
 use File::Path qw( remove_tree );
 
+BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '../lib' ) }
-
 BEGIN {
     use Test::Most;
     use Test::Files;

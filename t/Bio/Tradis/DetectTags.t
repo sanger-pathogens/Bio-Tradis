@@ -4,6 +4,7 @@ use warnings;
 use File::Temp;
 
 BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '../lib' ) }
 
 BEGIN {
     use Test::Most;
