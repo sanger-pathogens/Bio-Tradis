@@ -4,10 +4,8 @@ use warnings;
 use File::Temp;
 use File::Slurp;
 
-BEGIN { 
-        unshift( @INC, '../lib' );
-        unshift( @INC, './lib' );
-}
+BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '../lib' ) }
 
 BEGIN {
     use Test::Most;
