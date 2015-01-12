@@ -78,6 +78,7 @@ has 'outfile' => (
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 has '_destination' => (
     is       => 'rw',
@@ -307,7 +308,7 @@ sub _bamcheck {
     my $destination_directory = $self->_destination;
 
     system(
-"bamcheck $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
+$self->samtools_exec." stats $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
     );
     return 1;
 }
