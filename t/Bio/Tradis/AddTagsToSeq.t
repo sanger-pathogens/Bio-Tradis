@@ -10,6 +10,7 @@ BEGIN {
     use Test::Most;
     use_ok('Bio::Tradis::AddTagsToSeq');
 }
+my $samtools_exec = 'samtools';
 
 my $destination_directory_obj = File::Temp->newdir( CLEANUP => 1 );
 my $destination_directory = $destination_directory_obj->dirname();
@@ -28,8 +29,8 @@ ok(
 );
 ok( $obj->add_tags_to_seq,  'testing output' );
 ok( -e 't/data/output.bam', 'checking file existence' );
-`samtools view -h -o t/data/output.sam t/data/output.bam`;
-`samtools view -h -o t/data/AddTags/expected_tradis.sam t/data/AddTags/expected_tradis.bam`;
+`$samtools_exec view -h -o t/data/output.sam t/data/output.bam`;
+`$samtools_exec view -h -o t/data/AddTags/expected_tradis.sam t/data/AddTags/expected_tradis.bam`;
 is(
     read_file('t/data/output.sam'),
     read_file('t/data/AddTags/expected_tradis.sam'),
@@ -46,8 +47,8 @@ ok(
     'creating object'
 );
 ok( -e 't/data/output.bam', 'checking file existence' );
-`samtools view -h -o t/data/output.sam t/data/output.bam`;
-`samtools view -h -o t/data/AddTags/sample_sm_no_tr.sam t/data/AddTags/sample_sm_no_tr.bam`;
+`$samtools_exec view -h -o t/data/output.sam t/data/output.bam`;
+`$samtools_exec view -h -o t/data/AddTags/sample_sm_no_tr.sam t/data/AddTags/sample_sm_no_tr.bam`;
 is(
     read_file('t/data/AddTags/sample_sm_no_tr.sam'),
     read_file('t/data/output.sam'),

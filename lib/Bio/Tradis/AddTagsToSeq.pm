@@ -70,7 +70,7 @@ sub add_tags_to_seq {
 
     #open temp file in SAM format and output headers from current BAM to it
     print STDERR "Reading BAM header\n";
-    system("samtools view -H $filename > tmp.sam");
+    system($self->samtools_exec." view -H $filename > tmp.sam");
     open( TMPFILE, '>>tmp.sam' );
 
     #open BAM file
@@ -147,7 +147,7 @@ sub add_tags_to_seq {
 
     #convert tmp.sam to bam
     print STDERR "Convert SAM to BAM\n";
-    system("samtools view -h -S -b -o $outfile tmp.sam");
+    system($self->samtools_exec." view -h -S -b -o $outfile tmp.sam");
 
     if ( $self->_number_of_lines_in_bam_file($outfile) !=
         $self->_number_of_lines_in_bam_file($filename) )
@@ -163,7 +163,7 @@ sub add_tags_to_seq {
 
 sub _number_of_lines_in_bam_file {
     my ( $self, $filename ) = @_;
-    open( my $fh, '-|', "samtools view $filename | wc -l" )
+    open( my $fh, '-|', $self->samtools_exec." view $filename | wc -l" )
       or die "Couldn't open file :" . $filename;
     my $number_of_lines_in_file = <$fh>;
     $number_of_lines_in_file =~ s!\W!!gi;

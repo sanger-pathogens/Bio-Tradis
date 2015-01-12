@@ -287,7 +287,7 @@ sub _sam2bam {
     my $destination_directory = $self->_destination;
 
     system(
-"samtools view -b -o $destination_directory/mapped.bam -S $destination_directory/mapped.sam"
+$self->samtools_exec." view -b -o $destination_directory/mapped.bam -S $destination_directory/mapped.sam"
     );
     return 1;
 }
@@ -297,9 +297,9 @@ sub _sort_bam {
     my $destination_directory = $self->_destination;
 
     system(
-"samtools sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
+$self->samtools_exec." sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
     );
-    system("samtools index $destination_directory/mapped.sort.bam");
+    system($self->samtools_exec." index $destination_directory/mapped.sort.bam");
     return 1;
 }
 
