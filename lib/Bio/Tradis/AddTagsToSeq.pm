@@ -47,6 +47,7 @@ use Bio::Tradis::Parser::Bam;
 
 no warnings qw(uninitialized);
 
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 has 'bamfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'outfile' => (
     is       => 'rw',
@@ -75,7 +76,7 @@ sub add_tags_to_seq {
     #open BAM file
     print STDERR "Reading BAM file\n";
     my $pars = Bio::Tradis::Parser::Bam->new( file => $filename );
-	my $read_info = $pars->read_info;
+    my $read_info = $pars->read_info;
 
     while ( $pars->next_read ) {
         my $read_info = $pars->read_info;
@@ -146,7 +147,7 @@ sub add_tags_to_seq {
 
     #convert tmp.sam to bam
     print STDERR "Convert SAM to BAM\n";
-    system("samtools view -S -b -o $outfile tmp.sam");
+    system("samtools view -h -S -b -o $outfile tmp.sam");
 
     if ( $self->_number_of_lines_in_bam_file($outfile) !=
         $self->_number_of_lines_in_bam_file($filename) )
