@@ -78,6 +78,7 @@ has 'outfile' => (
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 has '_destination' => (
     is       => 'rw',
@@ -286,7 +287,7 @@ sub _sam2bam {
     my $destination_directory = $self->_destination;
 
     system(
-"samtools view -b -o $destination_directory/mapped.bam -S $destination_directory/mapped.sam"
+$self->samtools_exec." view -b -o $destination_directory/mapped.bam -S $destination_directory/mapped.sam"
     );
     return 1;
 }
@@ -296,9 +297,9 @@ sub _sort_bam {
     my $destination_directory = $self->_destination;
 
     system(
-"samtools sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
+$self->samtools_exec." sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
     );
-    system("samtools index $destination_directory/mapped.sort.bam");
+    system($self->samtools_exec." index $destination_directory/mapped.sort.bam");
     return 1;
 }
 
@@ -307,7 +308,7 @@ sub _bamcheck {
     my $destination_directory = $self->_destination;
 
     system(
-"bamcheck $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
+$self->samtools_exec." stats $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
     );
     return 1;
 }
