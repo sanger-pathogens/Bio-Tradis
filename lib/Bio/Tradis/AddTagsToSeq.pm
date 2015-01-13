@@ -59,6 +59,7 @@ has 'outfile' => (
         my ($self) = @_;
         my $o = $self->bamfile;
         $o =~ s/\.bam/\.tr\.bam/;
+        $o =~ s/\.cram/\.tr\.cram/;
         return $o;
     }
 );
