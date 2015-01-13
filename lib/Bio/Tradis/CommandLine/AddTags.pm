@@ -19,21 +19,28 @@ has 'bamfile'     => ( is => 'rw', isa => 'Str',      required => 0 );
 has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
 has 'outfile'     => ( is => 'rw', isa => 'Str',      required => 0 );
 
+has 'verbose'       => ( is => 'rw', isa => 'Bool', default => 0 );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
+
 sub BUILD {
     my ($self) = @_;
 
-    my ( $bamfile, $outfile, $help );
+    my ( $bamfile, $outfile, $help, $verbose, $samtools_exec);
 
     GetOptionsFromArray(
         $self->args,
         'b|bamfile=s' => \$bamfile,
         'o|outfile=s' => \$outfile,
-        'h|help'      => \$help
+        'h|help'      => \$help,
+        'v|verbose'         => \$verbose,
+        'samtools_exec=s'   => \$samtools_exec,
     );
 
     $self->bamfile( abs_path($bamfile) ) if ( defined($bamfile) );
     $self->outfile( abs_path($outfile) ) if ( defined($outfile) );
     $self->help($help)                   if ( defined($help) );
+    $self->verbose($verbose)             if ( defined($verbose) );
+    $self->samtools_exec($samtools_exec) if ( defined($samtools_exec) );
 
 	# print usage text if required parameters are not present
 	($bamfile) or die $self->usage_text;
@@ -49,7 +56,9 @@ sub run {
 
     my $tagadd = Bio::Tradis::AddTagsToSeq->new(
         bamfile => $self->bamfile,
-        outfile => $self->outfile
+        outfile => $self->outfile,
+        verbose       => $self->verbose,
+        samtools_exec => $self->samtools_exec
     );
     $tagadd->add_tags_to_seq;
 }
@@ -64,6 +73,7 @@ Usage: add_tags -b file.bam [options]
 Options:
 -b  : bam file with tradis tags
 -o  : output BAM name (optional. default: <file>.tr.bam)
+-v  : verbose debugging output
 
 USAGE
       exit;
