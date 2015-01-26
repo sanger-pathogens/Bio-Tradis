@@ -12,6 +12,8 @@ Bio-Tradis provides functionality to:
 * create an insertion site plot file
 available as standalone scripts or as perl modules.
 
+It requires the htslib version of samtools http://www.htslib.org/ 
+
 Objects and Methods
 ===================
 ####Bio::Tradis::DetectTags
