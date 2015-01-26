@@ -176,7 +176,7 @@ sub _prepare_and_create_tabix_for_combined_plots {
   print $tabix_plot_fh join( "\n", @{ $tabix_plot } );
   close($tabix_plot_fh);
 
-  `zcat $tabix_plot_name | sort -k1,1 -k2,2n | bgzip > $sorted_tabix_plot_name && tabix -b 2 -e 2 $sorted_tabix_plot_name`;
+  `cat $tabix_plot_name | gunzip - | sort -k1,1 -k2,2n | bgzip > $sorted_tabix_plot_name && tabix -b 2 -e 2 $sorted_tabix_plot_name`;
   unlink($tabix_plot_name);
 
 }
