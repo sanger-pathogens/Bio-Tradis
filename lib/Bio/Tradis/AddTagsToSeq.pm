@@ -59,6 +59,7 @@ has 'outfile' => (
         my ($self) = @_;
         my $o = $self->bamfile;
         $o =~ s/\.bam/\.tr\.bam/;
+        $o =~ s/\.cram/\.tr\.cram/;
         return $o;
     }
 );
@@ -87,7 +88,7 @@ sub add_tags_to_seq {
 
     #open BAM file
     print STDERR "Reading ".uc($self->_file_extension)." file\n" if($self->verbose);
-    my $pars = Bio::Tradis::Parser::Bam->new( file => $filename );
+    my $pars = Bio::Tradis::Parser::Bam->new( file => $filename, samtools_exec => $self->samtools_exec );
     my $read_info = $pars->read_info;
 
     while ( $pars->next_read ) {
