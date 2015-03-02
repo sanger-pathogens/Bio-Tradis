@@ -30,10 +30,11 @@ use Moose;
 use Bio::Tradis::Parser::Bam
 
 has 'bamfile' => ( is => 'ro', isa => 'Str', required => 1 );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 sub tags_present {
     my ($self) = @_;
-    my $pars = Bio::Tradis::Parser::Bam->new( file => $self->bamfile);
+    my $pars = Bio::Tradis::Parser::Bam->new( file => $self->bamfile, samtools_exec => $self->samtools_exec );
     my $read_info = $pars->read_info;
     $pars->next_read;
     $read_info = $pars->read_info;
