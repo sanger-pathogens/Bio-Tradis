@@ -74,10 +74,35 @@ is(
 	'checking stats file contents'
 );
 
-unlink('first.test.plot');
-unlink('second.test.plot');
-unlink('zip_combined.test.plot');
-unlink('comb_sample.stats');
-unlink('zip_comb_list.stats');
-remove_tree('combined');
+# check custom directory name
+$plotfile = "t/data/CombinePlots/comb_sample.txt";
+ok( $obj = Bio::Tradis::CombinePlots->new( 
+        plotfile     => $plotfile,
+        combined_dir => 'comb_test' 
+    ),
+    'creating object' 
+);
+
+ok( $obj->combine, 'combining plots' );
+ok( -d 'comb_test', 'checking directory exists' );
+ok(
+    -e 'comb_test/first.insert_site_plot.gz',
+    'checking first combined plot file exists'
+);
+ok(
+    -e 'comb_test/second.insert_site_plot.gz',
+    'checking second combined plot file exists'
+);
+
+cleanup_files();
 done_testing();
+
+sub cleanup_files {
+    unlink('first.test.plot');
+    unlink('second.test.plot');
+    unlink('zip_combined.test.plot');
+    unlink('comb_sample.stats');
+    unlink('zip_comb_list.stats');
+    remove_tree('combined');
+    remove_tree('comb_test');
+}
