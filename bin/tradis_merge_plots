@@ -1,0 +1,98 @@
+#!/usr/bin/env perl
+
+package Bio::Tradis::Bin::MergePlots;
+
+# ABSTRACT: 
+
+# PODNAME: tradis_merge_plots
+
+=head1 NAME
+
+tradis_merge_plots
+
+=head1 SYNOPSIS
+
+tradis_merge_plots - Given a study name or ID, group by sample and tag, and generate tab files for input to R.
+
+=head1 DESCRIPTION
+
+Given a study name or ID, group by sample and tag, and generate tab files for input to R.
+
+=head1 CONTACT
+
+path-help@sanger.ac.uk
+
+=head1 METHODS
+
+=cut
+
+package TraDISMergePlots::Main;
+
+use Moose;
+use Getopt::Long;
+use File::Basename;
+my ( $study, $help );
+
+GetOptions(
+    'h|help'              => \$help,
+);
+
+
+( defined($ARGV[0]) && !$help ) or die <<USAGE;
+Usage: tradis_merge_plots [options]
+Given a study name or ID, group by sample and tag, and generate tab files for input to R.
+
+# run over sequencescape study 1234
+tradis_merge_plots 1234
+
+# Provide a name instead of a study ID
+tradis_merge_plots "My Study"
+
+# This help message
+tradis_merge_plots -h
+
+USAGE
+$study = $ARGV[0];
+
+
+open(my $coverage_plots_fh, '-|', 'tradisfind -t study -i "'.$study.'" -d');
+
+my %coverage_plots;
+while(<$coverage_plots_fh>)
+{
+  my $line = $_;
+  chomp($line);
+  my @full_details = split("\t", $line);
+  my @file_path_details = split('/', $full_details[0]);
+  my @lane_details = split('#',$file_path_details[14]);
+  $full_details[1] =~ s!\.gff!.embl!i;
+  
+  # library name, path to annotation, tag number => path
+  if(! defined($coverage_plots{$file_path_details[13]}{$full_details[1]}{$lane_details[1]}) )
+  {
+    my @plots;
+    push(@plots, $full_details[0]);
+    $coverage_plots{$file_path_details[13]}{$full_details[1]}{$lane_details[1]} = \@plots;
+  }
+  else
+  {
+    push(@{$coverage_plots{$file_path_details[13]}{$full_details[1]}{$lane_details[1]}},$full_details[0]);
+  }
+}
+
+for my $library_name (keys %coverage_plots)
+{
+  for my $path_to_annotation (keys %{$coverage_plots{$library_name}})
+  {
+    my  $annotation_name = fileparse( $path_to_annotation  );
+    for my $tag (keys %{$coverage_plots{$library_name}{$path_to_annotation}})
+    {
+      my $joined_plots = join(' ', @{$coverage_plots{$library_name}{$path_to_annotation}{$tag}});
+    
+      my $outputfilename = join("_",($library_name, $tag,$annotation_name));
+      my $cmd = join(" ", ("tradis_gene_insert_sites", '-o', $outputfilename.'.csv', $path_to_annotation, $joined_plots ));
+      `bsub -M1000 -R 'select[mem>1000] rusage[mem=1000]' '$cmd'`;
+      print "Output from bsub will be in: ".$outputfilename.'.csv'."\n";
+    }
+  }
+}

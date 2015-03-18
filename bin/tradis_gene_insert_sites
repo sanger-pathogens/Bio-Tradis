@@ -1,0 +1,329 @@
+#!/usr/bin/env perl
+
+package Bio::Tradis::Bin::GeneInsertSites;
+
+# ABSTRACT: Generate insertion site details from TraDIS pipeline plots
+
+# PODNAME: tradis_gene_insert_sites
+
+=head1 NAME
+
+tradis_gene_insert_sites.pl
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+This script is for TRADIS analysis. It takes in a plot file created by the TRADIS pathogen informatics pipeline, and an embl file of
+annotation.
+It then outputs a tab delimited file with the insert site details. This is then used as input to an R script to calculate essentialit
+y.
+
+=head1 CONTACT
+
+path-help@sanger.ac.uk
+Original author: Lars Barquist
+
+=head1 METHODS
+
+=cut
+
+use strict;
+use warnings;
+no warnings 'uninitialized';
+use Bio::SeqIO;
+use Getopt::Long;
+use Text::CSV;
+use File::Basename;
+use Data::Dumper;
+
+my ($help,$output_suffix,$trim5,$trim3,$joined_output);
+
+GetOptions(
+    'o|output_suffix=s'   => \$output_suffix,
+    'trim5=f'             => \$trim5,
+    'trim3=f'             => \$trim3,
+    'j|joined_output'     => \$joined_output,
+    'h|help'              => \$help,
+);
+
+my $usage = qq[
+Take in a plot file(s) and an embl file and produce a tab delimited file with insert site details to use as input to an R script to t
+est for essentiality.
+
+Usage: tradis_gene_insert_sites
+    -o|output_suffix     <suffix to add to output files (optional, default = tradis_gene_insert_sites.csv)>
+    -trim5               <trim insertion sites from 5' end of gene (optional, default = 0)>
+    -trim3               <trim insertion sites from 3' end of gene (optional, default = 0)>
+    -j|joined_output     <output a single file with all info. default = one file per input file>
+    -h|help              <display this message>
+
+tradis_gene_insert_sites my_annotation.embl my_insert_site_plot.gz
+
+tradis_gene_insert_sites my_annotation.embl my_insert_site_plot
+
+# multiple plot files
+tradis_gene_insert_sites my_annotation.embl plot1.gz plot2.gz plot3.gz plot4.gz
+
+# specifiy an output suffix
+# this will result in a file named my_insert_site_plot1.my_output.csv
+tradis_gene_insert_sites -o my_output.csv my_annotation.embl my_insert_site_plot1
+
+# Trim insertion sites from start or end of gene
+tradis_gene_insert_sites my_annotation.embl -trim5 0.1 -trim3 0.1 my_annotation.embl my_insert_site_plot.gz
+
+The trim parameter is the fraction of the gene length trimmed.
+
+# place all info into a single file
+tradis_gene_insert_sites -o output_suffix.csv -j my_annotation.embl plot1.gz plot2.gz plot3.gz
+
+Resulting file: joined_output.output_suffix.csv
+
+];
+
+
+$output_suffix ||= "tradis_gene_insert_sites.csv";
+$trim5 ||= 0;
+$trim3 ||= 0;
+
+( !$help
+  && scalar( @ARGV ) > 2
+  && $trim5 >= 0 && $trim5 < 1
+  && $trim3 >= 0 && $trim3 < 1 ) or die $usage;
+
+my $embl_file = shift @ARGV;
+my $cds_coordinates  = cds_locations($embl_file);
+my $annotation_file =  Bio::SeqIO->new(-file => $embl_file, -format => 'EMBL') or die "Error: Couldnt open the annotation file\n";
+
+
+my @out_list = create_output_files( \@ARGV, $joined_output, $output_suffix );
+my @ins_list = prepare_inputs( \@ARGV, $joined_output );
+
+my $loop_index = 0;
+for my $insert_sites ( @ins_list ){
+    my $output_filename = $out_list[$loop_index];
+    open(my $out_fh, "+>", $output_filename) or die "Couldnt open output file\n";
+    my $csv = Text::CSV->new ( { binary => 1, sep_char  => "\t" } ) or die "";
+    $csv->eol("\n");
+    $csv->print($out_fh, output_header());
+
+    while (my $sequence_annotation = $annotation_file->next_seq())
+    {
+      for my $feature ($sequence_annotation->get_SeqFeatures())
+      {
+        next if($feature->primary_tag eq 'gene' && (  is_gene_within_cds($cds_coordinates, $feature) == 1) );
+
+        next if !($feature->primary_tag eq 'CDS' || $feature->primary_tag eq 'polypeptide' || $feature->primary_tag eq 'gene');
+        my $feature_id    = get_feature_id($feature);
+        my $gene_name     = get_gene_name($feature);
+        my $product_value = get_product_value($feature);
+        my $rna_value     = get_rna_value($feature);
+
+        # Trim insertion sites from start or end of gene
+        # Number of bases trimmed are -trim5 or -trim3 parameters multiplied by gene length.
+        my ($read_start,$read_end);
+        if($feature->strand == 1){
+            $read_start = $feature->start + int($trim5 * ($feature->end - $feature->start + 1));
+            $read_end = $feature->end - int($trim3 * ($feature->end - $feature->start + 1));
+        }else {
+            $read_start = $feature->start + int($trim3 * ($feature->end - $feature->start + 1));
+            $read_end = $feature->end - int($trim5 * ($feature->end - $feature->start + 1));
+        }
+
+        my $count = 0;
+        my $inserts = 0;
+        for(my $j=$read_start;$j < $read_end; $j++){
+            $count += $insert_sites->[$j];
+            $inserts += 1 if $insert_sites->[$j] > 0;
+        }
+        my $ins_index = $inserts / ($read_end - $read_start + 1);
+
+        my $row = [$feature_id,$gene_name,$rna_value,$feature->start,$feature->end,$feature->strand,$count,$ins_index, ($feature->end - $
+    feature->start + 1),$inserts,$product_value];
+        $csv->print($out_fh, $row);
+      }
+    }
+    close($out_fh);
+    $loop_index++;
+}
+
+sub prepare_inputs {
+    my ( $files, $joined_output ) = @_;
+
+    if( $joined_output ){
+        my $insert_sites;
+        for my $f ( @{ $files } ) {
+            $insert_sites = read_in_plot_file( $f, $insert_sites );
+        }
+        return ($insert_sites);
+    }
+    else {
+        my @ins_list;
+        for my $f ( @{ $files } ){
+            push( @ins_list, read_in_plot_file( $f, [] ) );
+        }
+        return @ins_list;
+    }
+}
+
+sub create_output_files {
+    my ( $files, $joined_output, $output_suffix ) = @_;
+
+    return ("joined_output.$output_suffix") if ( $joined_output );
+
+    my @outfiles;
+    for my $f ( @{ $files } ){
+        my $basename = fileparse( $f, '.gz' );
+        $basename =~ s/\.insert_site_plot//;
+        push( @outfiles, "$basename.$output_suffix" );
+    }
+    return @outfiles;
+}
+
+sub is_gene_within_cds
+{
+   my($cds_coordinates, $gene_feature) = @_;
+   for my $current_coords(@{$cds_coordinates})
+   {
+     next if( $current_coords->[0] > $gene_feature->start);
+     next if( $current_coords->[1] < $gene_feature->end);
+     return 1;
+   }
+
+   return 0;
+}
+
+sub cds_locations
+{
+  my($embl_file) = @_;
+  my @cds_coordinates;
+
+  my $annotation_file =  Bio::SeqIO->new(-file => $embl_file, -format => 'EMBL') or die "Error: Couldnt open the annotation file\n";
+  while (my $sequence_annotation = $annotation_file->next_seq())
+  {
+    for my $feature ($sequence_annotation->get_SeqFeatures())
+    {
+      next if !($feature->primary_tag eq 'CDS');
+      push(@cds_coordinates, [$feature->start,$feature->end]);
+    }
+  }
+  return \@cds_coordinates;
+}
+
+
+sub get_feature_id
+{
+  my($feature) = @_;
+  my $feature_id = int(rand(10000));
+  my @junk;
+  if($feature->has_tag('locus_tag'))
+  {
+    ($feature_id, @junk) = $feature->get_tag_values('locus_tag');
+  }
+  elsif($feature->has_tag('ID'))
+  {
+    ($feature_id, @junk) = $feature->get_tag_values('ID');
+  }
+  elsif($feature->has_tag('systematic_id'))
+  {
+    ($feature_id, @junk) = $feature->get_tag_values('systematic_id');
+  }
+  else
+  {
+    $feature_id = join("_",($feature->seq_id(), $feature->strand, $feature->start, $feature->end ));
+  }
+  $feature_id =~ s/^"|"$//g;
+  return $feature_id ;
+}
+
+sub get_gene_name
+{
+  my($feature) = @_;
+  my $gene_name;
+  my @junk;
+  if($feature->has_tag('gene'))
+  {
+    ($gene_name, @junk) = $feature->get_tag_values('gene');
+  }
+  else
+  {
+    $gene_name = get_feature_id($feature);
+  }
+  $gene_name =~ s/\W//g;
+  return $gene_name;
+}
+
+sub get_product_value
+{
+  my($feature) = @_;
+  my $product = "";
+  my @junk;
+  if($feature->has_tag('product'))
+  {
+    ($product, @junk) = $feature->get_tag_values('product');
+  }
+  my $pseudo_gene  = get_pseudo_gene_value($feature);
+  if(defined($pseudo_gene))
+  {
+    return $pseudo_gene;
+  }
+
+  return $product;
+}
+
+sub read_in_plot_file
+{
+  my($plot_filename,$read_ar) = @_;
+
+  my $fh;
+
+  if($plot_filename =~ m/gz$/)
+  {
+    open($fh, "-|",'gunzip -c '.$plot_filename) or die "Couldnt open plot file\n";
+  }
+  else
+  {
+    open($fh, $plot_filename) or die "Couldnt open plot file\n";
+  }
+  my $i = 0;
+  while(<$fh>)
+  {
+    chomp;
+    my @inserts_per_base = split /\s/, $_;
+    my $combined_insert_for_base =  $inserts_per_base[0] + $inserts_per_base[1];
+    if(defined($read_ar->[$i]))
+    {
+      $read_ar->[$i] += $combined_insert_for_base;
+    }
+    else
+    {
+      push(@{$read_ar}, $combined_insert_for_base);
+    }
+    $i++;
+  }
+  close($fh);
+  return $read_ar;
+}
+
+sub get_rna_value
+{
+   my($feature) = @_;
+
+   return 1 if($feature->has_tag('ncRNA'));
+   return 0;
+}
+
+sub get_pseudo_gene_value
+{
+  my($feature) = @_;
+  if($feature->has_tag('pseudo'))
+  {
+    return "pseudogene";
+  }
+  return undef;
+}
+
+sub output_header
+{
+  ['locus_tag','gene_name','ncrna','start','end','strand','read_count','ins_index','gene_length','ins_count','fcn'];
+}

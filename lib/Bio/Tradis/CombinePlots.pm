@@ -10,9 +10,9 @@ plotfile and as an identifier in the stats file, so ensure these are unique.
 
 For example, an input file named plots_to_combine.txt:
 
-	tradis1	plot1.1.gz	plot1.2.gz plot1.3.gz
-	tradis2 plot2.1.gz	plot2.2.gz
-	tradis3	plot3.1.gz	plot3.2.gz plot3.3.gz	plot3.4.gz
+    tradis1 plot1.1.gz  plot1.2.gz plot1.3.gz
+    tradis2 plot2.1.gz  plot2.2.gz
+    tradis3 plot3.1.gz  plot3.2.gz plot3.3.gz   plot3.4.gz
 
 will produce 
 =over
@@ -41,7 +41,8 @@ use Data::Dumper;
 use Cwd;
 use Bio::Tradis::Analysis::Exceptions;
 
-has 'plotfile' => ( is => 'rw', isa => 'Str', required => 1 );
+has 'plotfile'     => ( is => 'rw', isa => 'Str', required => 1 );
+has 'combined_dir' => ( is => 'rw', isa => 'Str', default  => 'combined' );
 has '_plot_handle' => (
     is       => 'ro',
     isa      => 'FileHandle',
@@ -88,7 +89,7 @@ sub _build__stats_handle {
 
 sub _build__plot_handle {
     my ($self) = @_;
-	my $plot = $self->plotfile;
+    my $plot = $self->plotfile;
     open( my $plot_h, "<", $plot );
     return $plot_h;
 }
@@ -108,19 +109,21 @@ sub combine {
     my ($self)       = @_;
     my $ordered_keys = $self->_ordered_plot_ids;
     my $plot_handle  = $self->_plot_handle;
+    my $combined_dir = $self->combined_dir;
 
     $self->_write_stats_header;
 
-    system("mkdir combined") unless ( -d "combined" );
+
+    system("mkdir $combined_dir") unless ( -d "$combined_dir" );
     my @tabix_plot;
+
     while ( my $line = <$plot_handle> ) {
         #parse line into hash. keys = id, len, files. unzips files if needed.
         my %plothash = $self->_parse_line($line);
-
         my $id       = $plothash{'id'};
 
         #create output plot file
-        my $comb_plot_name = "combined/$id.insert_site_plot";
+        my $comb_plot_name = "$combined_dir/$id.insert_site_plot";
         my $filelen = $plothash{'len'};
         my ( @currentlines, $this_line );
 
@@ -155,6 +158,7 @@ sub combine {
         system("gzip -f $comb_plot_name");
     }
 
+
     if (@tabix_plot) {
       $self->_prepare_and_create_tabix_for_combined_plots(\@tabix_plot);
     }
@@ -187,17 +191,17 @@ sub _parse_line {
     chomp $line;
     my @fields = split( /\s+/, $line );
     my $id     = shift @fields;
-	my @files = @{ $self->_unzip_plots(\@fields) };
+    my @files = @{ $self->_unzip_plots(\@fields) };
     my $len    = $self->_get_file_len( \@files );
     if ( $len == 0 ){
-		die "\nPlots with ID $id not of equal length.\n";
-	}
-	#build file handles for each file
-	my @file_hs;
-	foreach my $f (@files){
-		open(my $fh, "<", $f);
-		push(@file_hs, $fh);
-	}
+        die "\nPlots with ID $id not of equal length.\n";
+    }
+    #build file handles for each file
+    my @file_hs;
+    foreach my $f (@files){
+        open(my $fh, "<", $f);
+        push(@file_hs, $fh);
+    }
     return ( id => $id, len => $len, files => \@file_hs );
 }
 
@@ -225,10 +229,10 @@ sub _combine_lines {
 
     my @totals = ( 0, 0 );
     foreach my $l ( @{$lines} ) {
-		if(!defined($l)){
-			return "";
-			next;
-		}
+        if(!defined($l)){
+            return "";
+            next;
+        }
         my @cols = split( /\s+/, $l );
         $totals[0] += $cols[0];
         $totals[1] += $cols[1];
@@ -246,14 +250,15 @@ sub _write_stats_header {
 
 sub _write_stats {
     my ( $self, $id, $seq_len ) = @_;
-    my $comb_plot = "combined/$id.insert_site_plot";
+    my $combined_dir = $self->combined_dir;
+    my $comb_plot = "$combined_dir/$id.insert_site_plot";
 
     #my $seq_len = `wc $comb_plot | awk '{print \$1}'`;
     #chomp($seq_len);
     my $uis = `grep -c -v "0 0" $comb_plot`;
     chomp($uis);
     my $sl_per_uis = "NaN";
-	$sl_per_uis = $seq_len / $uis if($uis > 0);
+    $sl_per_uis = $seq_len / $uis if($uis > 0);
 
     my $stats = "$id,$seq_len,$uis,$sl_per_uis\n";
     print { $self->_stats_handle } $stats;
@@ -286,7 +291,7 @@ sub _get_plotfile_path {
 sub _is_gz {
     my ( $self, $plotname ) = @_;
 
-    if ( $plotname =~ /\.gz/ ) {
+    if ( $plotname =~ /\.gz$/ ) {
         return 1;
     }
     else {
@@ -298,13 +303,13 @@ sub _unzip_plots {
     my ( $self, $files ) = @_;
     my $destination_directory = $self->_destination;
 
-	my @filelist = @{ $self->_abs_path_list($files) };
+    my @filelist = @{ $self->_abs_path_list($files) };
     my @unz_plots;
     foreach my $plotname ( @filelist ) {
         Bio::Tradis::Analysis::Exceptions::FileNotFound->throw("Cannot find $plotname\n") unless ( -e $plotname );
         if ( $self->_is_gz($plotname) ) {
             $plotname =~ /([^\/]+$)/;
-			my $unz = $1;
+            my $unz = $1;
             $unz =~ s/\.gz//;
             my $unzip_cmd = "gunzip -c $plotname > $destination_directory/$unz";
             system($unzip_cmd);
@@ -314,7 +319,7 @@ sub _unzip_plots {
             push(@unz_plots, $plotname);
         }
     }
-	return \@unz_plots;
+    return \@unz_plots;
 }
 
 __PACKAGE__->meta->make_immutable;
