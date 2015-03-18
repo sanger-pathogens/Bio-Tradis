@@ -1,10 +1,11 @@
+package Bio::Tradis::Analysis::Exceptions;
+# ABSTRACT: Custom exceptions
+
 =head1 SYNOPSIS
 
 Basic exception catcher
 
 =cut
-
-package Bio::Tradis::Analysis::Exceptions;
 
 use Exception::Class (
     Bio::Tradis::Analysis::Exceptions::FailedToOpenAlignmentSlice => { description => 'Couldnt get reads from alignment slice. Error with Samtools or BAM' },

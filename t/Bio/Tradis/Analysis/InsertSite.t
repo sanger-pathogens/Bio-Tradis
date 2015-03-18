@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-BEGIN { unshift( @INC, './modules' ) }
+BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '../lib' ) }
 
 BEGIN {
 

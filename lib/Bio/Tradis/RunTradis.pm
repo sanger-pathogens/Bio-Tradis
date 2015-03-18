@@ -53,6 +53,7 @@ use Bio::Tradis::Map;
 use Bio::Tradis::TradisPlot;
 use Bio::Tradis::Exception;
 
+has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has '_unzipped_fastq' =>
   ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__unzipped_fastq' );
@@ -78,6 +79,7 @@ has 'outfile' => (
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 has '_destination' => (
     is       => 'rw',
@@ -178,38 +180,38 @@ sub run_tradis {
     my $ref                   = $self->reference;
     Bio::Tradis::Exception::RefNotFound->throw( error => "$ref not found\n" ) unless( -e $ref );
 
-    print STDERR "::::::::::::::::::\n$fq\n::::::::::::::::::\n\n";
+    print STDERR "::::::::::::::::::\n$fq\n::::::::::::::::::\n\n" if($self->verbose);
 
     # Step 1: Filter tags that match user input tag
-    print STDERR "..........Step 1: Filter tags that match user input tag\n";
+    print STDERR "..........Step 1: Filter tags that match user input tag\n" if($self->verbose);
     $self->_filter;
 
     # Step 2: Remove the tag from the sequence and quality strings
     print STDERR
-"..........Step 2: Remove the tag from the sequence and quality strings\n";
+"..........Step 2: Remove the tag from the sequence and quality strings\n" if($self->verbose);
     $self->_remove;
 
     # Step 3: Map file to reference
-    print STDERR "..........Step 3: Map file to reference\n";
+    print STDERR "..........Step 3: Map file to reference\n" if($self->verbose);
     $self->_map;
 
     # Step 4: Convert output from SAM to BAM, sort and index
     print STDERR
-      "..........Step 3.5: Convert output from SAM to BAM and sort\n";
+      "..........Step 3.5: Convert output from SAM to BAM and sort\n" if($self->verbose);
     $self->_sam2bam;
     $self->_sort_bam;
     $self->_bamcheck;
 
     # Step 5: Generate plot
-    print STDERR "..........Step 4: Generate plot\n";
+    print STDERR "..........Step 4: Generate plot\n" if($self->verbose);
     $self->_make_plot;
 
     # Step 6: Generate statistics
-    print STDERR "..........Step 5: Generate statistics\n";
+    print STDERR "..........Step 5: Generate statistics\n" if($self->verbose);
     $self->_stats;
 
     # Step 7: Move files to current directory
-    print STDERR "..........Step 6: Move files to current directory\n";
+    print STDERR "..........Step 6: Move files to current directory\n" if($self->verbose);
     my $outfile = $self->outfile;
     system("mv $destination_directory/$outfile* \.");
     system("mv $destination_directory/mapped.sort.bam \./$outfile.mapped.bam");
@@ -217,7 +219,7 @@ sub run_tradis {
     system("mv $destination_directory/mapped.bamcheck \./$outfile.mapped.bamcheck");
 
     # Clean up
-    print STDERR "..........Clean up\n";
+    print STDERR "..........Clean up\n" if($self->verbose);
 
     unlink("$destination_directory/filter.fastq");
     unlink("$destination_directory/tags_removed.fastq");
@@ -286,7 +288,7 @@ sub _sam2bam {
     my $destination_directory = $self->_destination;
 
     system(
-"samtools view -b -o $destination_directory/mapped.bam -S $destination_directory/mapped.sam"
+$self->samtools_exec." view -b -o $destination_directory/mapped.bam -S $destination_directory/mapped.sam"
     );
     return 1;
 }
@@ -296,9 +298,9 @@ sub _sort_bam {
     my $destination_directory = $self->_destination;
 
     system(
-"samtools sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
+$self->samtools_exec." sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
     );
-    system("samtools index $destination_directory/mapped.sort.bam");
+    system($self->samtools_exec." index $destination_directory/mapped.sort.bam");
     return 1;
 }
 
@@ -307,7 +309,7 @@ sub _bamcheck {
     my $destination_directory = $self->_destination;
 
     system(
-"bamcheck $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
+$self->samtools_exec." stats $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
     );
     return 1;
 }
@@ -327,7 +329,7 @@ sub _make_plot {
 
     # if tag direction is 5, reverse plot columns
     if ( $self->tagdirection eq '5' ) {
-        print STDERR "Tag direction = 5. Reversing plot..\n";
+        print STDERR "Tag direction = 5. Reversing plot..\n" if($self->verbose);
         $self->_reverse_plots;
     }
     return 1;
@@ -343,7 +345,7 @@ sub _reverse_plots {
       glob("$destination_directory/$outfile.*.insert_site_plot.gz");
 
     foreach my $plotname (@current_plots) {
-        print STDERR "Reversing $plotname\n";
+        print STDERR "Reversing $plotname\n" if($self->verbose);
 
         #my $plotname = $self->_plotname($sn);
         system("gunzip -c $plotname > $destination_directory/tmp.plot");

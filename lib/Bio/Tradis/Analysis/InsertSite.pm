@@ -1,4 +1,5 @@
-
+package Bio::Tradis::Analysis::InsertSite;
+# ABSTRACT: Take in a bam file and plot the start position of each read
 =head1 NAME
 
 InsertSite.pm   - Take in a bam file and plot the start position of each read
@@ -17,7 +18,7 @@ $insertsite_plots_from_bam->create_plots();
 
 =cut
 
-package Bio::Tradis::Analysis::InsertSite;
+
 use Moose;
 use Bio::Tradis::Parser::Bam;
 use Bio::DB::Sam;
