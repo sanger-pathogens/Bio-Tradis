@@ -4,10 +4,8 @@ use warnings;
 use File::Temp;
 use File::Slurp;
 
-BEGIN { 
-        unshift( @INC, '../lib' );
-        unshift( @INC, './lib' );
-}
+BEGIN { unshift( @INC, './lib' ) }
+BEGIN { unshift( @INC, '../lib' ) }
 
 BEGIN {
     use Test::Most;
@@ -21,7 +19,6 @@ my $destination_directory = $destination_directory_obj->dirname();
 my ( $obj, $fastqfile, $stats_handle, $ref, $tag, $outfile );
 
 # First, test all parts and complete pipeline without mismatch
-print STDERR "Normal files, no mismatch\n";
 
 $fastqfile = "t/data/RunTradis/test.tagged.fastq";
 $ref       = "t/data/RunTradis/smallref.fa";
@@ -38,29 +35,29 @@ ok(
         _destination  => $destination_directory_obj->dirname,
         _stats_handle => $stats_handle
     ),
-    'creating object'
+    'creating object - Normal files, no mismatch'
 );
 
 # Filtering step
 ok( $obj->_filter, 'testing filtering step' );
 ok(
     -e "$destination_directory/filter.fastq",
-    'checking filtered file existence'
+    'checking filtered file existence - Normal files, no mismatch'
 );
 is(
     read_file("$destination_directory/filter.fastq"),
     read_file('t/data/RunTradis/filtered.fastq'),
-    'checking filtered file contents'
+    'checking filtered file contents - Normal files, no mismatch'
 );
 
 # Tag removal
 ok( $obj->_remove, 'testing tag removal' );
 ok( -e "$destination_directory/tags_removed.fastq",
-    'checking de-tagged file existence' );
+    'checking de-tagged file existence - Normal files, no mismatch' );
 is(
     read_file("$destination_directory/tags_removed.fastq"),
     read_file('t/data/RunTradis/notags.fastq'),
-    'checking de-tagged file contents'
+    'checking de-tagged file contents - Normal files, no mismatch'
 );
 
 # Mapping
@@ -78,19 +75,19 @@ ok( -e "$destination_directory/mapped.bam", 'checking BAM existence' );
 # Sorting
 ok( $obj->_sort_bam, 'testing BAM sorting' );
 ok( -e "$destination_directory/mapped.sort.bam",
-    'checking sorted BAM existence' );
+    'checking sorted BAM existence - Normal files, no mismatch' );
 ok( -e "$destination_directory/mapped.sort.bam.bai",
-    'checking indexed BAM existence' );
+    'checking indexed BAM existence - Normal files, no mismatch' );
 
 #Bamcheck
 ok( $obj->_bamcheck, 'testing bamcheck' );
 ok( -e "$destination_directory/mapped.bamcheck",
-    'checking bamcheck file existence' );
+    'checking bamcheck file existence - Normal files, no mismatch' );
 
 # Plot
 ok( $obj->_make_plot, 'testing plotting' );
 ok( -e "$destination_directory/test.plot.AE004091.insert_site_plot.gz",
-    'checking plot file existence' );
+    'checking plot file existence - Normal files, no mismatch' );
 system(
 "gunzip -c $destination_directory/test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped"
 );
@@ -98,19 +95,19 @@ system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
     read_file('expected.plot.unzipped'),
-    'checking plot file contents'
+    'checking plot file contents - Normal files, no mismatch'
 );
 
 # Complete pipeline
-ok( $obj->run_tradis, 'testing complete analysis' );
+ok( $obj->run_tradis, 'testing complete analysis - Normal files, no mismatch' );
 ok( -e 'test.plot.AE004091.insert_site_plot.gz',
-    'checking plot file existence' );
+    'checking plot file existence - Normal files, no mismatch' );
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
 system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
     read_file('expected.plot.unzipped'),
-    'checking completed pipeline file contents'
+    'checking completed pipeline file contents - Normal files, no mismatch'
 );
 
 unlink("$destination_directory/filter.fastq");
@@ -121,7 +118,6 @@ unlink('expected.plot.unzipped');
 unlink('test.plot.unzipped');
 
 # Test complete pipeline with 1 mismatch allowed
-print STDERR "Normal files one mismatch\n";
 
 ok(
     $obj = Bio::Tradis::RunTradis->new(
@@ -133,19 +129,19 @@ ok(
         _destination  => $destination_directory_obj->dirname,
         _stats_handle => $stats_handle
     ),
-    'creating object'
+    'creating object - Normal files one mismatch'
 );
 
 ok( $obj->run_tradis, 'testing complete analysis with mismatch' );
 ok( -e 'test.plot.AE004091.insert_site_plot.gz',
-    'checking plot file existence' );
+    'checking plot file existence - Normal files one mismatch' );
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
 system(
     "gunzip -c t/data/RunTradis/expected.1mm.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
     read_file('expected.plot.unzipped'),
-    'checking completed pipeline with mismatch file contents'
+    'checking completed pipeline with mismatch file contents - Normal files one mismatch'
 );
 
 unlink("tmp1.sam");
@@ -165,23 +161,23 @@ ok(
         _destination  => $destination_directory_obj->dirname,
         _stats_handle => $stats_handle
     ),
-    'creating object with gzipped data'
+    'creating object with gzipped data - Normal files one mismatch'
 );
 
 ok( $obj->run_tradis, 'testing complete analysis with gzipped data' );
 ok(
     -e 'test.plot.AE004091.insert_site_plot.gz',
-    'checking plot file existence (gzipped data)'
+    'checking plot file existence (gzipped data) - Normal files one mismatch'
 );
-ok( -e 'test.plot.mapped.bam', 'checking mapped bam existence');
-ok( -e 'test.plot.mapped.bam.bai', 'checking indexed bam file');
+ok( -e 'test.plot.mapped.bam', 'checking mapped bam existence - Normal files one mismatch');
+ok( -e 'test.plot.mapped.bam.bai', 'checking indexed bam file - Normal files one mismatch');
 
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
 system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
 is(
     read_file('test.plot.unzipped'),
     read_file('expected.plot.unzipped'),
-    'checking completed pipeline with gzipped data file contents'
+    'checking completed pipeline with gzipped data file contents - Normal files one mismatch'
 );
 
 # Test mapping stage with custom smalt parameters

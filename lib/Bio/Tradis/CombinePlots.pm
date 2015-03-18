@@ -113,11 +113,13 @@ sub combine {
 
     $self->_write_stats_header;
 
+
     system("mkdir $combined_dir") unless ( -d "$combined_dir" );
+    my @tabix_plot;
+
     while ( my $line = <$plot_handle> ) {
         #parse line into hash. keys = id, len, files. unzips files if needed.
         my %plothash = $self->_parse_line($line);
-
         my $id       = $plothash{'id'};
 
         #create output plot file
@@ -128,11 +130,23 @@ sub combine {
         my @full_plot;
         foreach my $i ( 0 .. $filelen ) {
             @currentlines = ();
+
             foreach my $curr_fh ( @{ $plothash{'files'} } ) {
                 $this_line = <$curr_fh>;
                 push( @currentlines, $this_line ) if( defined $line && $line ne "");
             }
+
             my $comb_line = $self->_combine_lines( \@currentlines );
+
+	    my $plot_values_tabix = $comb_line;
+	    $plot_values_tabix =~ s/\s/\t/ if(defined $plot_values_tabix && $plot_values_tabix ne "");
+
+	    my $tabix_line;
+	    if ($id !~ m/^zip_combined/) {
+	      my $tabix_line = "$id\t$i\t" . $plot_values_tabix if( defined $plot_values_tabix && $plot_values_tabix ne "");
+	      push( @tabix_plot, $tabix_line ) if( $comb_line ne "");
+	    }
+
             push(@full_plot, $comb_line) if ( $comb_line ne '' );
         }
 
@@ -143,11 +157,34 @@ sub combine {
         $self->_write_stats($id, $filelen);
         system("gzip -f $comb_plot_name");
     }
-    File::Temp::cleanup();
+
+
+    if (@tabix_plot) {
+      $self->_prepare_and_create_tabix_for_combined_plots(\@tabix_plot);
+    }
+
+	File::Temp::cleanup();
     # double check tmp dir is deleted. cleanup not working properly
     remove_tree($self->_destination);
     return 1;
 }
+
+sub _prepare_and_create_tabix_for_combined_plots {
+
+  my ($self, $tabix_plot) = @_;
+
+  my $tabix_plot_name = "combined/tabix.insert_site_plot.gz";
+  my $sorted_tabix_plot_name = "combined/tabix_sorted.insert_site_plot.gz";
+
+  open(my $tabix_plot_fh , '|-', " gzip >". $tabix_plot_name) or warn "Couldn't create the initial plot file for tabix";
+  print $tabix_plot_fh join( "\n", @{ $tabix_plot } );
+  close($tabix_plot_fh);
+
+  `cat $tabix_plot_name | gunzip - | sort -k1,1 -k2,2n | bgzip > $sorted_tabix_plot_name && tabix -b 2 -e 2 $sorted_tabix_plot_name`;
+  unlink($tabix_plot_name);
+
+}
+
 
 sub _parse_line {
     my ( $self, $line ) = @_;

@@ -27,18 +27,26 @@ C<tags_present> - returns true if TraDIS tags are detected in C<bamfile>
 =cut
 
 use Moose;
-use Bio::DB::Sam;
+use Bio::Tradis::Parser::Bam
 
 has 'bamfile' => ( is => 'ro', isa => 'Str', required => 1 );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 sub tags_present {
     my ($self) = @_;
-    my $bam    = Bio::DB::Bam->open( $self->bamfile );
-    my $header = $bam->header;
-    my $a      = $bam->read1;
-    my $tr     = $a->get_tag_values('tr');
-    if   ( defined($tr) ) { return 1; }
-    else                  { return 0; }
+    my $pars = Bio::Tradis::Parser::Bam->new( file => $self->bamfile, samtools_exec => $self->samtools_exec );
+    my $read_info = $pars->read_info;
+    $pars->next_read;
+    $read_info = $pars->read_info;
+    if(defined(${$read_info}{tr}))
+    {
+      return 1;
+    }
+    else
+    { 
+      return 0;
+    }
+    
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -1,6 +1,7 @@
 #!/software/R-3.0.0/bin/Rscript
 
 # PODNAME: tradis_comparison.R
+# ABSTRACT: tradis_comparison.R
 
 library("edgeR")
 library("getopt")
@@ -10,14 +11,19 @@ opt = getopt(matrix( c('help', 'h', 0, "logical",
                        'controls', 'c', 1, "character",
                        'conditions', 'm', 1, "character",
                        'output', 'o', 1, "character",
-                       'plot', 'p', 1, "character"
+                       'plot', 'p', 1, "character",
+			'filter', 'f', 0, "logical",
+			'mincount', 't', 1, "integer"
 ), ncol=4, byrow=TRUE ) );
 
 if(! is.null(opt$help) || is.null(opt$controls )  || is.null(opt$conditions ) )
 {
-  cat(paste("Usage: tradis_comparison.R [-h] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
+  cat(paste("Usage: tradis_comparison.R [-h] [-f] [-t read cutoff] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
   q(status=1);
 }
+
+if( is.null(opt$filter)) {opt$filter=FALSE}
+if( is.null(opt$mincount)) {opt$mincount = 0}
 
 # parse contols and conditions files to lists
 control_files <- scan(opt$controls, what="", sep="\n")
@@ -42,12 +48,21 @@ for(i in 1:length(condition_files)){
 # set default output filename
 if ( is.null(opt$output ) ) { opt$output = paste(opt$condition1,opt$control1, ".output.csv",sep = "")}
 
-#only look at genes with counts > 0 in some condition
+#only look at genes with counts > 0 (or input alternative) in some condition
 all_list <- c(control_list, condition_list)
 
-# make list of rows where read count = 0 in all controls and conditions
+# make list of rows where read count > 0 (or input alternative) in all controls and conditions
 read_counts = do.call(cbind, lapply(all_list, function(x){ x$read_count }))
-zeros = apply( apply(read_counts, 1, ">", 0), 2, any )
+
+#old case for only 0.
+if(! opt$filter){
+	zeros = apply( apply(read_counts, 1, ">", 0), 2, any )
+} else {
+	zeros_cont = apply( apply(read_counts[,1:length(control_files)], 1, ">", opt$mincount), 2, all )
+	zeros_cond = apply( apply(read_counts[,(length(control_files) + 1):(length(control_files) + length(condition_files))], 1, ">", opt$mincount), 2, all )
+	zeros = intersect(zeros_cont, zeros_cond)
+}
+
 
 # remove these rows
 noness_list = lapply(all_list, function(x){ x[zeros,] } )

@@ -1,6 +1,7 @@
 #!/software/R-3.0.0/bin/Rscript
 
 # PODNAME: tradis_esseniality.R
+# ABSTRACT: tradis_esseniality.R
 
 library("MASS")
 options(warn=-1)
@@ -13,14 +14,14 @@ if( is.null(input) ){
 	q(status=1)
 }
 
-STM_baseline <- read.table(input, sep="\t",header=TRUE,stringsAsFactors=F)
+STM_baseline <- read.table(input, sep="\t",header=TRUE,stringsAsFactors=F, quote="\"")
 
 ii <- STM_baseline$ins_index
 
 #identify second maxima
 h <- hist(ii, breaks=100,plot=FALSE)
 maxindex <- which.max(h$density[3:length(h$density)])
-maxval <- h$mids[maxindex]
+maxval <- h$mids[maxindex+2]
 
 # print pdf of loess curve and later on, histogram
 pdf(paste(input, "QC_and_changepoint_plots", "pdf", sep = "."))

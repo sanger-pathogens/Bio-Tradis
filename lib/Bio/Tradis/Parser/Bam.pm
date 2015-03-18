@@ -19,6 +19,7 @@ Parses BAM files and gives access to basic info in them.
 
 use Moose;
 
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 has 'file' => ( is => 'rw', isa => 'Str', required => 1 );
 has '_bam_handle' => (
     is       => 'ro',
@@ -40,7 +41,7 @@ sub _build__bam_handle {
     my ($self) = @_;
     my $bamfile = $self->file;
 
-    open( my $bamh, "-|", "samtools view $bamfile" )
+    open( my $bamh, "-|", $self->samtools_exec." view $bamfile" )
       or die "Cannot open $bamfile";
     return $bamh;
 }
@@ -91,7 +92,7 @@ sub seq_info {
     my $bamfile = $self->file;
 
     my ( %all_seq_info, $seq_name, %this_seq_info );
-    open( SINFO, "-|", "samtools view -H $bamfile | grep ^\@SQ | cut -f 2-" );
+    open( SINFO, "-|", $self->samtools_exec." view -H $bamfile | grep ^\@SQ | cut -f 2-" );
     while ( my $line = <SINFO> ) {
         chomp($line);
         my @fields = split( '\t', $line );
