@@ -33,16 +33,18 @@ use Bio::Tradis::CombinePlots;
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'plotfile'    => ( is => 'rw', isa => 'Str',      required => 0 );
+has 'output_dir'  => ( is => 'rw', isa => 'Str',      default  => 'combined' );
 has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
 
 sub BUILD {
     my ($self) = @_;
 
-    my ( $plotfile, $help );
+    my ( $plotfile, $output_dir, $help );
 
     GetOptionsFromArray(
         $self->args,
         'p|plotfile=s' => \$plotfile,
+        'o|output_dir' => \$output_dir,
         'h|help'       => \$help
     );
 
@@ -56,13 +58,12 @@ sub BUILD {
 sub run {
     my ($self) = @_;
 
-    if ( defined( $self->help ) ) {
+    $self->usage_text if ( defined( $self->help ) );
 
-        #if ( scalar( @{ $self->args } ) == 0 ) {
-        $self->usage_text;
-    }
-
-    Bio::Tradis::CombinePlots->new( plotfile => $self->plotfile, )->combine;
+    Bio::Tradis::CombinePlots->new( 
+        plotfile     => $self->plotfile, 
+        combined_dir => $self->output_dir,
+    )->combine;
 }
 
 sub usage_text {
@@ -86,7 +87,8 @@ tradis2.insertion_site_plot.gz, tradis3.insertion_site_plot.gz
 Usage: combine_tradis_plots -p plots.txt
 
 Options:
--p|plotfile  : file with plots to be combined
+-p|plotfile   : file with plots to be combined
+-o|output_dir : name of directory for output (default: combined)
 
 USAGE
     exit;
