@@ -87,7 +87,7 @@ $trim5 ||= 0;
 $trim3 ||= 0;
 
 ( !$help
-  && scalar( @ARGV ) > 2
+  && scalar( @ARGV ) >= 2
   && $trim5 >= 0 && $trim5 < 1
   && $trim3 >= 0 && $trim3 < 1 ) or die $usage;
 
