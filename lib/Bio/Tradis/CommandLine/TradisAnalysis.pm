@@ -28,6 +28,7 @@ has 'mapping_score' =>
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
+has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1 );
 
 has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools-htslib' );
@@ -45,7 +46,7 @@ sub BUILD {
 
     my (
         $fastqfile, $tag,     $td,      $mismatch, $ref,
-        $map_score, $smalt_k, $smalt_s, $smalt_y, $help, $verbose,$samtools_exec
+        $map_score, $smalt_k, $smalt_s, $smalt_y, $smalt_r, $help, $verbose,$samtools_exec
     );
 
     GetOptionsFromArray(
@@ -59,6 +60,7 @@ sub BUILD {
         'sk|smalt_k=i'      => \$smalt_k,
         'ss|smalt_s=i'      => \$smalt_s,
         'sy|smalt_y=f'      => \$smalt_y,
+	'sr|smalt_r=i'      => \$smalt_r,
         'v|verbose'         => \$verbose,
         'samtools_exec=s'   => \$samtools_exec,
         'h|help'            => \$help
@@ -73,6 +75,7 @@ sub BUILD {
     $self->smalt_k($smalt_k)                 if ( defined($smalt_k) );
     $self->smalt_s($smalt_s)                 if ( defined($smalt_s) );
     $self->smalt_y($smalt_y)                 if ( defined($smalt_y) );
+    $self->smalt_r($smalt_r)		     if ( defined($smalt_r) );
     $self->help($help)                       if ( defined($help) );
     $self->verbose($verbose)                 if ( defined($verbose));
     $self->samtools_exec($samtools_exec)     if ( defined($samtools_exec) );
@@ -126,6 +129,7 @@ sub run {
             smalt_k       => $self->smalt_k,
             smalt_s       => $self->smalt_s,
             smalt_y       => $self->smalt_y,
+	    smalt_r       => $self->smalt_r,
             verbose       => $self->verbose,
             samtools_exec => $self->samtools_exec
         );
@@ -210,6 +214,7 @@ Options:
 --smalt_k : custom k-mer value for SMALT mapping
 --smalt_s : custom step size for SMALT mapping
 --smalt_y : custom y parameter for SMALT (default = 0.96)
+--smalt_r : custom r parameter for SMALT (default = -1)
 -v        : verbose debugging output
 USAGE
     exit;

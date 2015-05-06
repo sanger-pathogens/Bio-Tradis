@@ -26,11 +26,12 @@ has 'outfile' =>
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
+has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1 );
 
 sub BUILD {
     my ($self) = @_;
 
-    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $smalt_y, $help );
+    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $smalt_y, $smalt_r, $help );
 
     GetOptionsFromArray(
         $self->args,
@@ -41,6 +42,7 @@ sub BUILD {
 	'sk|smalt_k=i'    => \$smalt_k,
 	'ss|smalt_s=i'    => \$smalt_s,
 	'sy|smalt_y=f'    => \$smalt_y,
+	'sr|smalt_r=i'    => \$smalt_r,
         'h|help'          => \$help
     );
 
@@ -51,6 +53,7 @@ sub BUILD {
     $self->smalt_k( $smalt_k )               if ( defined($smalt_k) );
     $self->smalt_s( $smalt_s )               if ( defined($smalt_s) );
     $self->smalt_y( $smalt_y )               if ( defined($smalt_y) );
+    $self->smalt_r( $smalt_r )               if ( defined($smalt_r) );
     $self->help($help)                       if ( defined($help) );
 
 	# print usage text if required parameters are not present
@@ -72,7 +75,8 @@ sub run {
         outfile   => $self->outfile,
 	smalt_k   => $self->smalt_k,
 	smalt_s   => $self->smalt_s,
-	smalt_y   => $self->smalt_y
+	smalt_y   => $self->smalt_y,
+	smalt_r   => $self->smalt_r
     );
     $mapping->index_ref;
     $mapping->do_mapping;
@@ -99,6 +103,7 @@ Options:
 -o        : mapped SAM output name (optional. default: mapped.sam)
 --smalt_k : custom k-mer value for SMALT mapping
 --smalt_s : custom step size for SMALT mapping
+--smalt_r : custom r value for SMALT mapping
 
 USAGE
       exit;
