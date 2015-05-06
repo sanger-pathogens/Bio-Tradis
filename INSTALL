@@ -17,6 +17,7 @@ Moose
 Getout::Long
 File::Basename
 Bio::SeqIO
+Bio::DB::Sam
 Data::Dumper
 
 R version tested 3.0.0. R scripts require the following libraries, which can be installed via CRAN:
