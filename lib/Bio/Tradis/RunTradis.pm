@@ -79,6 +79,7 @@ has 'outfile' => (
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
+has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1);
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 has '_destination' => (
@@ -277,7 +278,8 @@ sub _map {
         outfile   => "$destination_directory/mapped.sam",
         smalt_k   => $self->smalt_k,
         smalt_s   => $self->smalt_s,
-        smalt_y   => $self->smalt_y
+        smalt_y   => $self->smalt_y,
+	smalt_r   => $self->smalt_r
     );
     $mapping->index_ref;
     $mapping->do_mapping;
