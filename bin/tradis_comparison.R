@@ -60,7 +60,7 @@ if(! opt$filter){
 } else {
 	zeros_cont = apply( apply(read_counts[,1:length(control_files)], 1, ">", opt$mincount), 2, all )
 	zeros_cond = apply( apply(read_counts[,(length(control_files) + 1):(length(control_files) + length(condition_files))], 1, ">", opt$mincount), 2, all )
-	zeros = intersect(zeros_cont, zeros_cond)
+	zeros = (zeros_cont | zeros_cond)
 }
 
 
