@@ -1,0 +1,11 @@
+language: perl
+addons:
+  apt:
+    packages:
+    - zlib1g-dev
+perl:
+  - "5.14"
+sudo: false
+install:
+  - "source ./install_dependencies.sh"
+script: "dzil test"
