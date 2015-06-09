@@ -67,10 +67,10 @@ else
   echo "Building samtools"
   sed -i 's/^\(DFLAGS=.\+\)-D_CURSES_LIB=1/\1-D_CURSES_LIB=0/' Makefile
   sed -i 's/^\(LIBCURSES=\)/#\1/' Makefile
-#  make prefix=$samtools_dir install
-#  ln -s ${samtools_dir}/bin/samtools ${samtools_dir}/bin/samtools-htslib
-  sudo make install
+  make prefix=$samtools_dir install
+  ln -s ${samtools_dir}/bin/samtools ${samtools_dir}/bin/samtools-htslib
 fi
+export SAMTOOLS=${samtools_dir}
 
 # Setup environment variables
 update_path () {
@@ -81,7 +81,19 @@ update_path () {
 }
 
 update_path ${smalt_dir}
-#update_path "${samtools_dir}/bin"
+update_path "${samtools_dir}/bin"
+
+update_cpath () {
+  new_dir=$1
+  export CPATH=${CPATH:-$new_dir}
+  if [[ ! "$CPATH" =~ (^|:)"${new_dir}"(:|$) ]]; then
+    export CPATH=${new_dir}:${CPATH}
+  fi
+}
+
+htslib_path=$(find $samtools_dir -maxdepth 1 -type d -name htslib*)
+update_cpath ${htslib_path}
+update_cpath ${htslib_path}/htslib
 
 cd $start_dir
 
