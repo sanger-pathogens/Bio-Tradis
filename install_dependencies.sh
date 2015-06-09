@@ -67,8 +67,9 @@ else
   echo "Building samtools"
   sed -i 's/^\(DFLAGS=.\+\)-D_CURSES_LIB=1/\1-D_CURSES_LIB=0/' Makefile
   sed -i 's/^\(LIBCURSES=\)/#\1/' Makefile
-  make prefix=$samtools_dir install
-  ln -s ${samtools_dir}/bin/samtools ${samtools_dir}/bin/samtools-htslib
+#  make prefix=$samtools_dir install
+#  ln -s ${samtools_dir}/bin/samtools ${samtools_dir}/bin/samtools-htslib
+  sudo make install
 fi
 
 # Setup environment variables
@@ -80,7 +81,7 @@ update_path () {
 }
 
 update_path ${smalt_dir}
-update_path "${samtools_dir}/bin"
+#update_path "${samtools_dir}/bin"
 
 cd $start_dir
 
