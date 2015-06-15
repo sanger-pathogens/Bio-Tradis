@@ -49,6 +49,11 @@ is(
     read_file('t/data/RunTradis/filtered.fastq'),
     'checking filtered file contents - Normal files, no mismatch'
 );
+is(
+    $obj->_number_of_matching_reads,
+    23,
+    'checking that we can count the reads in a fastaq'
+);
 
 # Tag removal
 ok( $obj->_remove, 'testing tag removal' );

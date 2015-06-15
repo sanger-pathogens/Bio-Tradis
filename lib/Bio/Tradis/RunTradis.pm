@@ -378,9 +378,7 @@ sub _stats {
     $stats .= "$total_reads,";
 
     # Matching reads
-    my $matching =
-      `wc $destination_directory/filter.fastq | awk '{print \$1/4}'`;
-    chomp($matching);
+    my $matching = $self->_number_of_matching_reads;
     $stats .= "$matching,";
     $stats .= ( $matching / $total_reads ) * 100 . ",";
 
@@ -440,6 +438,13 @@ sub _plotname {
     $seq_name =~ s/[^\w\d\.]/_/g;
     my $plotfile_name = "$outfile.$seq_name.insert_site_plot.gz";
     return $plotfile_name;
+}
+
+sub _number_of_matching_reads {
+    my ($self) = @_;
+    my $destination_directory = $self->_destination;
+    my $matching = `wc $destination_directory/filter.fastq | awk '{print \$1/4}'`;
+    return chomp($matching);
 }
 
 sub _number_of_mapped_reads {
