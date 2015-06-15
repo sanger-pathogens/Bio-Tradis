@@ -3,6 +3,8 @@ Bio-Tradis
 Bio-Tradis contains a set of tools to analyse the output from TraDIS analyses.
 For more information on the TraDIS method, see http://genome.cshlp.org/content/19/12/2308
 
+[![Build Status](https://travis-ci.org/sanger-pathogens/Bio-Tradis.svg?branch=master)](https://travis-ci.org/sanger-pathogens/Bio-Tradis)
+
 Bio-Tradis provides functionality to:
 * detect TraDIS tags in a BAM file
 * add the tags to the reads
