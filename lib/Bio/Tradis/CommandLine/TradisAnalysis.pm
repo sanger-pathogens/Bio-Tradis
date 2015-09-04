@@ -31,7 +31,7 @@ has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1 );
 
 has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
-has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools-htslib' );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 has '_stats_handle' => (
     is       => 'ro',

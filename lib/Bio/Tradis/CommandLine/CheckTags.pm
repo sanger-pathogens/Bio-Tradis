@@ -17,7 +17,7 @@ has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'bamfile'        => ( is => 'rw', isa => 'Str', required => 0 );
 has 'help'        => ( is => 'rw', isa => 'Bool', required => 0 );
-has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools-htslib' );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 sub BUILD {
     my ($self) = @_;

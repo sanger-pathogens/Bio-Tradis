@@ -21,13 +21,12 @@ $insertsite_plots_from_bam->create_plots();
 
 use Moose;
 use Bio::Tradis::Parser::Bam;
-use Bio::DB::Sam;
-use Data::Dumper;
+use Bio::Tradis::Parser::Cigar;
 
 has 'filename'             => ( is => 'rw', isa => 'Str', required => 1 );
 has 'output_base_filename' => ( is => 'rw', isa => 'Str', required => 1 );
 has 'mapping_score'        => ( is => 'ro', isa => 'Int', required => 1 );
-has '_input_file_handle' => ( is => 'rw', lazy_build => 1 );
+has 'samtools_exec'        => ( is => 'ro', isa => 'Str', default => 'samtools' );
 has '_output_file_handles' => ( is => 'rw', isa => 'HashRef', lazy_build => 1 );
 has '_sequence_names' => ( is => 'rw', isa => 'ArrayRef', lazy_build => 1 );
 has '_sequence_base_counters' =>
@@ -45,7 +44,7 @@ has '_frequency_of_read_start' => (
 sub _build__sequence_information {
     my ($self) = @_;
     my %all_sequences_info =
-      Bio::Tradis::Parser::Bam->new( file => $self->filename )->seq_info;
+      Bio::Tradis::Parser::Bam->new( file => $self->filename, samtools_exec => $self->samtools_exec )->seq_info;
     return \%all_sequences_info;
 }
 
@@ -85,11 +84,6 @@ sub _build__output_file_handles {
     }
 
     return \%output_file_handles;
-}
-
-sub _build__input_file_handle {
-    my ($self) = @_;
-    return Bio::DB::Bam->open( $self->filename );
 }
 
 sub _number_of_forward_reads {
@@ -155,31 +149,65 @@ sub _close_output_file_handles {
 }
 
 sub _build__frequency_of_read_start {
-    my ($self) = @_;
-    my %frequency_of_read_start;
-    my $header       = $self->_input_file_handle->header;
-    my $target_names = $header->target_name;
-    while ( my $align = $self->_input_file_handle->read1 ) {
-        next if ( $align->unmapped );
+	my ($self) = @_;
+	my %frequency_of_read_start;
+	my $samtools_command = join(' ', ($self->samtools_exec, 'view', '-F', 4, '-q', $self->mapping_score, $self->filename));
 
-        # check quality score
-        my $quality = $align->qual;
-        if ( $quality >= $self->mapping_score ) {
-            my $seqid = $target_names->[ $align->tid ];
-            if ( $align->strand == 1 ) {
-                $frequency_of_read_start{$seqid}{ $align->start }
-                  { $align->strand }++;
-            }
-            else {
-                $frequency_of_read_start{$seqid}{ $align->end }
-                  { $align->strand }++;
-            }
+    open(my $samtools_view_fh,"-|" ,$samtools_command);
+	while(<$samtools_view_fh>)
+	{
+		my $sam_line = $_;
 
+		my @read_details = split("\t", $sam_line);
+		my $seqid = $read_details[2];
+		my $cigar_parser = Bio::Tradis::Parser::Cigar->new(cigar => $read_details[5], coordinate => $read_details[3]);
+		my $strand = 1;
+		$strand = -1 if(($read_details[1] &  0x10) == 0x10);
+		
+        if ( $strand == 1 ) {
+            $frequency_of_read_start{$seqid}{ $cigar_parser->start }
+              { $strand }++;
         }
-    }
-
-    return \%frequency_of_read_start;
+        else {
+            $frequency_of_read_start{$seqid}{ $cigar_parser->end }
+              { $strand }++;
+        }
+	}
+	return \%frequency_of_read_start;
 }
+
+#use Bio::DB::Sam;
+#has '_input_file_handle' => ( is => 'rw', lazy_build => 1 );
+#sub _build__input_file_handle {
+#    my ($self) = @_;
+#    return Bio::DB::Bam->open( $self->filename );
+#}
+#sub _build__frequency_of_read_start {
+#    my ($self) = @_;
+#    my %frequency_of_read_start;
+#    my $header       = $self->_input_file_handle->header;
+#    my $target_names = $header->target_name;
+#    while ( my $align = $self->_input_file_handle->read1 ) {
+#        next if ( $align->unmapped );
+#
+#        # check quality score
+#        my $quality = $align->qual;
+#        if ( $quality >= $self->mapping_score ) {
+#            my $seqid = $target_names->[ $align->tid ];
+#            if ( $align->strand == 1 ) {
+#                $frequency_of_read_start{$seqid}{ $align->start }
+#                  { $align->strand }++;
+#            }
+#            else {
+#                $frequency_of_read_start{$seqid}{ $align->end }
+#                  { $align->strand }++;
+#            }
+#
+#        }
+#    }
+#
+#    return \%frequency_of_read_start;
+#}
 
 sub create_plots {
     my ($self) = @_;

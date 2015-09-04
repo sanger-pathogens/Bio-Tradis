@@ -98,6 +98,7 @@ is(
     'checking plot file contents - Normal files, no mismatch'
 );
 
+
 # Complete pipeline
 ok( $obj->run_tradis, 'testing complete analysis - Normal files, no mismatch' );
 ok( -e 'test.plot.AE004091.insert_site_plot.gz',

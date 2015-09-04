@@ -14,7 +14,28 @@ Bio-Tradis provides functionality to:
 * create an insertion site plot file
 available as standalone scripts or as perl modules.
 
-It requires the htslib version of samtools http://www.htslib.org/ 
+Installation
+=======
+
+####HomeBrew/LinuxBrew
+To install the dependancies, the easiest way is through [HomeBrew](http://brew.sh/) (OSX) or [LinuxBrew](http://brew.sh/linuxbrew/) (Linux).
+```
+brew tap homebrew/science
+brew install smalt samtools cpanm
+sudo cpanm -f Bio::Tradis
+R CMD INSTALL edgeR getopt MASS
+````
+
+####Without Homebrew
+Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/) and [Samtools](http://www.htslib.org/). Ensure they are in your PATH.
+
+```
+sudo cpanm -f Bio::Tradis
+R CMD INSTALL edgeR getopt MASS
+```
+
+####Windows
+Install Linux.
 
 Objects and Methods
 ===================
