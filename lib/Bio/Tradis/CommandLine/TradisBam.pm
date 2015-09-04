@@ -30,7 +30,7 @@ has 'outfile'     => (
 );
 has 'help' => ( is => 'rw', isa => 'Bool', required => 0 );
 has 'verbose'       => ( is => 'rw', isa => 'Bool', default => 0 );
-has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools-htslib' );
+has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 sub BUILD {
     my ($self) = @_;

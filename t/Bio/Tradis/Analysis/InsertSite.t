@@ -26,12 +26,9 @@ ok is_input_string_found_on_given_line( "0 0", 1,
 ok is_input_string_found_on_given_line( "0 2", 7899,
     't/data/InsertSite/insert_site.FN543502.insert_site_plot.gz' ),
   'check main sequence insert_site value before site';
-ok is_input_string_found_on_given_line( "0 14", 7915,
+ok is_input_string_found_on_given_line( "0 12", 7915,
     't/data/InsertSite/insert_site.FN543502.insert_site_plot.gz' ),
   'check main sequence insert_site values for reverse reads only';
-ok is_input_string_found_on_given_line( "1 0", 7920,
-    't/data/InsertSite/insert_site.FN543502.insert_site_plot.gz' ),
-  'check main sequence insert_site values after site';
 ok is_input_string_found_on_given_line( "0 0", 249,
     't/data/InsertSite/insert_site.FN543502.insert_site_plot.gz' ),
   'various values';
@@ -47,7 +44,6 @@ ok is_input_string_found_on_given_line( "1 0", 366,
 ok is_input_string_found_on_given_line( "0 0", 513,
     't/data/InsertSite/insert_site.FN543502.insert_site_plot.gz' ),
   'various values';
-
 ok is_input_string_found_on_given_line( "0 0", 1,
     't/data/InsertSite/insert_site.pCROD1.insert_site_plot.gz' ),
   'check empty plasmid insert_site values first value';
@@ -73,10 +69,26 @@ ok is_input_string_found_on_given_line( "0 0", 100,
     't/data/InsertSite/insert_site.pCROD3.insert_site_plot.gz' ),
   'check another empty plasmid insert_site values last value';
 
-#unlink("t/data/InsertSite/insert_site.FN543502.insert_site_plot.gz");
-#unlink("t/data/InsertSite/insert_site.pCROD1.insert_site_plot.gz");
-#unlink("t/data/InsertSite/insert_site.pCROD2.insert_site_plot.gz");
-#unlink("t/data/InsertSite/insert_site.pCROD3.insert_site_plot.gz");
+unlink("t/data/InsertSite/insert_site.FN543502.insert_site_plot.gz");
+unlink("t/data/InsertSite/insert_site.pCROD1.insert_site_plot.gz");
+unlink("t/data/InsertSite/insert_site.pCROD2.insert_site_plot.gz");
+unlink("t/data/InsertSite/insert_site.pCROD3.insert_site_plot.gz");
+
+
+
+ok $insert_site_plots_from_bam = Bio::Tradis::Analysis::InsertSite->new(
+    filename             => 't/data/InsertSite/2_reads.bam',
+    output_base_filename => 't/data/InsertSite/2_reads_output',
+    mapping_score        => 0
+);
+ok $insert_site_plots_from_bam->create_plots();
+ok is_input_string_found_on_given_line( "1 0", 100,
+    't/data/InsertSite/2_reads_output.FN543502.insert_site_plot.gz' ),
+  'check forward read';
+ ok is_input_string_found_on_given_line( "0 1", 153,
+      't/data/InsertSite/2_reads_output.FN543502.insert_site_plot.gz' ),
+    'check reverse read';
+unlink('t/data/InsertSite/2_reads_output.FN543502.insert_site_plot.gz');
 
 done_testing();
 
