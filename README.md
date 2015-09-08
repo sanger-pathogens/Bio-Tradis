@@ -1,4 +1,4 @@
-Bio-Tradis
+gBio-Tradis
 ==========
 Bio-Tradis contains a set of tools to analyse the output from TraDIS analyses.
 For more information on the TraDIS method, see http://genome.cshlp.org/content/19/12/2308
@@ -14,7 +14,35 @@ Bio-Tradis provides functionality to:
 * create an insertion site plot file
 available as standalone scripts or as perl modules.
 
-It requires the htslib version of samtools http://www.htslib.org/ 
+Installation
+=======
+
+####HomeBrew/LinuxBrew
+To install the dependancies, the easiest way is through [HomeBrew](http://brew.sh/) (OSX) or [LinuxBrew](http://brew.sh/linuxbrew/) (Linux).
+```
+brew tap homebrew/science
+brew install r smalt samtools cpanm 
+sudo cpanm -f Bio::Tradis
+
+R 
+source("http://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("edgeR","getopt", "MASS"))
+````
+
+####Without Homebrew
+Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/), [Samtools](http://www.htslib.org/) and [R](https://cran.r-project.org/). Ensure they are in your PATH.
+
+```
+sudo cpanm -f Bio::Tradis
+R 
+source("http://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("edgeR","getopt", "MASS"))
+```
+
+####Windows
+Install Linux.
 
 Objects and Methods
 ===================
