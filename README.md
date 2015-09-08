@@ -21,13 +21,17 @@ Installation
 To install the dependancies, the easiest way is through [HomeBrew](http://brew.sh/) (OSX) or [LinuxBrew](http://brew.sh/linuxbrew/) (Linux).
 ```
 brew tap homebrew/science
-brew install smalt samtools cpanm
+brew install r smalt samtools cpanm 
 sudo cpanm -f Bio::Tradis
-R CMD INSTALL edgeR getopt MASS
+
+R 
+source("http://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("edgeR","getopt", "MASS"))
 ````
 
 ####Without Homebrew
-Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/) and [Samtools](http://www.htslib.org/). Ensure they are in your PATH.
+Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/), [Samtools](http://www.htslib.org/) and [R](https://cran.r-project.org/). Ensure they are in your PATH.
 
 ```
 sudo cpanm -f Bio::Tradis
