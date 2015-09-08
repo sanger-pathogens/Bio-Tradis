@@ -73,18 +73,6 @@ ok(
     'checking tabix index file exists'
 );
 
-compare_ok(
-	   'combined/tabix_sorted.insert_site_plot.gz',
-	   't/data/CombinePlots/tabix_sorted.insert_site_plot.gz',
-	   'tabix sorted files are the same'
-);
-
-compare_ok(
-	   'combined/tabix_sorted.insert_site_plot.gz.tbi',
-	   't/data/CombinePlots/tabix_sorted.insert_site_plot.gz.tbi',
-	   'tabix index files are the same'
-);
-
 
 system("gunzip -c combined/zip_combined.insert_site_plot.gz > zip_combined.test.plot");
 is(
