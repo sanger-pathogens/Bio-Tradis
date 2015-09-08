@@ -1,4 +1,4 @@
-Bio-Tradis
+gBio-Tradis
 ==========
 Bio-Tradis contains a set of tools to analyse the output from TraDIS analyses.
 For more information on the TraDIS method, see http://genome.cshlp.org/content/19/12/2308
@@ -35,7 +35,10 @@ Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/), [Samtools](
 
 ```
 sudo cpanm -f Bio::Tradis
-R CMD INSTALL edgeR getopt MASS
+R 
+source("http://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("edgeR","getopt", "MASS"))
 ```
 
 ####Windows
