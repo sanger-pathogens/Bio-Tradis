@@ -18,15 +18,21 @@ Outputs a file *.tag.fastq unless an alternative outfile name is specified
 =head2 Required
 
 =over
+
 =item * C<fastqfile> - path to/name of file to filter. This may be a gzipped fastq file, in which case a temporary unzipped version is used and removed on completion.
+
 =item * C<tag> - TraDIS tag to match
+
 =back
 
 =head2 Optional
 
 =over
+
 =item * C<mismatch> - number of mismatches to allow when matching the tag. Default = 0
+
 =item * C<outfile> - output file name. Defaults to C<file.tag.fastq> for an input file named C<file.fastq>
+
 =back
 
 =head1 METHODS

@@ -23,20 +23,28 @@ Artemis (or other genome browsers), mapped BAM files for each lane and a statist
 =head2 Required
 
 =over
+
 =item * C<fastqfile> - file containing a list of fastqs (gzipped or raw) to run the 
 			complete analysis on. This includes all (including 
 			intermediary format conversion and sorting) steps starting from
 			filtering.
+
 =item * C<tag> - TraDIS tag to filter and then remove
+
 =item * C<reference> - path to/name of reference genome in fasta format (.fa)
+
 =back
 
 =head2 Optional
 
 =over
+
 =item * C<mismatch> - number of mismatches to allow when filtering/removing the tag. Default = 0
+
 =item * C<tagdirection> - direction of the tag, 5' or 3'. Default = 3
+
 =item * C<mapping_score> - cutoff value for mapping score when creating insertion site plots. Default = 30
+
 =back
 
 =head1 METHODS
