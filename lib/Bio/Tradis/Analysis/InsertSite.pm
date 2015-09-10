@@ -1,5 +1,6 @@
 package Bio::Tradis::Analysis::InsertSite;
 # ABSTRACT: Take in a bam file and plot the start position of each read
+
 =head1 NAME
 
 InsertSite.pm   - Take in a bam file and plot the start position of each read
@@ -8,12 +9,12 @@ InsertSite.pm   - Take in a bam file and plot the start position of each read
 
 Takes in a mapped BAM file and plot the start position of each read
 
-use Bio::Tradis::Analysis::InsertSite;
-my $insertsite_plots_from_bam = Bio::Tradis::Analysis::InsertSite->new(
-   filename => 'my_file.bam',
-   output_base_filename => 'my_output_file'
-  );
-$insertsite_plots_from_bam->create_plots();
+   use Bio::Tradis::Analysis::InsertSite;
+   my $insertsite_plots_from_bam = Bio::Tradis::Analysis::InsertSite->new(
+      filename => 'my_file.bam',
+      output_base_filename => 'my_output_file'
+     );
+   $insertsite_plots_from_bam->create_plots();
 
 
 =cut
@@ -175,39 +176,6 @@ sub _build__frequency_of_read_start {
 	}
 	return \%frequency_of_read_start;
 }
-
-#use Bio::DB::Sam;
-#has '_input_file_handle' => ( is => 'rw', lazy_build => 1 );
-#sub _build__input_file_handle {
-#    my ($self) = @_;
-#    return Bio::DB::Bam->open( $self->filename );
-#}
-#sub _build__frequency_of_read_start {
-#    my ($self) = @_;
-#    my %frequency_of_read_start;
-#    my $header       = $self->_input_file_handle->header;
-#    my $target_names = $header->target_name;
-#    while ( my $align = $self->_input_file_handle->read1 ) {
-#        next if ( $align->unmapped );
-#
-#        # check quality score
-#        my $quality = $align->qual;
-#        if ( $quality >= $self->mapping_score ) {
-#            my $seqid = $target_names->[ $align->tid ];
-#            if ( $align->strand == 1 ) {
-#                $frequency_of_read_start{$seqid}{ $align->start }
-#                  { $align->strand }++;
-#            }
-#            else {
-#                $frequency_of_read_start{$seqid}{ $align->end }
-#                  { $align->strand }++;
-#            }
-#
-#        }
-#    }
-#
-#    return \%frequency_of_read_start;
-#}
 
 sub create_plots {
     my ($self) = @_;

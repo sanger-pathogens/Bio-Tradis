@@ -21,8 +21,11 @@ C<mappedfile> - mapped and sorted BAM file
 =head2 Optional
 
 =over
+
 =item * C<outfile> - base name to assign to the resulting insertion site plot. Default = tradis.plot
+
 =item * C<mapping_score> - cutoff value for mapping score. Default = 30
+
 =back
 
 =head1 METHODS
