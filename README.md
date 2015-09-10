@@ -1,4 +1,4 @@
-gBio-Tradis
+Bio-Tradis
 ==========
 Bio-Tradis contains a set of tools to analyse the output from TraDIS analyses.
 For more information on the TraDIS method, see http://genome.cshlp.org/content/19/12/2308
