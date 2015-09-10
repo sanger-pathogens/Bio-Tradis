@@ -5,7 +5,8 @@ package Bio::Tradis::Parser::Fastq;
 =head1 SYNOPSIS
 
 Parses fastq files. 
-use Bio::Tradis::Parser::Fastq;
+
+   use Bio::Tradis::Parser::Fastq;
    
    my $pipeline = Bio::Tradis::Parser::Fastq->new(file => 'abc');
    $pipeline->next_read;

@@ -18,18 +18,25 @@ Outputs a file *.rmtag.fastq unless an out file is specified
 =head2 Required
 
 =over
+
 =item * C<fastqfile> - path to/name of file to filter
+
 =item * C<tag> - TraDIS tag to remove
+
 =back
 
 =head2 Optional
 
 =over
+
 =item * C<mismatch> - number of mismatches to allow when removing the tag. Default = 0
+
 =item * C<outfile> - defaults to C<file.rmtag.fastq> for and input file named C<file.fastq>
+
 =back
 
 =head1 METHODS
+
 C<remove_tags> - output all reads with the tags removed to C<outfile>
 
 =cut

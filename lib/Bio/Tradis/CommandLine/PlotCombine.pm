@@ -10,15 +10,17 @@ plotfile and as an identifier in the stats file, so ensure these are unique.
 
 For example, an input file named plots_to_combine.txt:
 
-tradis1	plot1.1.gz	plot1.2.gz plot1.3.gz
-tradis2 plot2.1.gz	plot2.2.gz
-tradis3	plot3.1.gz	plot3.2.gz plot3.3.gz	plot3.4.gz
+   tradis1	plot1.1.gz	plot1.2.gz plot1.3.gz
+   tradis2 plot2.1.gz	plot2.2.gz
+   tradis3	plot3.1.gz	plot3.2.gz plot3.3.gz	plot3.4.gz
 
 will produce:
+
 =over
 
 =item 1. a directory named combined with 3 files - tradis1.insertion_site_plot.gz,
 tradis2.insertion_site_plot.gz, tradis3.insertion_site_plot.gz
+
 =item 2. a stats file named plots_to_combine.stats
 
 =back
