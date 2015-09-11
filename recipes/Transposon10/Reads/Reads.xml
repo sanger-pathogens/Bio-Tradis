@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ReadDefinitions Version="Fraise 0.7.1 Amplicon v1.1">
+    <ReadDefinition Name="FirstRead">
+      <FirstBase ChemistryName="FirstBase" Cycles="1" />
+      <Imaging ChemistryName="CompleteCycle" Cycles="NumCycles - 1" />
+      <End ChemistryName="EndRead" />
+    </ReadDefinition>
+    <ReadDefinition Name="IndexRead1" IsIndexed="True" >
+      <FirstBase ChemistryName="FirstBase" Cycles="1" />
+      <Imaging ChemistryName="CompleteCycle" Cycles="NumCycles - 1" />
+      <End ChemistryName="EndRead" />
+    </ReadDefinition>
+    <ReadDefinition Name="SecondRead" IsIndexed="false">
+      <FirstBase ChemistryName="FirstBase" Cycles="1" />
+      <Imaging ChemistryName="CompleteCycle" Cycles="NumCycles - 1" />
+      <End ChemistryName="EndRead" />
+    </ReadDefinition>
+    <ReadDefinition Name="IndexRead2" IsIndexed="true">
+      <FirstBase ChemistryName="FirstBase" Cycles="1" />
+      <Imaging ChemistryName="CompleteCycle" Cycles="NumCycles - 1" />
+      <End ChemistryName="EndRead" />
+    </ReadDefinition>
+  </ReadDefinitions>
