@@ -6,6 +6,8 @@
 library("edgeR")
 library("getopt")
 
+options(width=80)
+
 opt = getopt(matrix( c('help', 'h', 0, "logical", 
                        'verbose', 'v', 0, "integer",
                        'controls', 'c', 1, "character",
@@ -18,7 +20,16 @@ opt = getopt(matrix( c('help', 'h', 0, "logical",
 
 if(! is.null(opt$help) || is.null(opt$controls )  || is.null(opt$conditions ) )
 {
-  cat(paste("Usage: tradis_comparison.R [-h] [-f] [-t read cutoff] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n"));
+  cat(paste("Usage: tradis_comparison.R [-h] [-f] [-t read cutoff] [-o outputfile.csv] [-p outputplot.pdf] --controls controls.txt --conditions conditions.txt\n\n"));
+  writeLines(c(strwrap("Compares two experimental conditions using the method of Dembek et al. mBio 2015. Read counts per gene are compared using edgeR. This analysis requires experimental replicates."),
+	"\n\nRequired Arguments:\n",
+	strwrap("--controls : 'control' libraries, generally growth in a permissive condition"),
+	strwrap("--conditions : libraries exposed to the experimental condition being compared"),
+	"\nOptional Arguments:\n",
+	strwrap("-o : output filename"), 
+	strwrap("-p : output filename for diagnostic plots"), 
+	strwrap("-f : enable filtering on minimum read counts"),
+	strwrap("-t : if --filter is enabled, sets minimum read count necessary in one condition for a gene to be included in the comparison."),"\n"))
   q(status=1);
 }
 
