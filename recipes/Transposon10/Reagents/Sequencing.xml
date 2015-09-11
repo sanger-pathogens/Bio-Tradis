@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Reagents Name="Shock Reagents" Version="Selector Valve Positions v2.2">
+  <Reagent Name="IMS" Description="Incorporation Mix" SelectorValvePosition="1" />
+  <Reagent Name="SRE" Description="Scan Mix" SelectorValvePosition="2" />
+  <Reagent Name="PR2" Description="Incorporation Buffer" SelectorValvePosition="3" />
+  <Reagent Name="CMS" Description="Cleavage Mix" SelectorValvePosition="4" />
+  <Reagent Name="AMS1" Description="Amplification Mix 1" SelectorValvePosition="5" />
+  <Reagent Name="AMS2" Description="Amplification Mix 2" SelectorValvePosition="6" />
+  <Reagent Name="LPM" Description="Lin Pre Mix" SelectorValvePosition="7" />
+  <Reagent Name="LDR" Description="Formamide" SelectorValvePosition="8" />
+  <Reagent Name="LMX1" Description="Linearization Mix" SelectorValvePosition="9" />
+  <Reagent Name="LMX2" Description="R2 Lin Mix" SelectorValvePosition="10" />
+  <Reagent Name="RMF" Description="Resynthesis Mix" SelectorValvePosition="11" />
+  <Reagent Name="HP10" Description="R1 Primer Mix" SelectorValvePosition="12" />
+  <Reagent Name="HP12" Description="Index Primer Mix" SelectorValvePosition="13" />
+  <Reagent Name="HP11" Description="R2 Primer Mix" SelectorValvePosition="14" />
+  <Reagent Name="PW1" Description="Water" SelectorValvePosition="15" />
+  <Reagent Name="PW2" Description="Water" SelectorValvePosition="16" />
+  <Reagent Name="TMP" Description="Template" SelectorValvePosition="17" />
+  <Reagent Name="C1" Description="Custom 1 Primer Mix" SelectorValvePosition="18" />
+  <Reagent Name="C2" Description="Custom 2 Primer Mix" SelectorValvePosition="19" />
+  <Reagent Name="C3" Description="Custom 3 Primer Mix" SelectorValvePosition="20" />
+  <Reagent Name="PW3" Description="Water" SelectorValvePosition="21" />
+</Reagents>
