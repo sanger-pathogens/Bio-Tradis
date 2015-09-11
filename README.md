@@ -205,9 +205,6 @@ Analysis Scripts
 ================
 Three scripts are provided to perform basic analysis of TraDIS results in `bin`:
 
-*tradis_gene_insert_sites - Takes genome annotation in embl format along with plot files produced by bacteria_tradis and generates tab-delimited files containing gene-wise annotations of insert sites and read counts.
-*tradis_essentiality.R - Takes a single tab-delimited file from tradis_gene_insert_sites to produce calls of gene essentiality. Also produces a number of diagnostic plots.
-*tradis_comparison.R - Takes tab files to compare two growth conditions using edgeR. This analysis requires experimental replicates.
-
-
-
+* `tradis_gene_insert_sites` - Takes genome annotation in embl format along with plot files produced by bacteria_tradis and generates tab-delimited files containing gene-wise annotations of insert sites and read counts.
+* `tradis_essentiality.R` - Takes a single tab-delimited file from tradis_gene_insert_sites to produce calls of gene essentiality. Also produces a number of diagnostic plots.
+* `tradis_comparison.R` - Takes tab files to compare two growth conditions using edgeR. This analysis requires experimental replicates.

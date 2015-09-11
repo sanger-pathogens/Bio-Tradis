@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<Recipe xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="StandbyWash_v1.0.0">
+  <Protocol>
+    <ChemistryRef Description="Standby Wash 1 of 8" ChemistryName="Wash" />
+    <ChemistryRef Description="Standby Wash 2 of 8" ChemistryName="Wash" />
+    <ChemistryRef Description="Standby Wash 3 of 8" ChemistryName="Wash" />
+    <ChemistryRef Description="Standby Wash 4 of 8" ChemistryName="Wash" />
+    <ChemistryRef Description="Standby Wash 5 of 8" ChemistryName="Wash" />
+    <ChemistryRef Description="Standby Wash 6 of 8" ChemistryName="Wash" />
+    <ChemistryRef Description="Standby Wash 7 of 8" ChemistryName="Wash" />
+    <ChemistryRef Description="Standby Wash 8 of 8" ChemistryName="Wash" />
+  </Protocol>
+  <ChemistryDefinitions>
+    <ChemistryDefinition Name="Wash">
+      <ChemistryStep Description="Wash">
+	<PumpToFlowcell Solution="4" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="3" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<Dispense DispenseRate="2500" Volume="250" /> 
+	<AspirateFromBypass ReagentName="PR2" AspirationRate="2000" Volume="250" /> 
+	<Dispense DispenseRate="2500" Volume="250" /> 
+	<PumpToFlowcell Solution="2" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="1" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="5" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="6" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="7" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="17" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="18" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="19" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="20" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="8" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="9" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="10" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="11" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="12" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="13" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="14" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="15" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="16" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="21" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+	<PumpToFlowcell Solution="22" AspirationRate="2000" DispenseRate="2500" Volume="250" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+  </ChemistryDefinitions>
+  <Reagents>
+    <Reagent Name="PW1" Description="Water" ViciPosition="1" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="2" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="3" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="4" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="5" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="6" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="7" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="8" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="9" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="10" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="11" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="12" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="13" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="14" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="15" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="16" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="17" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="18" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="19" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="20" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="21" />
+    <Reagent Name="PW1" Description="Water" ViciPosition="22" />
+
+  </Reagents>
+  <Name>StandbyWash_v1.0.0</Name>
+</Recipe>
