@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Exposures>
+  <Exposure Name="A" Start="1037" Ramp="0" />
+  <Exposure Name="T" Start="500" Ramp="0" />
+  <Exposure Name="C" Start="1037" Ramp="0" />
+  <Exposure Name="G" Start="500" Ramp="0" />
+</Exposures>
