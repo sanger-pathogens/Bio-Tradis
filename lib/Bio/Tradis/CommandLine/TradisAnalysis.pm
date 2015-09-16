@@ -205,16 +205,16 @@ Run a TraDIS analysis. This involves:
 Usage: bacteria_tradis [options]
 
 Options:
--f        : list of fastq files with tradis tags attached
+-f        : text file listing fastq files with tradis tags attached
 -t        : tag to search for
 -r        : reference genome in fasta format (.fa)
 -td       : tag direction - 3 or 5 (optional. default = 3)
 -mm       : number of mismatches allowed when matching tag (optional. default = 0)
 -m        : mapping quality cutoff score (optional. default = 30)
---smalt_k : custom k-mer value for SMALT mapping
---smalt_s : custom step size for SMALT mapping
---smalt_y : custom y parameter for SMALT (default = 0.96)
---smalt_r : custom r parameter for SMALT (default = -1)
+--smalt_k : custom k-mer value for SMALT mapping (optional)
+--smalt_s : custom step size for SMALT mapping (optional)
+--smalt_y : custom y parameter for SMALT (optional. default = 0.96)
+--smalt_r : custom r parameter for SMALT (optional. default = -1)
 -v        : verbose debugging output
 USAGE
     exit;

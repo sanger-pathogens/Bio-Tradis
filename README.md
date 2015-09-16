@@ -197,7 +197,7 @@ Executable scripts to carry out most of the listed functions are available in th
 * `filter_tradis_tags` - Create a fastq file containing reads that match the supplied tag
 * `remove_tradis_tags` - Creates a fastq file containing reads with the supplied tag removed from the sequences
 * `tradis_plot` - Creates an gzipped insertion site plot
-* `bacteria_tradis` - Runs complete analysis, starting with a fastq file and produces mapped BAM files and plot files for each file in the given file list and a statistical summary of all files.
+* `bacteria_tradis` - Runs complete analysis, starting with a fastq file and produces mapped BAM files and plot files for each file in the given file list and a statistical summary of all files. Note that the -f option expects a text file containing a list of fastq files, one per line.
 
 A help menu for each script can be accessed by running the script with no parameters
 
