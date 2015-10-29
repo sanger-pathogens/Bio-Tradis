@@ -13,6 +13,7 @@ use Moose;
 use Getopt::Long qw(GetOptionsFromArray);
 use Cwd 'abs_path';
 use Bio::Tradis::RunTradis;
+use TryCatch;
 
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
@@ -114,6 +115,7 @@ sub run {
     }
 
     #if all files exist, continue with analysis
+    my $at_least_one_good_fastq = 0;
     foreach my $f2 (@filelist) {
         chomp($f2);
         if   ( $f2 =~ /^\// ) { $full_path = $f2; }
@@ -133,8 +135,19 @@ sub run {
             verbose       => $self->verbose,
             samtools_exec => $self->samtools_exec
         );
-        $analysis->run_tradis;
+	try {
+            $analysis->run_tradis;
+            $at_least_one_good_fastq = 1;
+        }
+	catch (Bio::Tradis::Exception::TagFilterError $e) {
+		my $tag = $self->tag;
+		warn "There was a problem filtering '$full_path' by '$tag'; it looks like the tag was not found in any read\n";
+	}
     }
+    if ( ! $at_least_one_good_fastq ) {
+        Bio::Tradis::Exception::TagFilterError->throw( error => "TOP: There was a problem filtering reads by the specified tag.  Please check all input files are Fastq formatted and that at least one read in each starts with the specified tag\n" );
+    }
+
     $self->_tidy_stats;
     close(FILES);
 
