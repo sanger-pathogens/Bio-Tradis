@@ -145,7 +145,7 @@ sub run {
 	}
     }
     if ( ! $at_least_one_good_fastq ) {
-        Bio::Tradis::Exception::TagFilterError->throw( error => "TOP: There was a problem filtering reads by the specified tag.  Please check all input files are Fastq formatted and that at least one read in each starts with the specified tag\n" );
+        Bio::Tradis::Exception::TagFilterError->throw( error => "None of the input files contained the specified tag.  Please check that your inputs are valid fastq files and that at least one read in one of them starts with the specified tag\n" );
     }
 
     $self->_tidy_stats;
