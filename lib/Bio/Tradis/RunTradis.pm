@@ -445,7 +445,8 @@ sub _stats {
         $stats .= "$uis_per_seqlen,";
     }
     $stats .= "$total_uis,";
-    my $t_uis_p_l = $total_seq_len / $total_uis;
+    my $t_uis_p_l = "NaN";
+    $t_uis_p_l = $total_seq_len / $total_uis if ( $t_uis_p_l > 0 );
     $stats .= "$t_uis_p_l\n";
     print { $self->_stats_handle } $stats;
 }
