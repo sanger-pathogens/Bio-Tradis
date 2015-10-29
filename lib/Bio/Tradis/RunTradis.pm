@@ -195,6 +195,9 @@ sub run_tradis {
     print STDERR "..........Step 1: Filter tags that match user input tag\n" if($self->verbose);
     $self->_filter;
 
+    print STDERR "..........Step 1.1: Check that at least one read started with the tag\n" if($self->verbose);
+    $self->_check_filter;
+
     # Step 2: Remove the tag from the sequence and quality strings
     print STDERR
 "..........Step 2: Remove the tag from the sequence and quality strings\n" if($self->verbose);
@@ -257,6 +260,32 @@ sub _filter {
         mismatch  => $mm,
         outfile   => "$destination_directory/filter.fastq"
     )->filter_tags;
+}
+
+sub _check_filter {
+    my ($self)                 = @_;
+    my $destination_directory  = $self->_destination;
+    my $filtered_file_filename = "$destination_directory/filter.fastq";
+    open my $filtered_file, '<', $filtered_file_filename or
+       Bio::Tradis::Exception::TagFilterError->throw( error => "There was a problem filtering reads by the specified tag.  Please check all input files are Fastq formatted and that at least one read in each starts with the specified tag\n" );
+    my @first_read_data;
+    while( my $line = <$filtered_file> ) {
+      last if $. > 4;
+      chomp($line);
+      push @first_read_data, $line;
+    }
+    my $number_of_read_lines = scalar @first_read_data;
+    if ( $number_of_read_lines ne 4) {
+      # There wasn't enough data for a complete read
+      Bio::Tradis::Exception::TagFilterError->throw( error => "There was a problem filtering reads by the specified tag.  Please check all input files are Fastq formatted and that at least one read in each starts with the specified tag\n" );
+    }
+    my $read_plus_sign = $first_read_data[2];
+    if ( $read_plus_sign ne '+' ) {
+      # The first 'read' didn't have a '+' on the third line, suspicious
+      Bio::Tradis::Exception::TagFilterError->throw( error => "There was a problem filtering reads by the specified tag.  Please check all input files are Fastq formatted and that at least one read in each starts with the specified tag\n" );
+    }
+    # I'm not proposing further (more detailed) validation here
+    close $filtered_file;
 }
 
 sub _remove {

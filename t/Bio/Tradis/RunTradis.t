@@ -50,6 +50,22 @@ is(
     'checking filtered file contents - Normal files, no mismatch'
 );
 
+# Check filtering step
+ok( $obj->_check_filter, 'testing check filtering step' );
+system("mv $destination_directory/filter.fastq $destination_directory/filter.fastq.bak");
+throws_ok {$obj->_check_filter} 'Bio::Tradis::Exception::TagFilterError', 'complain if no filtered reads';
+system("touch $destination_directory/filter.fastq");
+throws_ok {$obj->_check_filter} 'Bio::Tradis::Exception::TagFilterError', 'complain if filtered reads are empty';
+system("echo foo > $destination_directory/filter.fastq");
+throws_ok {$obj->_check_filter} 'Bio::Tradis::Exception::TagFilterError', 'complain if filtered reads has less than 4 lines';
+system("echo 'foo\nbar\nbaz\nquux' > $destination_directory/filter.fastq");
+throws_ok {$obj->_check_filter} 'Bio::Tradis::Exception::TagFilterError', 'complain if filtered reads do not look like a fastq';
+system("echo 'foo\nbar\n+' > $destination_directory/filter.fastq");
+throws_ok {$obj->_check_filter} 'Bio::Tradis::Exception::TagFilterError', 'complain if filtered reads are too short';
+system("echo 'foo\nbar\n+\nquux' > $destination_directory/filter.fastq");
+ok( $obj->_check_filter, 'check very basic filtered reads validation');
+system("mv $destination_directory/filter.fastq.bak $destination_directory/filter.fastq");
+
 # Tag removal
 ok( $obj->_remove, 'testing tag removal' );
 ok( -e "$destination_directory/tags_removed.fastq",
