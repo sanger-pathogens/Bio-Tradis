@@ -56,6 +56,7 @@ C<run_tradis> - run complete analysis with given parameters
 use Cwd;
 use Moose;
 use File::Temp;
+use File::Path 'rmtree';
 use Bio::Tradis::FilterTags;
 use Bio::Tradis::RemoveTags;
 use Bio::Tradis::Map;
@@ -249,16 +250,7 @@ sub run_tradis {
     # Clean up
     print STDERR "..........Clean up\n" if($self->verbose);
 
-    unlink("$temporary_directory/filter.fastq");
-    unlink("$temporary_directory/tags_removed.fastq");
-    unlink("$temporary_directory/mapped.sam");
-    unlink("$temporary_directory/ref.index.sma");
-    unlink("$temporary_directory/ref.index.smi");
-    unlink("$temporary_directory/mapped.bam");
-    unlink("$temporary_directory/tmp.plot");
-    unlink( $self->_unzipped_fastq ) if ( $self->_is_gz );
-
-    File::Temp::cleanup();
+    rmtree($temporary_directory);
 
     return 1;
 }
