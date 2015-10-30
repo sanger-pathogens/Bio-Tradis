@@ -39,7 +39,7 @@ ok(
         reference         => $ref,
         tag               => $tag,
         outfile           => $outfile,
-        _output_directory => $output_directory,
+        output_directory  => $output_directory,
         _temp_directory   => $temp_directory,
         _stats_handle     => $stats_handle
     ),
@@ -155,7 +155,7 @@ ok(
         tag               => $tag,
         outfile           => $outfile,
         mismatch          => 1,
-        _output_directory => $output_directory,
+        output_directory  => $output_directory,
         _temp_directory   => $temp_directory,
         _stats_handle     => $stats_handle
     ),
@@ -187,13 +187,13 @@ $temp_directory = $temp_directory_obj->dirname();
 $fastqfile = "t/data/RunTradis/test.tagged.fastq.gz";
 ok(
     $obj = Bio::Tradis::RunTradis->new(
-        fastqfile       => $fastqfile,
-        reference       => $ref,
-        tag             => $tag,
-        outfile         => $outfile,
-        _output_directory => $output_directory,
-        _temp_directory => $temp_directory,
-        _stats_handle   => $stats_handle
+        fastqfile        => $fastqfile,
+        reference        => $ref,
+        tag              => $tag,
+        outfile          => $outfile,
+        output_directory => $output_directory,
+        _temp_directory  => $temp_directory,
+        _stats_handle    => $stats_handle
     ),
     'creating object with gzipped data - Normal files one mismatch'
 );
@@ -220,15 +220,15 @@ $temp_directory_obj = File::Temp->newdir( CLEANUP => 0,
 $temp_directory = $temp_directory_obj->dirname();
 ok(
     $obj = Bio::Tradis::RunTradis->new(
-        fastqfile       => $fastqfile,
-        reference       => $ref,
-        tag             => $tag,
-        outfile         => $outfile,
-        _output_directory => $output_directory,
-        _temp_directory => $temp_directory,
-        _stats_handle   => $stats_handle,
-        smalt_k         => 10,
-        smalt_s         => 2
+        fastqfile        => $fastqfile,
+        reference        => $ref,
+        tag              => $tag,
+        outfile          => $outfile,
+        output_directory => $output_directory,
+        _temp_directory  => $temp_directory,
+        _stats_handle    => $stats_handle,
+        smalt_k          => 10,
+        smalt_s          => 2
     ),
     'creating object with custom smalt parameters'
 );
@@ -243,15 +243,15 @@ $temp_directory_obj = File::Temp->newdir( CLEANUP => 0,
 $temp_directory = $temp_directory_obj->dirname();
 ok(
     $obj = Bio::Tradis::RunTradis->new(
-        fastqfile       => $fastqfile,
-        reference       => "not_really_a_ref.fa",
-        tag             => $tag,
-        outfile         => $outfile,
-        _output_directory => $output_directory,
-        _temp_directory => $temp_directory,
-        _stats_handle   => $stats_handle,
-        smalt_k         => 10,
-        smalt_s         => 2
+        fastqfile        => $fastqfile,
+        reference        => "not_really_a_ref.fa",
+        tag              => $tag,
+        outfile          => $outfile,
+        output_directory => $output_directory,
+        _temp_directory  => $temp_directory,
+        _stats_handle    => $stats_handle,
+        smalt_k          => 10,
+        smalt_s          => 2
     ),
     'creating object with custom smalt parameters'
 );
