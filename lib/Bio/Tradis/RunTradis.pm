@@ -90,12 +90,12 @@ has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1);
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
-has '_destination' => (
+has '_temp_directory' => (
     is       => 'rw',
     isa      => 'Str',
     required => 0,
     lazy     => 1,
-    builder  => '_build__destination'
+    builder  => '_build__temp_directory'
 );
 has '_stats_handle' => ( is => 'ro', isa => 'FileHandle', required => 1 );
 has '_sequence_info' => (
@@ -128,16 +128,16 @@ sub _is_gz {
 sub _build__unzipped_fastq {
     my ($self)                = @_;
     my $fq                    = $self->fastqfile;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory   = $self->_temp_directory;
 
     if ( $self->_is_gz ) {
         $fq =~ /([^\/]+)$/;
         my $newfq = $1;
         $newfq =~ s/\.gz//;
-        if ( !-e "$destination_directory/$newfq" ) {
-            `gunzip -c $fq > $destination_directory/$newfq`;
+        if ( !-e "$temporary_directory/$newfq" ) {
+            `gunzip -c $fq > $temporary_directory/$newfq`;
         }
-        return "$destination_directory/$newfq";
+        return "$temporary_directory/$newfq";
     }
     else {
         return $fq;
@@ -154,9 +154,9 @@ sub _build__stats_handle {
 
 sub _build__sequence_info {
     my ($self) = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory = $self->_temp_directory;
     open( GREP,
-        "grep \@SQ $destination_directory/mapped.sam | awk '{print \$2, \$3}' |"
+        "grep \@SQ $temporary_directory/mapped.sam | awk '{print \$2, \$3}' |"
     );
     my %sns = ();
     while ( my $sn = <GREP> ) {
@@ -167,7 +167,7 @@ sub _build__sequence_info {
     return \%sns;
 }
 
-sub _build__destination {
+sub _build__temp_directory {
     my $tmp_dir = File::Temp->newdir( CLEANUP => 0 );
     return $tmp_dir->dirname;
 }
@@ -183,7 +183,7 @@ sub _build__current_directory {
 
 sub run_tradis {
     my ($self)                = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory   = $self->_temp_directory;
     my $fq                    = $self->fastqfile;
     
     my $ref                   = $self->reference;
@@ -225,21 +225,21 @@ sub run_tradis {
     # Step 7: Move files to current directory
     print STDERR "..........Step 6: Move files to current directory\n" if($self->verbose);
     my $outfile = $self->outfile;
-    system("mv $destination_directory/$outfile* \.");
-    system("mv $destination_directory/mapped.sort.bam \./$outfile.mapped.bam");
-    system("mv $destination_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai");
-    system("mv $destination_directory/mapped.bamcheck \./$outfile.mapped.bamcheck");
+    system("mv $temporary_directory/$outfile* \.");
+    system("mv $temporary_directory/mapped.sort.bam \./$outfile.mapped.bam");
+    system("mv $temporary_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai");
+    system("mv $temporary_directory/mapped.bamcheck \./$outfile.mapped.bamcheck");
 
     # Clean up
     print STDERR "..........Clean up\n" if($self->verbose);
 
-    unlink("$destination_directory/filter.fastq");
-    unlink("$destination_directory/tags_removed.fastq");
-    unlink("$destination_directory/mapped.sam");
-    unlink("$destination_directory/ref.index.sma");
-    unlink("$destination_directory/ref.index.smi");
-    unlink("$destination_directory/mapped.bam");
-    unlink("$destination_directory/tmp.plot");
+    unlink("$temporary_directory/filter.fastq");
+    unlink("$temporary_directory/tags_removed.fastq");
+    unlink("$temporary_directory/mapped.sam");
+    unlink("$temporary_directory/ref.index.sma");
+    unlink("$temporary_directory/ref.index.smi");
+    unlink("$temporary_directory/mapped.bam");
+    unlink("$temporary_directory/tmp.plot");
     unlink( $self->_unzipped_fastq ) if ( $self->_is_gz );
 
     File::Temp::cleanup();
@@ -249,7 +249,7 @@ sub run_tradis {
 
 sub _filter {
     my ($self)                = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory   = $self->_temp_directory;
     my $fqfile                = $self->_unzipped_fastq;
     my $tag                   = $self->tag;
     my $mm                    = $self->mismatch;
@@ -258,14 +258,14 @@ sub _filter {
         fastqfile => $fqfile,
         tag       => $tag,
         mismatch  => $mm,
-        outfile   => "$destination_directory/filter.fastq"
+        outfile   => "$temporary_directory/filter.fastq"
     )->filter_tags;
 }
 
 sub _check_filter {
     my ($self)                 = @_;
-    my $destination_directory  = $self->_destination;
-    my $filtered_file_filename = "$destination_directory/filter.fastq";
+    my $temporary_directory    = $self->_temp_directory;
+    my $filtered_file_filename = "$temporary_directory/filter.fastq";
     open my $filtered_file, '<', $filtered_file_filename or
        Bio::Tradis::Exception::TagFilterError->throw( error => "There was a problem filtering reads by the specified tag.  Please check all input files are Fastq formatted and that at least one read in each starts with the specified tag\n" );
     my @first_read_data;
@@ -290,29 +290,29 @@ sub _check_filter {
 
 sub _remove {
     my ($self)                = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory   = $self->_temp_directory;
     my $tag                   = $self->tag;
     my $mm                    = $self->mismatch;
 
     my $rm_tags = Bio::Tradis::RemoveTags->new(
-        fastqfile => "$destination_directory/filter.fastq",
+        fastqfile => "$temporary_directory/filter.fastq",
         tag       => $tag,
         mismatch  => $mm,
-        outfile   => "$destination_directory/tags_removed.fastq"
+        outfile   => "$temporary_directory/tags_removed.fastq"
     )->remove_tags;
 }
 
 sub _map {
     my ($self) = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory = $self->_temp_directory;
 
     my $ref = $self->reference;
 
     my $mapping = Bio::Tradis::Map->new(
-        fastqfile => "$destination_directory/tags_removed.fastq",
+        fastqfile => "$temporary_directory/tags_removed.fastq",
         reference => "$ref",
-        refname   => "$destination_directory/ref.index",
-        outfile   => "$destination_directory/mapped.sam",
+        refname   => "$temporary_directory/ref.index",
+        outfile   => "$temporary_directory/mapped.sam",
         smalt_k   => $self->smalt_k,
         smalt_s   => $self->smalt_s,
         smalt_y   => $self->smalt_y,
@@ -324,46 +324,46 @@ sub _map {
 
 sub _sam2bam {
     my ($self) = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory = $self->_temp_directory;
 
     system(
-$self->samtools_exec." view -b -o $destination_directory/mapped.bam -S $destination_directory/mapped.sam"
+$self->samtools_exec." view -b -o $temporary_directory/mapped.bam -S $temporary_directory/mapped.sam"
     );
     return 1;
 }
 
 sub _sort_bam {
     my ($self) = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory = $self->_temp_directory;
 
     system(
-$self->samtools_exec." sort $destination_directory/mapped.bam $destination_directory/mapped.sort"
+$self->samtools_exec." sort $temporary_directory/mapped.bam $temporary_directory/mapped.sort"
     );
-    system($self->samtools_exec." index $destination_directory/mapped.sort.bam");
+    system($self->samtools_exec." index $temporary_directory/mapped.sort.bam");
     return 1;
 }
 
 sub _bamcheck {
     my ($self) = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory = $self->_temp_directory;
 
     system(
-$self->samtools_exec." stats $destination_directory/mapped.sort.bam > $destination_directory/mapped.bamcheck"
+$self->samtools_exec." stats $temporary_directory/mapped.sort.bam > $temporary_directory/mapped.bamcheck"
     );
     return 1;
 }
 
 sub _make_plot {
     my ($self)                = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory   = $self->_temp_directory;
     my $ref                   = $self->reference;
     my $outfile               = $self->outfile;
     my $tr_d                  = $self->tagdirection;
 
     my $plot = Bio::Tradis::TradisPlot->new(
-        mappedfile    => "$destination_directory/mapped.sort.bam",
+        mappedfile    => "$temporary_directory/mapped.sort.bam",
         mapping_score => $self->mapping_score,
-        outfile       => "$destination_directory/$outfile"
+        outfile       => "$temporary_directory/$outfile"
     )->plot;
 
     # if tag direction is 5, reverse plot columns
@@ -376,31 +376,31 @@ sub _make_plot {
 
 sub _reverse_plots {
     my ($self)                = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory   = $self->_temp_directory;
     my $outfile               = $self->outfile;
     my @seqnames              = keys %{ $self->_sequence_info };
 
     my @current_plots =
-      glob("$destination_directory/$outfile.*.insert_site_plot.gz");
+      glob("$temporary_directory/$outfile.*.insert_site_plot.gz");
 
     foreach my $plotname (@current_plots) {
         print STDERR "Reversing $plotname\n" if($self->verbose);
 
         #my $plotname = $self->_plotname($sn);
-        system("gunzip -c $plotname > $destination_directory/tmp.plot");
+        system("gunzip -c $plotname > $temporary_directory/tmp.plot");
         system(
-"awk '{ t = \$1; \$1 = \$2; \$2 = t; print; }' $destination_directory/tmp.plot > rv_plot"
+"awk '{ t = \$1; \$1 = \$2; \$2 = t; print; }' $temporary_directory/tmp.plot > rv_plot"
         );
         system("gzip -c rv_plot > $plotname");
     }
-    unlink("$destination_directory/tmp.plot");
+    unlink("$temporary_directory/tmp.plot");
     unlink("rv_plot");
 }
 
 sub _stats {
     my ($self)                = @_;
     my $outfile               = $self->outfile;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory   = $self->_temp_directory;
     my $fq                    = $self->_unzipped_fastq;
     my $seq_info              = $self->_sequence_info;
 
@@ -416,7 +416,7 @@ sub _stats {
 
     # Matching reads
     my $matching =
-      `wc $destination_directory/filter.fastq | awk '{print \$1/4}'`;
+      `wc $temporary_directory/filter.fastq | awk '{print \$1/4}'`;
     chomp($matching);
     $stats .= "$matching,";
     $stats .= ( $matching / $total_reads ) * 100 . ",";
@@ -431,9 +431,9 @@ sub _stats {
     foreach my $si ( keys %{$seq_info} ) {
         my $plotname = $self->_plotname($si);
         system(
-"gunzip -c $destination_directory/$plotname > $destination_directory/tmp.plot"
+"gunzip -c $temporary_directory/$plotname > $temporary_directory/tmp.plot"
         );
-        my $uis = `grep -c -v "0 0" $destination_directory/tmp.plot`;
+        my $uis = `grep -c -v "0 0" $temporary_directory/tmp.plot`;
         chomp($uis);
         $total_uis += $uis;
         $stats .= "$uis,";
@@ -482,11 +482,11 @@ sub _plotname {
 
 sub _number_of_mapped_reads {
     my ($self) = @_;
-    my $destination_directory = $self->_destination;
+    my $temporary_directory = $self->_temp_directory;
 
     my $pars =
       Bio::Tradis::Parser::Bam->new(
-        file => "$destination_directory/mapped.bam" );
+        file => "$temporary_directory/mapped.bam" );
     my $c = 0;
     while ( $pars->next_read ) {
         if ( $pars->is_mapped ) {
