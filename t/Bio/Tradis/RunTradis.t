@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use Cwd;
+use File::Path 'rmtree';
 use File::Temp;
 use File::Slurp;
 
@@ -13,7 +15,12 @@ BEGIN {
     use_ok('Bio::Tradis::RunTradis');
 }
 
-my $temp_directory_obj = File::Temp->newdir( CLEANUP => 0 );
+my $output_directory_obj = File::Temp->newdir( 'tmp_run_tradis_tests_XXXXX',
+                                               CLEANUP => 0,
+                                               DIR => cwd() );
+my $output_directory = $output_directory_obj->dirname;
+my $temp_directory_obj = File::Temp->newdir( CLEANUP => 0,
+                                             DIR => $output_directory );
 my $temp_directory = $temp_directory_obj->dirname();
 
 my ( $obj, $fastqfile, $stats_handle, $ref, $tag, $outfile );
@@ -24,16 +31,17 @@ $fastqfile = "t/data/RunTradis/test.tagged.fastq";
 $ref       = "t/data/RunTradis/smallref.fa";
 $tag       = "TAAGAGTCAG";
 $outfile   = "test.plot";
-open( $stats_handle, '>', "test.stats" );
+open( $stats_handle, '>', "$output_directory/test.stats" );
 
 ok(
     $obj = Bio::Tradis::RunTradis->new(
-        fastqfile       => $fastqfile,
-        reference       => $ref,
-        tag             => $tag,
-        outfile         => $outfile,
-        _temp_directory => $temp_directory_obj->dirname,
-        _stats_handle   => $stats_handle
+        fastqfile         => $fastqfile,
+        reference         => $ref,
+        tag               => $tag,
+        outfile           => $outfile,
+        _output_directory => $output_directory,
+        _temp_directory   => $temp_directory,
+        _stats_handle     => $stats_handle
     ),
     'creating object - Normal files, no mismatch'
 );
@@ -79,9 +87,9 @@ is(
 # Mapping
 ok( $obj->_map,                             'testing mapping' );
 ok( -e "$temp_directory/mapped.sam", 'checking SAM existence' );
-`grep -v "\@PG" $temp_directory/mapped.sam > tmp1.sam`;
-`grep -v "\@PG" t/data/RunTradis/mapped.sam > tmp2.sam`;
-is( read_file("tmp1.sam"), read_file('tmp2.sam'),
+`grep -v "\@PG" $temp_directory/mapped.sam > $output_directory/tmp1.sam`;
+`grep -v "\@PG" t/data/RunTradis/mapped.sam > $output_directory/tmp2.sam`;
+is( read_file("$output_directory/tmp1.sam"), read_file("$output_directory/tmp2.sam"),
     'checking mapped file contents' );
 
 # Conversion
@@ -105,69 +113,77 @@ ok( $obj->_make_plot, 'testing plotting' );
 ok( -e "$temp_directory/test.plot.AE004091.insert_site_plot.gz",
     'checking plot file existence - Normal files, no mismatch' );
 system(
-"gunzip -c $temp_directory/test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped"
+"gunzip -c $temp_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped"
 );
-system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
+system("gunzip -c t/data/RunTradis/expected.plot.gz > $output_directory/expected.plot.unzipped");
 is(
-    read_file('test.plot.unzipped'),
-    read_file('expected.plot.unzipped'),
+    read_file("$output_directory/test.plot.unzipped"),
+    read_file("$output_directory/expected.plot.unzipped"),
     'checking plot file contents - Normal files, no mismatch'
 );
 
 
 # Complete pipeline
 ok( $obj->run_tradis, 'testing complete analysis - Normal files, no mismatch' );
-ok( -e 'test.plot.AE004091.insert_site_plot.gz',
+ok( -e "$output_directory/test.plot.AE004091.insert_site_plot.gz",
     'checking plot file existence - Normal files, no mismatch' );
-system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
-system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
+system("gunzip -c $output_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped");
+system("gunzip -c t/data/RunTradis/expected.plot.gz > $output_directory/expected.plot.unzipped");
 is(
-    read_file('test.plot.unzipped'),
-    read_file('expected.plot.unzipped'),
+    read_file("$output_directory/test.plot.unzipped"),
+    read_file("$output_directory/expected.plot.unzipped"),
     'checking completed pipeline file contents - Normal files, no mismatch'
 );
 
 unlink("$temp_directory/filter.fastq");
 unlink("$temp_directory/tags_removed.fastq");
 
-unlink('test.plot.AE004091.insert_site_plot.gz');
-unlink('expected.plot.unzipped');
-unlink('test.plot.unzipped');
+unlink("$output_directory/test.plot.AE004091.insert_site_plot.gz");
+unlink("$output_directory/expected.plot.unzipped");
+unlink("$output_directory/test.plot.unzipped");
 
 # Test complete pipeline with 1 mismatch allowed
 
+$temp_directory_obj = File::Temp->newdir( CLEANUP => 0,
+                                          DIR => $output_directory );
+$temp_directory = $temp_directory_obj->dirname();
+
 ok(
     $obj = Bio::Tradis::RunTradis->new(
-        fastqfile       => $fastqfile,
-        reference       => $ref,
-        tag             => $tag,
-        outfile         => $outfile,
-        mismatch        => 1,
-        _temp_directory => $temp_directory_obj->dirname,
-        _stats_handle   => $stats_handle
+        fastqfile         => $fastqfile,
+        reference         => $ref,
+        tag               => $tag,
+        outfile           => $outfile,
+        mismatch          => 1,
+        _output_directory => $output_directory,
+        _temp_directory   => $temp_directory,
+        _stats_handle     => $stats_handle
     ),
     'creating object - Normal files one mismatch'
 );
 
 ok( $obj->run_tradis, 'testing complete analysis with mismatch' );
-ok( -e 'test.plot.AE004091.insert_site_plot.gz',
+ok( -e "$output_directory/test.plot.AE004091.insert_site_plot.gz",
     'checking plot file existence - Normal files one mismatch' );
-system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
+system("gunzip -c $output_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped");
 system(
-    "gunzip -c t/data/RunTradis/expected.1mm.plot.gz > expected.plot.unzipped");
+    "gunzip -c t/data/RunTradis/expected.1mm.plot.gz > $output_directory/expected.plot.unzipped");
 is(
-    read_file('test.plot.unzipped'),
-    read_file('expected.plot.unzipped'),
+    read_file("$output_directory/test.plot.unzipped"),
+    read_file("$output_directory/expected.plot.unzipped"),
     'checking completed pipeline with mismatch file contents - Normal files one mismatch'
 );
 
-unlink("tmp1.sam");
-unlink("tmp2.sam");
-unlink('test.plot.AE004091.insert_site_plot.gz');
-unlink('expected.plot.unzipped');
-unlink('test.plot.unzipped');
+unlink("$output_directory/tmp1.sam");
+unlink("$output_directory/tmp2.sam");
+unlink("$output_directory/test.plot.AE004091.insert_site_plot.gz");
+unlink("$output_directory/expected.plot.unzipped");
+unlink("$output_directory/test.plot.unzipped");
 
 # Test pipeline with gzipped input
+$temp_directory_obj = File::Temp->newdir( CLEANUP => 0,
+                                          DIR => $output_directory );
+$temp_directory = $temp_directory_obj->dirname();
 $fastqfile = "t/data/RunTradis/test.tagged.fastq.gz";
 ok(
     $obj = Bio::Tradis::RunTradis->new(
@@ -175,7 +191,8 @@ ok(
         reference       => $ref,
         tag             => $tag,
         outfile         => $outfile,
-        _temp_directory => $temp_directory_obj->dirname,
+        _output_directory => $output_directory,
+        _temp_directory => $temp_directory,
         _stats_handle   => $stats_handle
     ),
     'creating object with gzipped data - Normal files one mismatch'
@@ -183,28 +200,32 @@ ok(
 
 ok( $obj->run_tradis, 'testing complete analysis with gzipped data' );
 ok(
-    -e 'test.plot.AE004091.insert_site_plot.gz',
+    -e "$output_directory/test.plot.AE004091.insert_site_plot.gz",
     'checking plot file existence (gzipped data) - Normal files one mismatch'
 );
-ok( -e 'test.plot.mapped.bam', 'checking mapped bam existence - Normal files one mismatch');
-ok( -e 'test.plot.mapped.bam.bai', 'checking indexed bam file - Normal files one mismatch');
+ok( -e "$output_directory/test.plot.mapped.bam", 'checking mapped bam existence - Normal files one mismatch');
+ok( -e "$output_directory/test.plot.mapped.bam.bai", 'checking indexed bam file - Normal files one mismatch');
 
-system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
-system("gunzip -c t/data/RunTradis/expected.plot.gz > expected.plot.unzipped");
+system("gunzip -c $output_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped");
+system("gunzip -c t/data/RunTradis/expected.plot.gz > $output_directory/expected.plot.unzipped");
 is(
-    read_file('test.plot.unzipped'),
-    read_file('expected.plot.unzipped'),
+    read_file("$output_directory/test.plot.unzipped"),
+    read_file("$output_directory/expected.plot.unzipped"),
     'checking completed pipeline with gzipped data file contents - Normal files one mismatch'
 );
 
 # Test mapping stage with custom smalt parameters
+$temp_directory_obj = File::Temp->newdir( CLEANUP => 0,
+                                          DIR => $output_directory );
+$temp_directory = $temp_directory_obj->dirname();
 ok(
     $obj = Bio::Tradis::RunTradis->new(
         fastqfile       => $fastqfile,
         reference       => $ref,
         tag             => $tag,
         outfile         => $outfile,
-        _temp_directory => $temp_directory_obj->dirname,
+        _output_directory => $output_directory,
+        _temp_directory => $temp_directory,
         _stats_handle   => $stats_handle,
         smalt_k         => 10,
         smalt_s         => 2
@@ -217,13 +238,17 @@ $obj->_remove;
 ok( $obj->_map, 'mapping with custom parameters fine' );
 
 # Check die if ref is not found
+$temp_directory_obj = File::Temp->newdir( CLEANUP => 0,
+                                          DIR => $output_directory );
+$temp_directory = $temp_directory_obj->dirname();
 ok(
     $obj = Bio::Tradis::RunTradis->new(
         fastqfile       => $fastqfile,
         reference       => "not_really_a_ref.fa",
         tag             => $tag,
         outfile         => $outfile,
-        _temp_directory => $temp_directory_obj->dirname,
+        _output_directory => $output_directory,
+        _temp_directory => $temp_directory,
         _stats_handle   => $stats_handle,
         smalt_k         => 10,
         smalt_s         => 2
@@ -232,6 +257,5 @@ ok(
 );
 throws_ok {$obj->run_tradis} 'Bio::Tradis::Exception::RefNotFound', 'correct error thrown'; 
 
-
-File::Temp::cleanup();
+rmtree($output_directory);
 done_testing();
