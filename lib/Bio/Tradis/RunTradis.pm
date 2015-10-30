@@ -99,12 +99,12 @@ has '_temp_directory' => (
     lazy     => 1,
     builder  => '_build__temp_directory'
 );
-has '_output_directory' => (
+has 'output_directory' => (
     is       => 'rw',
     isa      => 'Str',
     required => 0,
     lazy     => 1,
-    builder  => '_build__output_directory'
+    builder  => '_build_output_directory'
 );
 has '_stats_handle' => ( is => 'ro', isa => 'FileHandle', required => 1 );
 has '_sequence_info' => (
@@ -180,11 +180,11 @@ sub _build__temp_directory {
     my ($self) = @_;
     my $tmp_dir = File::Temp->newdir( 'tmp_run_tradis_XXXXX',
                                       CLEANUP => 0,
-                                      DIR => $self->_output_directory );
+                                      DIR => $self->output_directory );
     return $tmp_dir->dirname;
 }
 
-sub _build__output_directory {
+sub _build_output_directory {
     return cwd();
 }
 
@@ -241,7 +241,7 @@ sub run_tradis {
     # Step 7: Move files to current directory
     print STDERR "..........Step 6: Move files to current directory\n" if($self->verbose);
     my $outfile = $self->outfile;
-    my $output_directory = $self->_output_directory;
+    my $output_directory = $self->output_directory;
     system("mv $temporary_directory/$outfile* $output_directory");
     system("mv $temporary_directory/mapped.sort.bam $output_directory/$outfile.mapped.bam");
     system("mv $temporary_directory/mapped.sort.bam.bai $output_directory/$outfile.mapped.bam.bai");
