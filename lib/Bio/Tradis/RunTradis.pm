@@ -53,6 +53,7 @@ C<run_tradis> - run complete analysis with given parameters
 
 =cut
 
+use Cwd;
 use Moose;
 use File::Temp;
 use Bio::Tradis::FilterTags;
@@ -96,6 +97,13 @@ has '_temp_directory' => (
     required => 0,
     lazy     => 1,
     builder  => '_build__temp_directory'
+);
+has '_output_directory' => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    lazy     => 1,
+    builder  => '_build__output_directory'
 );
 has '_stats_handle' => ( is => 'ro', isa => 'FileHandle', required => 1 );
 has '_sequence_info' => (
@@ -172,6 +180,10 @@ sub _build__temp_directory {
     return $tmp_dir->dirname;
 }
 
+sub _build__output_directory {
+    return cwd();
+}
+
 sub _build__current_directory {
     my ($self) = @_;
     my $fq = $self->fastqfile;
@@ -225,10 +237,11 @@ sub run_tradis {
     # Step 7: Move files to current directory
     print STDERR "..........Step 6: Move files to current directory\n" if($self->verbose);
     my $outfile = $self->outfile;
-    system("mv $temporary_directory/$outfile* \.");
-    system("mv $temporary_directory/mapped.sort.bam \./$outfile.mapped.bam");
-    system("mv $temporary_directory/mapped.sort.bam.bai \./$outfile.mapped.bam.bai");
-    system("mv $temporary_directory/mapped.bamcheck \./$outfile.mapped.bamcheck");
+    my $output_directory = $self->_output_directory;
+    system("mv $temporary_directory/$outfile* $output_directory");
+    system("mv $temporary_directory/mapped.sort.bam $output_directory/$outfile.mapped.bam");
+    system("mv $temporary_directory/mapped.sort.bam.bai $output_directory/$outfile.mapped.bam.bai");
+    system("mv $temporary_directory/mapped.bamcheck $output_directory/$outfile.mapped.bamcheck");
 
     # Clean up
     print STDERR "..........Clean up\n" if($self->verbose);
