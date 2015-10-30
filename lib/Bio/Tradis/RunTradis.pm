@@ -176,7 +176,10 @@ sub _build__sequence_info {
 }
 
 sub _build__temp_directory {
-    my $tmp_dir = File::Temp->newdir( CLEANUP => 0 );
+    my ($self) = @_;
+    my $tmp_dir = File::Temp->newdir( 'tmp_run_tradis_XXXXX',
+                                      CLEANUP => 0,
+                                      DIR => $self->_output_directory );
     return $tmp_dir->dirname;
 }
 
