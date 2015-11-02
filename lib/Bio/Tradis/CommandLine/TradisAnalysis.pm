@@ -11,8 +11,9 @@ site plots for use in Artemis
 
 use Moose;
 use Getopt::Long qw(GetOptionsFromArray);
-use Cwd 'abs_path';
+use Cwd qw(abs_path cwd);
 use Bio::Tradis::RunTradis;
+use TryCatch;
 
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
@@ -32,6 +33,14 @@ has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1
 
 has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
+
+has '_output_directory' => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    lazy     => 1,
+    builder  => '_build__output_directory'
+);
 
 has '_stats_handle' => (
     is       => 'ro',
@@ -114,51 +123,73 @@ sub run {
     }
 
     #if all files exist, continue with analysis
+    my $at_least_one_good_fastq = 0;
     foreach my $f2 (@filelist) {
         chomp($f2);
         if   ( $f2 =~ /^\// ) { $full_path = $f2; }
         else                  { $full_path = "$file_dir/$f2"; }
         my $analysis = Bio::Tradis::RunTradis->new(
-            fastqfile     => $full_path,
-            tag           => $self->tag,
-            tagdirection  => $self->tagdirection,
-            mismatch      => $self->mismatch,
-            reference     => $self->reference,
-            mapping_score => $self->mapping_score,
-            _stats_handle => $self->_stats_handle,
-            smalt_k       => $self->smalt_k,
-            smalt_s       => $self->smalt_s,
-            smalt_y       => $self->smalt_y,
-	    smalt_r       => $self->smalt_r,
-            verbose       => $self->verbose,
-            samtools_exec => $self->samtools_exec
+            fastqfile        => $full_path,
+            tag              => $self->tag,
+            tagdirection     => $self->tagdirection,
+            mismatch         => $self->mismatch,
+            reference        => $self->reference,
+            mapping_score    => $self->mapping_score,
+            output_directory => $self->_output_directory,
+            _stats_handle    => $self->_stats_handle,
+            smalt_k          => $self->smalt_k,
+            smalt_s          => $self->smalt_s,
+            smalt_y          => $self->smalt_y,
+            smalt_r          => $self->smalt_r,
+            verbose          => $self->verbose,
+            samtools_exec    => $self->samtools_exec
         );
-        $analysis->run_tradis;
+	try {
+            $analysis->run_tradis;
+            $at_least_one_good_fastq = 1;
+        }
+	catch (Bio::Tradis::Exception::TagFilterError $e) {
+		my $tag = $self->tag;
+		warn "There was a problem filtering '$full_path' by '$tag'; it looks like the tag was not found in any read\n";
+	}
     }
+    if ( ! $at_least_one_good_fastq ) {
+        Bio::Tradis::Exception::TagFilterError->throw( error => "None of the input files contained the specified tag.  Please check that your inputs are valid fastq files and that at least one read in one of them starts with the specified tag\n" );
+    }
+
     $self->_tidy_stats;
     close(FILES);
 
     #$self->_combine_plots;
 }
 
+sub _build__output_directory {
+    return cwd();
+}
+
+sub _stats_filename {
+    my ($self)           = @_;
+    my $dir              = $self->get_file_dir;
+    my $output_directory = $self->_output_directory;
+    my $stats_filename   = $self->fastqfile;
+    $stats_filename =~ s/$dir\///;
+    $stats_filename =~ s/[^\.]+$/stats/;
+    return "$output_directory/$stats_filename";
+}
+
 sub _build__stats_handle {
-    my ($self)   = @_;
-    my $filelist = $self->fastqfile;
-    my $dir      = $self->get_file_dir;
-    $filelist =~ s/$dir\///;
-    $filelist =~ s/[^\.]+$/stats/;
-    open( my $stats, ">", "$filelist" );
+    my ($self)         = @_;
+    my $stats_filename = $self->_stats_filename();
+    open( my $stats, ">", $stats_filename );
     return $stats;
 }
 
 sub _tidy_stats {
-    my ($self)   = @_;
-    my $filelist = $self->fastqfile;
-    my $dir      = $self->get_file_dir;
-    $filelist =~ s/$dir\///;
-    $filelist =~ s/[^\.]+$/stats/;
-    open( STATS, '<', $filelist );
-    open( TMP,   '>', 'tmp.stats' );
+    my ($self)           = @_;
+    my $output_directory = $self->_output_directory;
+    my $stats_filename   = $self->_stats_filename();
+    open( STATS, '<', $stats_filename );
+    open( TMP,   '>', "$output_directory/tmp.stats" );
 
     my $header = 0;
     while ( my $line = <STATS> ) {
@@ -174,7 +205,7 @@ sub _tidy_stats {
     }
     close(TMP);
     close(STATS);
-    system("mv tmp.stats $filelist");
+    system("mv $output_directory/tmp.stats $stats_filename");
 }
 
 sub _combine_plots {
