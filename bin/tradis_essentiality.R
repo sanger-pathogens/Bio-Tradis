@@ -10,7 +10,7 @@ options(width=80)
 args <- commandArgs(trailingOnly = TRUE)
 input = args[1]
 
-if( length(input) == 1 ){
+if( is.na(input) ){
 	cat(paste("Usage: tradis_essentiality.R data.tab\n\n"))
 	cat(strwrap("Produces calls of gene essentiality using an adaptation of the method described in Langridge et al. Genome Research 2009 and Barquist et al. NAR 2013. A loess curve is fit to the distribution of insertion indices, and used to identify the minima between the 'essential' and 'non-essential' distributions. These distributions are then used to fit gamma distributions, which are then used to calculate log-odds ratios, which are used to determine an insertion-index threshold for gene essentiality. Note that this analysis requires a saturated mutant library, and is not suitable for the analysis of data sets with low insertion density. The script produces a number of diagnostic plots which can be used to verify that this condition has been met.\n"), fill=80)
 	q(status=1)
