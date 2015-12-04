@@ -75,30 +75,4 @@ write.csv(STM_baseline, file=paste(input, "all", "csv", sep="."), row.names = FA
 write.csv(STM_baseline[STM_baseline$ins_index < essen,], file=paste(input, "essen", "csv", sep="."), row.names = FALSE, col.names= TRUE, quote=FALSE)
 write.csv(STM_baseline[STM_baseline$ins_index >= essen & STM_baseline$ins_index < ambig,], file=paste(input, "ambig", "csv", sep="."), row.names = FALSE, col.names= TRUE, quote=FALSE)
 
-#__END__
 
-#=pod
-
-#=encoding UTF-8
-
-#=head1 NAME
-
-#tradis_essentiality.R - tradis_essentiality.R
-
-#=head1 VERSION
-
-#version 1.2.2
-
-#=head1 AUTHOR
-
-#Carla Cummins <path-help@sanger.ac.uk>
-
-#=head1 COPYRIGHT AND LICENSE
-
-#This software is Copyright (c) 2013 by Wellcome Trust Sanger Institute.
-
-#This is free software, licensed under:
-
-#  The GNU General Public License, Version 3, June 2007
-
-#=cut
