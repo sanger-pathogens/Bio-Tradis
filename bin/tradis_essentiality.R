@@ -57,8 +57,8 @@ lines(0:50/500, f2*dgamma(0:50/500, d2$estimate[1], d2$estimate[2]))
 # print changepoint
 
 #calculate log-odds ratios to choose thresholds
-lower <- max(which(log((pgamma(1:300/10000, d2$e[1],d2$e[2])*(1-pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)))/(pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)*(1-pgamma(1:300/10000, d2$e[1],d2$e[2]))) , base=2) < -2))
-upper <- min(which(log((pgamma(1:300/10000, d2$e[1],d2$e[2])*(1-pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)))/(pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)*(1-pgamma(1:300/10000, d2$e[1],d2$e[2]))) , base=2) > 2))
+lower <- max(which(log((pgamma(1:500/10000, d2$e[1],d2$e[2])*(1-pgamma(1:500/10000, 1,d1$e[2], lower.tail=FALSE)))/(pgamma(1:500/10000, 1,d1$e[2], lower.tail=FALSE)*(1-pgamma(1:500/10000, d2$e[1],d2$e[2]))) , base=2) < -2))
+upper <- min(which(log((pgamma(1:500/10000, d2$e[1],d2$e[2])*(1-pgamma(1:500/10000, 1,d1$e[2], lower.tail=FALSE)))/(pgamma(1:500/10000, 1,d1$e[2], lower.tail=FALSE)*(1-pgamma(1:500/10000, d2$e[1],d2$e[2]))) , base=2) > 2))
 
 essen <- lower/10000
 ambig <- upper/10000
