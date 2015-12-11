@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Reagents Name="Bolt Avocado Reagents" Version="Selector Valve Positions v2.2">
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="1" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="2" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="3" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="4" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="5" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="6" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="7" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="8" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="9" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="10" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="11" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="12" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="13" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="14" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="15" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="16" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="17" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="18" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="19" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="20" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="21" />
+  <Reagent Name="PW1" Description="PW1" SelectorValvePosition="22" />
+</Reagents>

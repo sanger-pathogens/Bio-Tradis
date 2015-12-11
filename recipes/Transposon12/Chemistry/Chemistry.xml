@@ -1,0 +1,413 @@
+<?xml version="1.0"?>
+<ChemistryDefinitions Version="Calvados + AutoWashv4">
+
+    <ChemistryDefinition Name="CompleteCycle">
+      <ChemistryStep Description="Deblock" Repeat="1">
+        <Temp Duration="0" Temperature="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="CMS" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="22" />
+        <Wait Duration="10000" />
+      </ChemistryStep>
+      <ChemistryStep Description="Buffer Wash" Repeat="1">
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="250" />
+      </ChemistryStep>
+      <ChemistryStep Description="Incorporation" Repeat="1" IsIncorporation="true">
+        <PumpToFlowcell ReagentName="IMS" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="45" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <Temp Duration="0" Temperature="65" />
+        <Wait Duration="20000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="5" />
+        <DispenseAndWait Duration="20000" />
+        <Temp Duration="0" Temperature="22" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="SRE" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <DispenseAndWait DispenseRate="7500" Duration="15000" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="FirstBase">
+      <ChemistryStep Description="Incorporation" Repeat="1" IsIncorporation="true">
+        <Temp Duration="0" Temperature="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="IMS" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="45" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <Temp Duration="0" Temperature="65" />
+        <Wait Duration="20000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="5" />
+        <DispenseAndWait Duration="20000" />
+        <Temp Duration="0" Temperature="22" />
+        <Wait Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="SRE" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <DispenseAndWait DispenseRate="7500" Duration="15000" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="EndRead">
+      <ChemistryStep Description="Safe State" Repeat="1">
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="End">
+      <ChemistryStep Description="Safe State" Repeat="1">
+        <PumpToFlowcell ReagentName="PW1" AspirationRate="2000" DispenseRate="7500" Volume="750" />
+        <PumpToFlowcell ReagentName="PW2" AspirationRate="2000" DispenseRate="7500" Volume="750" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="EndDeblock">
+      <ChemistryStep Description="Deblock" Repeat="1">
+        <Temp Duration="0" Temperature="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="CMS" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <Wait Duration="40000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="5" />
+        <Wait Duration="35000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="250" />
+        <TempOff />
+      </ChemistryStep>
+      <ChemistryStep Description="Buffer Wash" Repeat="1">
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="250" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+   <ChemistryDefinition Name="TemplateRinse">
+      <ChemistryStep Description="EmptyTemplate">
+        <PumpToFlowcell ReagentName="TMP" AspirationRate="2000" DispenseRate="7500" Volume="500" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="750" />
+      </ChemistryStep>
+      <ChemistryStep Description="STRPR2TemplateFirst InitialPrime">
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="500" />
+        <Dispense DispenseRate="2500" />
+      </ChemistryStep>
+      <ChemistryStep Description="STRPR2TemplateFirst DispenseToTemplate" Repeat="9">
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="TMP" DispenseRate="2000" Volume="250" />
+      </ChemistryStep>
+      <ChemistryStep Description="STRPR2TemplateFirst EmptyTube">
+        <PumpToFlowcell ReagentName="TMP" AspirationRate="2000" DispenseRate="7500" Volume="2000" />
+      </ChemistryStep>
+      <ChemistryStep Description="STRPWTemplate InitialPrime">
+        <PumpToFlowcell ReagentName="PW1" AspirationRate="2000" DispenseRate="7500" Volume="250" />
+        <PumpToFlowcell ReagentName="PW2" AspirationRate="2000" DispenseRate="7500" Volume="250" />
+        <Dispense DispenseRate="2500" />
+      </ChemistryStep>
+      <ChemistryStep Description="STRPW1Template DispenseToTemplate" Repeat="4">
+	<Aspirate ReagentName="PW1" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="TMP" DispenseRate="2000" Volume="250" />
+      </ChemistryStep>
+      <ChemistryStep Description="STRPW2Template DispenseToTemplate" Repeat="4">
+	<Aspirate ReagentName="PW2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="TMP" DispenseRate="2000" Volume="250" />
+      </ChemistryStep>
+      <ChemistryStep Description="STRPWTemplate EmptyTube">
+        <PumpToFlowcell ReagentName="TMP" AspirationRate="2000" DispenseRate="7500" Volume="2000" />
+      </ChemistryStep>
+      <ChemistryStep Description="PR2 InitialPrime">
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="2500" Volume="2000" />
+        <Dispense DispenseRate="2500" />
+       </ChemistryStep>
+      <ChemistryStep Description="PR2 Reverse Flush">
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="IMS" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="LMX2" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="SRE" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="RMF" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="CMS" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="HP10" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="AMS1" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="HP12" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="AMS2" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="HP11" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="LPM" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="TMP" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="LDR" DispenseRate="500" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="C1" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="LMX1" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="C2" DispenseRate="2000" Volume="250" />
+	<Aspirate ReagentName="PR2" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="C3" DispenseRate="2000" Volume="250" />
+      </ChemistryStep>
+      <ChemistryStep Description="PW3 InitialPrime">
+        <PumpToFlowcell ReagentName="PW3" AspirationRate="2000" DispenseRate="2500" Volume="500" />
+        <Dispense DispenseRate="2500" />
+      </ChemistryStep>
+     <ChemistryStep Description="PW3 Reverse Flush">
+	<Aspirate ReagentName="PW3" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="IMS" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="RMF" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="SRE" DispenseRate="2000" Volume="80" />
+	<Dispense DispenseRate="2000" Volume="10"/>
+	<Aspirate ReagentName="PW3" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="HP10" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="PR2" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="HP12" DispenseRate="2000" Volume="80" />
+	<Dispense DispenseRate="2000" Volume="10"/>
+	<Aspirate ReagentName="PW3" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="CMS" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="HP11" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="AMS1" DispenseRate="2000" Volume="80" />
+	<Dispense DispenseRate="2000" Volume="10"/>
+	<Aspirate ReagentName="PW3" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="TMP" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="AMS2" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="C1" DispenseRate="2000" Volume="80" />
+	<Dispense DispenseRate="2000" Volume="10"/>
+	<Aspirate ReagentName="PW3" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="LPM" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="C2" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="LDR" DispenseRate="2000" Volume="80" />
+	<Dispense DispenseRate="2000" Volume="10"/>
+	<Aspirate ReagentName="PW3" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="C3" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="LMX1" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="PR2" DispenseRate="2000" Volume="80" />
+	<Dispense DispenseRate="2000" Volume="10"/>
+	<Aspirate ReagentName="PW3" AspirationRate="2000" Volume="250" />
+	<DispenseToFlowcell ReagentName="LMX2" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="SRE" DispenseRate="2000" Volume="80" />
+	<DispenseToFlowcell ReagentName="CMS" DispenseRate="2000" Volume="80" />
+	<Dispense DispenseRate="2000" Volume="10"/>
+      </ChemistryStep>
+      <ChemistryStep Description="ValveMotions" Repeat="8">
+        <PumpToFlowcell ReagentName="HP12" AspirationRate="2000" DispenseRate="2500" Volume="0" />
+        <PumpToFlowcell ReagentName="IMS" AspirationRate="2000" DispenseRate="2500" Volume="0" />
+        <PumpToFlowcell ReagentName="HP12" AspirationRate="2000" DispenseRate="2500" Volume="0" />
+        <PumpToFlowcell ReagentName="AMS2" AspirationRate="2000" DispenseRate="2500" Volume="0" />
+        <PumpToFlowcell ReagentName="C1" AspirationRate="2000" DispenseRate="2500" Volume="0" />
+        <PumpToFlowcell ReagentName="AMS2" AspirationRate="2000" DispenseRate="2500" Volume="0" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+   <ChemistryDefinition Name="ResumeChemistry">
+      <ChemistryStep Description="Prepare for scanning" Repeat="1">
+        <Temp Duration="0" Temperature="22" />
+        <PumpToFlowcell ReagentName="SRE" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <Wait Duration="15000" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="PauseChemistry">
+      <ChemistryStep Description="Pause flowcell" Repeat="1">
+        <Temp Duration="0" Temperature="22" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="OnBoardClusterGeneration">
+      <ChemistryStep Description="Flow Check" Repeat="1">
+        <PumpToFlowcell ReagentName="PW1" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="PW2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="750" />
+      </ChemistryStep>
+      <ChemistryStep Description="Prime PR2 Bypass" Repeat="3">
+	  <Dispense DispenseRate="2500" Volume="250" /> 
+	  <AspirateFromBypass ReagentName="PR2" AspirationRate="2000" Volume="250" /> 
+	  <Dispense DispenseRate="2500" Volume="250" /> 
+      </ChemistryStep>
+      <ChemistryStep Description="Initial Prime" Repeat="1">
+        <PumpToFlowcell ReagentName="LDR" AspirationRate="250" Solution="0" DispenseRate="7500" Volume="300" />
+        <Temp Duration="30000" Temperature="40" />
+        <PumpToFlowcell ReagentName="AMS1" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="AMS2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="LPM" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="TMP" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="300" />
+        <Temp Duration="30000" Temperature="75" />
+      </ChemistryStep>    
+      <ChemistryStep Description="TMP RampDown" Repeat="1">
+        <Wait Duration="300000" />
+        <Temp Duration="150000" Temperature="40" />
+      </ChemistryStep>
+      <ChemistryStep Description="TMP Buffer Wash" Repeat="15">
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="250" Solution="0" DispenseRate="7500" Volume="5" />
+        <Wait Duration="18000" />
+
+      </ChemistryStep>
+      <ChemistryStep Description="First Extension" Repeat="15">
+
+        <PumpToFlowcell ReagentName="AMS1" AspirationRate="250" Solution="0" DispenseRate="7500" Volume="5" />
+        <Wait Duration="3000" />
+
+      </ChemistryStep>
+    
+
+      <ChemistryStep Description="FE Wait Amp-TempRamp" Repeat="1">
+        <Wait Duration="90000" />
+        <Temp Duration="0" Temperature="50" />
+      </ChemistryStep>
+      <ChemistryStep Description="Amplification 1" Repeat="26">
+	      <PumpToFlowcell ReagentName="LDR" AspirationRate="250" DispenseRate="7500" Volume="28" />
+	      <PumpToFlowcell ReagentName="LPM" AspirationRate="250" DispenseRate="7500" Volume="28" />
+	      <PumpToFlowcell ReagentName="AMS1" AspirationRate="250" DispenseRate="7500" Volume="72" />
+              <Wait Duration="15000" />
+      </ChemistryStep>
+      <ChemistryStep Description="Amplification-Wash">
+	      <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+        <Temp Temperature="20" />
+      </ChemistryStep>
+      <ChemistryStep Description="Linearisation">
+	      <PumpToFlowcell ReagentName="LMX1" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+	      <PumpToFlowcell ReagentName="LMX1" AspirationRate="250" DispenseRate="7500" Volume="75" />
+              <Temp Temperature="46" />	
+	      <Wait Duration="300000" />
+	      <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+	    </ChemistryStep>
+      <ChemistryStep Description="SBS Prime">
+	      <Temp Temperature="20" />
+	      <PumpToFlowcell ReagentName="IMS" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+	      <PumpToFlowcell ReagentName="SRE" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+	      <PumpToFlowcell ReagentName="CMS" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+	      <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="250" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+  <ChemistryDefinition Name="PairedEndTurnaround">
+    <ChemistryStep Description="Pre-resynthesis_tempramp">
+      <Temp Temperature="50" />
+    </ChemistryStep>
+    <ChemistryStep Description="Resynthesis" Repeat="8" > 
+      <PumpToFlowcell ReagentName="LDR" AspirationRate="250" DispenseRate="7500" Volume="28" />
+      <PumpToFlowcell ReagentName="LPM" AspirationRate="250" DispenseRate="7500" Volume="28" />
+      <PumpToFlowcell ReagentName="AMS2" AspirationRate="250" DispenseRate="7500" Volume="72" />
+      <Wait Duration="15000" />
+    </ChemistryStep>
+    <ChemistryStep Description="Post-resynthesis_wash">
+      <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+      <Temp Temperature="20" Duration="45000" />
+    </ChemistryStep>
+    <ChemistryStep Description="Linearisation 2">
+      <PumpToFlowcell ReagentName="LMX2" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+      <PumpToFlowcell ReagentName="LMX2" AspirationRate="250" DispenseRate="7500" Volume="75" />
+      <Temp Temperature="38" />
+      <Wait Duration="300000"/>
+      <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+    </ChemistryStep>
+  </ChemistryDefinition>
+ <ChemistryDefinition Name="FirstReadPreparation">
+    <ChemistryStep Description="FirstReadPreparation">
+	<PumpToFlowcell ReagentName="LDR" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="65" Duration="60000" />
+        <PumpToFlowcell ReagentName="C1" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="C1" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="40" Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+        <TempOff />
+    </ChemistryStep>
+  </ChemistryDefinition>
+ <ChemistryDefinition Name="SecondReadPreparation">
+    <ChemistryStep Description="SecondReadPreparation">
+	<PumpToFlowcell ReagentName="LDR" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="65" Duration="60000" />
+        <PumpToFlowcell ReagentName="C3" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="C3" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="40" Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+        <TempOff />
+    </ChemistryStep>
+  </ChemistryDefinition>
+ <ChemistryDefinition Name="Index1Preparation">
+ <ChemistryStep Description="Index1Preparation">
+ 	<Temp Temperature="20" Duration="25000" /> 
+	<PumpToFlowcell ReagentName="LDR" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="65" Duration="60000" />
+        <PumpToFlowcell ReagentName="C1" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="C1" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="40" Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+        <TempOff />
+ </ChemistryStep>
+ </ChemistryDefinition>
+  <ChemistryDefinition Name="Deprotection">
+    <ChemistryStep Description="Deprotection">
+      <Temp Temperature="20" /> 
+      <Wait Duration="120000" /> 
+      <PumpToFlowcell ReagentName="RMF" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+      <PumpToFlowcell ReagentName="RMF" AspirationRate="250" DispenseRate="7500" Volume="75" />
+      <Temp Temperature="38" />
+      <Wait Duration="300000"/>
+      <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+    </ChemistryStep>
+   <ChemistryStep Description="Denaturation">
+ 	<Temp Temperature="20" Duration="25000" /> 
+	<PumpToFlowcell ReagentName="LDR" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="65" Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="300" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="250" DispenseRate="7500" Volume="75" />
+        <Temp Temperature="40" Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="7500" Volume="120" />
+        <TempOff />
+    </ChemistryStep>
+ </ChemistryDefinition>
+
+ <ChemistryDefinition Name="Index2Preparation">
+ <ChemistryStep Description="Index2Preparation">
+ 	<Temp Temperature="20" Duration="25000" /> 
+	<PumpToFlowcell ReagentName="LDR" AspirationRate="250" DispenseRate="2500" Volume="75" />
+        <Temp Temperature="65" Duration="60000" />
+        <PumpToFlowcell ReagentName="C2" AspirationRate="2000" DispenseRate="2500" Volume="300" />
+        <PumpToFlowcell ReagentName="C2" AspirationRate="250" DispenseRate="2500" Volume="75" />
+        <Temp Temperature="40" Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" DispenseRate="2500" Volume="120" />
+        <TempOff />
+ </ChemistryStep>
+ </ChemistryDefinition>
+
+    <ChemistryDefinition Name="Index2FirstBaseDark">
+      <ChemistryStep Description="Incorporation" Repeat="1">
+        <Temp Temperature="60" Duration="0" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="IMS" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <Temp Temperature="65" Duration="0" />
+        <Wait Duration="45000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="5" />
+        <DispenseAndWait Duration="40000" />
+        <Temp Temperature="22" Duration="0" />
+        <Wait Duration="60000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="SRE" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <DispenseAndWait Duration="15000" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="Index2CompleteCycleDark2">
+      <ChemistryStep Description="Deblock" Repeat="1">
+        <Temp Temperature="60" Duration="0" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="CMS" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <Wait Duration="35000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="5" />
+        <DispenseAndWait DispenseRate="7500" Duration="30000" />
+      </ChemistryStep>
+      <ChemistryStep Description="Buffer Wash" Repeat="1">
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="250" />
+      </ChemistryStep>
+      <ChemistryStep Description="Incorporation" Repeat="1">
+        <PumpToFlowcell ReagentName="IMS" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <Temp Temperature="65" Duration="0" />
+        <Wait Duration="45000" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="5" />
+        <DispenseAndWait Duration="40000" />
+        <Temp Temperature="22" Duration="0" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="120" />
+        <PumpToFlowcell ReagentName="SRE" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="60" />
+        <PumpToFlowcell ReagentName="PR2" AspirationRate="2000" Solution="0" DispenseRate="7500" Volume="20" />
+        <DispenseAndWait DispenseRate="7500" Duration="15000" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+  </ChemistryDefinitions>

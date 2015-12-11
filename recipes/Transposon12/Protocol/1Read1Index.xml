@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<Protocol Version="Fraise 0.7.1 Amplicon v1.1">
+    <ChemistryRef ChemistryName="OnBoardClusterGeneration" />
+    <ChemistryRef ChemistryName="FirstReadPreparation" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="Index2CompleteCycleDark2" />
+    <ChemistryRef ChemistryName="EndDeblock" />
+    <ReadRef ReadName="FirstRead" />  
+    <ChemistryRef ChemistryName="EndDeblock" />
+    <ChemistryRef ChemistryName="Index1Preparation" />
+    <ReadRef ReadName="IndexRead1" />
+    <ChemistryRef ChemistryName="EndDeblock" /> 
+    <ChemistryRef ChemistryName="TemplateRinse" />
+    <ChemistryRef ChemistryName="End" /> 
+
+</Protocol>

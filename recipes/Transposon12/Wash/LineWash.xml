@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<Recipe xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="LineWash_v0.3">
+
+	<Protocol Version="LineWash">
+		<ChemistryRef ChemistryName="LineWash" Repeat="1" />
+	</Protocol>
+
+	<ChemistryDefinitions Version="LineWash_v0.3">
+		<ChemistryDefinition Name="CleanSyringe">
+			<ChemistryStep Description="CleanSyringe" Repeat="1"> <!--run water through syringe to reduce carryover since about to backflush-->
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" DispenseRate="2500" Volume="1000" />
+				<Wait Duration="10000" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="500" DispenseRate="1000" Volume="500" />
+				<Wait Duration="10000" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" DispenseRate="2500" Volume="500" />
+			</ChemistryStep>
+		</ChemistryDefinition>
+    <ChemistryDefinition Name="Oscillate">
+      <ChemistryStep Description="Oscillate" Repeat="1">
+        <!--add airbubble, fill syringe, and slowly pump back and forth increasing pressure-->
+        <PumpToFlowcell Solution="23" AspirationRate="1000" DispenseRate="2500" Volume="15" />
+        <AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />
+      </ChemistryStep>
+      <ChemistryStep Description="OscillateSubStep" Repeat="49">
+        <DispenseToFlowcell ReagentName="PW1" DispenseRate="2000" Volume="5"/>
+        <Wait Duration="1000" />
+        <Aspirate ReagentName="PW1" AspirationRate="2000" Volume="5" />
+        <Wait Duration="1000" />
+        <DispenseToFlowcell ReagentName="PW1" DispenseRate="2000" Volume="10"/>
+        <Wait Duration="1000" />
+        <Aspirate ReagentName="PW1" AspirationRate="2000" Volume="5" />
+        <Wait Duration="6000" />
+      </ChemistryStep>
+    </ChemistryDefinition>
+    <ChemistryDefinition Name="Reprime">
+			<ChemistryStep Description="Reprime" Repeat="1"> <!--prime line with 500uL-->
+				<PumpToFlowcell ReagentName="PW1" AspirationRate="2000" DispenseRate="2500" Volume="500" />
+			</ChemistryStep>
+		</ChemistryDefinition>
+		<ChemistryDefinition Name="Flush">
+			<ChemistryStep Description="Flush" Repeat="1"> <!--empty tube and refill from bypass-->
+				<PumpToFlowcell ReagentName="PW1" AspirationRate="5000" DispenseRate="5000" Volume="3000" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />
+				<AspirateFromBypass ReagentName="PW1" AspirationRate="2000" Volume="250" />	
+				<DispenseToFlowcell  ReagentName="PW1" DispenseRate="2000" Volume="250" />	
+			</ChemistryStep>
+		</ChemistryDefinition>
+		<ChemistryDefinition Name="Wait180000">
+			<ChemistryStep Description="Wait180000" Repeat="1">
+				<Wait Duration="180000" />
+			</ChemistryStep>
+		</ChemistryDefinition>
+	</ChemistryDefinitions>
+
+	- <Reagents Name="ClogWashReagents" Version="Selector Valve Positions v2.2">
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="1" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="2" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="3" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="4" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="5" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="6" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="7" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="8" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="9" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="10" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="11" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="12" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="13" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="14" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="15" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="16" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="17" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="18" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="19" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="20" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="21" /> 
+		  <Reagent Name="PW1" Description="Water" SelectorValvePosition="22" /> 
+	  </Reagents>
+
+  <Name>LineWash_v0.3</Name>
+</Recipe>   
