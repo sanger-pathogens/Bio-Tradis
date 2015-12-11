@@ -37,14 +37,14 @@ lo <- loess(h1$density ~ c(1:length(h1$density))) #loess smothing over density
 plot(h1$density, main="Density")
 lines(predict(lo),col='red',lwd=2)
 m = h1$mids[which.min(predict(lo))]
-I1 = ((ii < m)&(ii > 0))
+I1 = ((ii < m)&(ii >= 0))
 
 h = hist(ii, breaks=100,plot=FALSE) 
 I2 = ((ii >= m)&(ii < h$mids[max(which(h$counts>5))]))
 f1 = (sum(I1) + sum(ii == 0))/nG
 f2 = (sum(I2))/nG
 
-d1 = fitdistr(ii[I1], "gamma")
+d1 = fitdistr(ii[I1], "exponential")
 d2 = fitdistr(ii[I2], "gamma") #fit curves
 
 # print pdf of histogram
@@ -52,13 +52,13 @@ d2 = fitdistr(ii[I2], "gamma") #fit curves
 
 #plots
 hist(ii,breaks=200, xlim=c(0,0.1), freq=FALSE,xlab="Insertion index", main="Gamma fits")
-lines(0:50/500, f1*dgamma(0:50/500, 1, d1$estimate[2])) # was [2]
+lines(0:50/500, f1*dgamma(0:50/500, 1, d1$estimate[1])) # was [2]
 lines(0:50/500, f2*dgamma(0:50/500, d2$estimate[1], d2$estimate[2]))
 # print changepoint
 
 #calculate log-odds ratios to choose thresholds
-lower <- max(which(log((pgamma(1:300/10000, d2$e[1],d2$e[2])*(1-pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)))/(pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)*(1-pgamma(1:300/10000, d2$e[1],d2$e[2]))) , base=2) < -2))
-upper <- min(which(log((pgamma(1:300/10000, d2$e[1],d2$e[2])*(1-pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)))/(pgamma(1:300/10000, 1,d1$e[2], lower.tail=FALSE)*(1-pgamma(1:300/10000, d2$e[1],d2$e[2]))) , base=2) > 2))
+lower <- max(which(log((pgamma(1:500/10000, d2$e[1],d2$e[2])*(1-pgamma(1:500/10000, 1,d1$e[1], lower.tail=FALSE)))/(pgamma(1:500/10000, 1,d1$e[1], lower.tail=FALSE)*(1-pgamma(1:500/10000, d2$e[1],d2$e[2]))) , base=2) < -2))
+upper <- min(which(log((pgamma(1:500/10000, d2$e[1],d2$e[2])*(1-pgamma(1:500/10000, 1,d1$e[1], lower.tail=FALSE)))/(pgamma(1:500/10000, 1,d1$e[1], lower.tail=FALSE)*(1-pgamma(1:500/10000, d2$e[1],d2$e[2]))) , base=2) > 2))
 
 essen <- lower/10000
 ambig <- upper/10000
@@ -74,3 +74,5 @@ dev.off()
 write.csv(STM_baseline, file=paste(input, "all", "csv", sep="."), row.names = FALSE, col.names= TRUE, quote=FALSE)
 write.csv(STM_baseline[STM_baseline$ins_index < essen,], file=paste(input, "essen", "csv", sep="."), row.names = FALSE, col.names= TRUE, quote=FALSE)
 write.csv(STM_baseline[STM_baseline$ins_index >= essen & STM_baseline$ins_index < ambig,], file=paste(input, "ambig", "csv", sep="."), row.names = FALSE, col.names= TRUE, quote=FALSE)
+
+
