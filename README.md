@@ -115,7 +115,7 @@ Objects and Methods
 	* `mappedfile` - mapped and sorted BAM file
 * Optional parameters:
 	* `outfile` - base name to assign to the resulting insertion site plot. Default = tradis.plot
-	* `mapping_score` - cutoff value for mapping score. Default = 30
+	* `mapping_score` - cutoff value for mapping score. Default = 0
 * Methods:
 	* `plot` - create insertion site plots for reads in `mappedfile`. This file will be readable by the Artemis genome browser (http://www.sanger.ac.uk/resources/software/artemis/)
 	 
@@ -131,7 +131,7 @@ Objects and Methods
 * Optional parameters:
 	* `mismatch` - number of mismatches to allow when filtering/removing the tag. Default = 0
 	* `tagdirection` - direction of the tag, 5' or 3'. Default = 3
-	* `mapping_score` - cutoff value for mapping score. Default = 30
+	* `mapping_score` - cutoff value for mapping score. Default = 0
 * Methods:
 	* `run_tradis` - run complete analysis
 

@@ -90,6 +90,7 @@ has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1);
+has 'smalt_n' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => 1);
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 has '_temp_directory' => (
@@ -324,7 +325,8 @@ sub _map {
         smalt_k   => $self->smalt_k,
         smalt_s   => $self->smalt_s,
         smalt_y   => $self->smalt_y,
-	smalt_r   => $self->smalt_r
+	smalt_r   => $self->smalt_r,
+	smalt_n   => $self->smalt_n
     );
     $mapping->index_ref;
     $mapping->do_mapping;
@@ -343,10 +345,14 @@ $self->samtools_exec." view -b -o $temporary_directory/mapped.bam -S $temporary_
 sub _sort_bam {
     my ($self) = @_;
     my $temporary_directory = $self->_temp_directory;
+    my $n=$self->smalt_n;
 
-    system(
-$self->samtools_exec." sort $temporary_directory/mapped.bam $temporary_directory/mapped.sort"
-    );
+    my $cmd=$self->samtools_exec.q( 2>&1 | perl -nae 'print $F[1] if /^Version/');
+    my $version=`$cmd`;
+    my $sortcmd=$self->samtools_exec." sort $temporary_directory/mapped.bam $temporary_directory/mapped.sort";
+    $sortcmd=$self->samtools_exec." sort --threads $n -T $temporary_directory/mapped.bam.tmp -O bam $temporary_directory/mapped.bam > $temporary_directory/mapped.sort.bam" if $version>1;
+
+    system($sortcmd);
     system($self->samtools_exec." index $temporary_directory/mapped.sort.bam");
     return 1;
 }
