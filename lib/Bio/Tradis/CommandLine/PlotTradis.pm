@@ -17,7 +17,7 @@ use Bio::Tradis::TradisPlot;
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'mappedfile'  => ( is => 'rw', isa => 'Str',      required => 0 );
-has 'mapping_score' => ( is => 'rw', isa => 'Int', required => 0, default => 30);
+has 'mapping_score' => ( is => 'rw', isa => 'Int', required => 0, default => 0);
 has 'help'        => ( is => 'rw', isa => 'Bool',     required => 0 );
 has 'outfile'     => ( is => 'rw', isa => 'Str',      required => 0, default => 'tradis.plot' );
 
@@ -67,7 +67,7 @@ Usage: tradis_plot -f file.bam [options]
 
 Options:
 -f  : mapped, sorted bam file
--m	: mapping quality must be greater than X (optional. default: 30)
+-m	: mapping quality must be greater than X (optional. default: 0)
 -o  : output base name for plot (optional. default: tradis.plot)
 
 USAGE
