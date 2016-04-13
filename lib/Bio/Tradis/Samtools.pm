@@ -82,7 +82,7 @@ sub run_sort {
     my $cmd;
     if ( $self->_is_version_less_than_1 ) {
 			  $output_file =~ s/\.bam//i;
-        $cmd = join( ' ', ( $self->exec, 'sort',$output_file, $input_file) );
+        $cmd = join( ' ', ( $self->exec, 'sort', $input_file, $output_file) );
     }
     else {
         $cmd = join( ' ', ( $self->exec, 'sort', '-@', $self->threads, '-O', 'bam', '-T', $input_file.'.tmp',  '-o', $output_file, $input_file ) );
