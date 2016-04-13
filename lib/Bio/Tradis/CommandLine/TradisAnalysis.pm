@@ -31,6 +31,7 @@ has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1 );
 has 'smalt_n' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => 1 );
+has 'essentiality' => ( is => 'rw', isa => 'Bool',  required => 0, default => 0);
 
 has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
@@ -55,7 +56,7 @@ sub BUILD {
     my ($self) = @_;
 
     my (
-        $fastqfile, $tag,     $td,      $mismatch, $ref,$smalt_n,
+        $fastqfile, $tag,     $td,      $mismatch, $ref,$smalt_n, $essentiality,
         $map_score, $smalt_k, $smalt_s, $smalt_y, $smalt_r, $help, $verbose,$samtools_exec
     );
 
@@ -74,8 +75,17 @@ sub BUILD {
 	      'sr|smalt_r=i'      => \$smalt_r,
         'v|verbose'         => \$verbose,
         'samtools_exec=s'   => \$samtools_exec,
+				'e|essentiality'    => \$essentiality,
         'h|help'            => \$help
     );
+
+    #Essentiality analysis requires different defaults.
+    if(!defined($smalt_r) && !defined($map_score) && defined($essentiality))
+		{
+       $self->essentiality($essentiality)   if ( defined($essentiality));
+			 $smalt_r = 0;
+			 $map_score = 0;
+    }
 
     $self->fastqfile( abs_path($fastqfile) ) if ( defined($fastqfile) );
     $self->tag( uc($tag) )                   if ( defined($tag) );
@@ -92,7 +102,6 @@ sub BUILD {
     $self->verbose($verbose)                 if ( defined($verbose));
     $self->samtools_exec($samtools_exec)     if ( defined($samtools_exec) );
     
-
     # print usage text if required parameters are not present
     ( $fastqfile && $tag && $ref ) or die $self->usage_text;
 }
@@ -251,6 +260,7 @@ Options:
 --smalt_y : custom y parameter for SMALT (optional. default = 0.96)
 --smalt_r : custom r parameter for SMALT (optional. default = -1)
 -n        : number of threads to use for SMALT and samtools sort (optional. default = 1)
+-e        : set defaults for essentiality experiment (smalt_r = 0, -m = 0)
 -v        : verbose debugging output
 USAGE
     exit;

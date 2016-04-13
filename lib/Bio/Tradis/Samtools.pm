@@ -81,6 +81,7 @@ sub run_sort {
 
     my $cmd;
     if ( $self->_is_version_less_than_1 ) {
+			  $output_file =~ s/\.bam//i;
         $cmd = join( ' ', ( $self->exec, 'sort',$output_file, $input_file) );
     }
     else {
