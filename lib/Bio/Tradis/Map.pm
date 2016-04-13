@@ -76,6 +76,7 @@ has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1 );
+has 'smalt_n' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => 1 );
 
 sub index_ref {
     my ($self)  = @_;
@@ -127,8 +128,9 @@ sub do_mapping {
     my $outfile = $self->outfile;
     my $y = $self->smalt_y;
     my $r = $self->smalt_r;
+		my $n = $self->smalt_n;
 
-    my $smalt = "smalt map -x -r $r -y $y $refname $fqfile 1> $outfile  2> smalt.stderr";
+    my $smalt = "smalt map -n $n -x -r $r -y $y $refname $fqfile 1> $outfile  2> smalt.stderr";
 
     system($smalt);
     unlink('smalt.stderr');
