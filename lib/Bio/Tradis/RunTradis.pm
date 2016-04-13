@@ -62,6 +62,7 @@ use Bio::Tradis::RemoveTags;
 use Bio::Tradis::Map;
 use Bio::Tradis::TradisPlot;
 use Bio::Tradis::Exception;
+use Bio::Tradis::Samtools;
 
 has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
@@ -90,6 +91,7 @@ has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1);
+has 'smalt_n' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => 1);
 has 'samtools_exec' => ( is => 'rw', isa => 'Str', default => 'samtools' );
 
 has '_temp_directory' => (
@@ -324,7 +326,8 @@ sub _map {
         smalt_k   => $self->smalt_k,
         smalt_s   => $self->smalt_s,
         smalt_y   => $self->smalt_y,
-	smalt_r   => $self->smalt_r
+        smalt_r   => $self->smalt_r,
+        smalt_n   => $self->smalt_n
     );
     $mapping->index_ref;
     $mapping->do_mapping;
@@ -344,10 +347,9 @@ sub _sort_bam {
     my ($self) = @_;
     my $temporary_directory = $self->_temp_directory;
 
-    system(
-$self->samtools_exec." sort $temporary_directory/mapped.bam $temporary_directory/mapped.sort"
-    );
-    system($self->samtools_exec." index $temporary_directory/mapped.sort.bam");
+		my $samtools_obj = Bio::Tradis::Samtools->new(exec => $self->samtools_exec, threads => $self->smalt_n);
+    $samtools_obj->run_sort("$temporary_directory/mapped.bam","$temporary_directory/mapped.sort.bam");
+    $samtools_obj->run_index("$temporary_directory/mapped.sort.bam");
     return 1;
 }
 
