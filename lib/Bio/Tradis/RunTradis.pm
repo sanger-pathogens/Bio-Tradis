@@ -348,7 +348,7 @@ sub _sort_bam {
     my $temporary_directory = $self->_temp_directory;
 
 		my $samtools_obj = Bio::Tradis::Samtools->new(exec => $self->samtools_exec, threads => $self->smalt_n);
-    $samtools_obj->run_sort("$temporary_directory/mapped.bam","$temporary_directory/mapped.sort");
+    $samtools_obj->run_sort("$temporary_directory/mapped.bam","$temporary_directory/mapped.sort.bam");
     $samtools_obj->run_index("$temporary_directory/mapped.sort.bam");
     return 1;
 }
