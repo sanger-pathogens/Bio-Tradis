@@ -31,7 +31,7 @@ biocLite(c("edgeR","getopt", "MASS"))
 ````
 
 ####Without Homebrew
-Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/) version 0.7.6 or greater, [Samtools](http://www.htslib.org/) version 1.2 or greater and [R](https://cran.r-project.org/) version 3.2 or greater. Ensure they are in your PATH.
+Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/) version 0.7.6 or greater, [Samtools](http://www.htslib.org/) version 1.3 or greater and [R](https://cran.r-project.org/) version 3.2 or greater. Ensure they are in your PATH.
 
 ```
 sudo cpanm -f Bio::Tradis

@@ -32,6 +32,7 @@ ok(
 );
 
 ok( $obj->run, 'testing run' );
+
 open(STATS, "$output_directory/fastq.stats") or die "Could not open stats file";
 my $line_count = 0;
 while (<STATS>) { $line_count++; }

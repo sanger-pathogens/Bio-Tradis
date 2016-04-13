@@ -27,11 +27,12 @@ has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1 );
+has 'smalt_n' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => 1 );
 
 sub BUILD {
     my ($self) = @_;
 
-    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $smalt_y, $smalt_r, $help );
+    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $smalt_y, $smalt_r,$smalt_n,  $help );
 
     GetOptionsFromArray(
         $self->args,
@@ -43,6 +44,7 @@ sub BUILD {
 	'ss|smalt_s=i'    => \$smalt_s,
 	'sy|smalt_y=f'    => \$smalt_y,
 	'sr|smalt_r=i'    => \$smalt_r,
+	'n|smalt_n=i'     => \$smalt_n,
         'h|help'          => \$help
     );
 
@@ -54,6 +56,7 @@ sub BUILD {
     $self->smalt_s( $smalt_s )               if ( defined($smalt_s) );
     $self->smalt_y( $smalt_y )               if ( defined($smalt_y) );
     $self->smalt_r( $smalt_r )               if ( defined($smalt_r) );
+		$self->smalt_n( $smalt_n )               if ( defined($smalt_n) );
     $self->help($help)                       if ( defined($help) );
 
 	# print usage text if required parameters are not present
@@ -104,6 +107,7 @@ Options:
 --smalt_k : custom k-mer value for SMALT mapping
 --smalt_s : custom step size for SMALT mapping
 --smalt_r : custom r value for SMALT mapping
+-n        : number of threads to use for SMALT and samtools sort (optional. default = 1)
 
 USAGE
       exit;
