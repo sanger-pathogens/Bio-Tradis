@@ -30,7 +30,7 @@ sub _build_exec_version {
 		{
 			 exit("ERROR: Can't find required ".$self->exec." in your \$PATH");
   	}
-		my $cmd_version = $self->exec." | grep Version";
+		my $cmd_version = $self->exec." 2>&1 | grep Version";
 		my ($version_string) = qx($cmd_version);
 		
 		if(defined($version_string))
@@ -44,12 +44,12 @@ sub _build_exec_version {
 			}
 			else
 			{
-				print STDERR "ERROR: Couldn't identify samtools version");
+				print STDERR "ERROR: Couldn't identify samtools version";
 			}
-		}lib/Bio/Tradis/Map.pm 
+		}
 		else
 		{
-			print STDERR "ERROR: Couldn't identify samtools version");
+			print STDERR "ERROR: Couldn't identify samtools version";
 		}
 		# reasonable fallback
     return '0.1';
@@ -84,14 +84,14 @@ sub run_sort {
         $cmd = join( ' ', ( $self->exec, 'sort',$output_file, $input_file) );
     }
     else {
-        $cmd = join( ' ', ( $self->exec, 'sort', '-@', $self->threads, '-O', 'bam', '-o', $output_file, $input_file ) );
+        $cmd = join( ' ', ( $self->exec, 'sort', '-@', $self->threads, '-O', 'bam', '-T', $input_file.'.tmp',  '-o', $output_file, $input_file ) );
     }
     system($cmd);
 }
 
 sub run_index {
     my ( $self, $input_file ) = @_;
-    system( $self->exec . " $input_file" );
+    system( $self->exec . " index $input_file" );
 }
 
 no Moose;
