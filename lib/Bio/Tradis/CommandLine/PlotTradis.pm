@@ -30,7 +30,7 @@ sub BUILD {
         $self->args,
         'f|mappedfile=s' => \$mappedfile,
         'o|outfile=s'    => \$outfile,
-        'm|mapping_score' => \$mapping_score,
+        'm|mapping_score=i' => \$mapping_score,
         'h|help'         => \$help
     );
 
