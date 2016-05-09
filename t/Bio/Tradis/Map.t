@@ -66,7 +66,7 @@ my $index_exp = "smalt index -k 10 -s 10 $refname $ref > /dev/null 2>&1";
 is( $index_cmd, $index_exp, "indexing args correct" );
 
 my $map_cmd = $obj->do_mapping;
-my $map_exp = "smalt map -x -r -1 -y 0.9 $refname $fastqfile 1> $outfile  2> smalt.stderr";
+my $map_exp = "smalt map -n 1 -x -r -1 -y 0.9 $refname $fastqfile 1> $outfile  2> smalt.stderr";
 is( $map_cmd, $map_exp, "mapping args correct" );
 
 
