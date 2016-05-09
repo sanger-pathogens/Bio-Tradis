@@ -1,6 +1,6 @@
 Bio-Tradis
 ==========
-Bio-Tradis contains a set of tools to analyse the output from TraDIS analyses. For usage instructions, please see the tutorial in the file "BioTraDISTutorial.pdf". Note that default parameters are for comparative experiments, and will need to be modified for gene essentiality studies.
+Bio-Tradis contains a set of tools to analyse the output from TraDIS analyses. For command-line usage instructions, please see the tutorial in the file "BioTraDISTutorial.pdf". Note that default parameters are for comparative experiments, and will need to be modified for gene essentiality studies.
  
 For more information on the TraDIS method, see http://bioinformatics.oxfordjournals.org/content/32/7/1109 and http://genome.cshlp.org/content/19/12/2308
 
