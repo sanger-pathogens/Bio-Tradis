@@ -9,7 +9,8 @@ Exceptions for input data
 
 
 use Exception::Class (
-    Bio::Tradis::Exception::RefNotFound => { description => 'Cannot find the reference file' }
+    Bio::Tradis::Exception::RefNotFound    => { description => 'Cannot find the reference file' },
+    Bio::Tradis::Exception::TagFilterError => { description => 'Problem filtering the Fastq by tag' }
 );  
 
 1;

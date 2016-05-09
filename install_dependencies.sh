@@ -7,7 +7,7 @@ start_dir=$(pwd)
 
 SMALT_VERSION="0.7.6"
 TABIX_VERSION="master"
-SAMTOOLS_VERSION="1.2"
+SAMTOOLS_VERSION="1.3"
 
 SMALT_DOWNLOAD_URL="http://downloads.sourceforge.net/project/smalt/smalt-${SMALT_VERSION}-bin.tar.gz"
 TABIX_DOWNLOAD_URL="https://github.com/samtools/tabix/archive/${TABIX_VERSION}.tar.gz"
