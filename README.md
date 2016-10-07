@@ -45,7 +45,29 @@ biocLite(c("edgeR","getopt", "MASS"))
 ####Windows
 Install Linux.
 
-Objects and Methods
+Scripts
+=======
+Executable scripts to carry out most of the listed functions are available in the `bin`:
+
+* `check_tradis_tags` - Prints 1 if tags are present, prints 0 if not.
+* `add_tradis_tags` - Generates a BAM file with tags added to read strings.
+* `filter_tradis_tags` - Create a fastq file containing reads that match the supplied tag
+* `remove_tradis_tags` - Creates a fastq file containing reads with the supplied tag removed from the sequences
+* `tradis_plot` - Creates an gzipped insertion site plot
+* `bacteria_tradis` - Runs complete analysis, starting with a fastq file and produces mapped BAM files and plot files for each file in the given file list and a statistical summary of all files. Note that the -f option expects a text file containing a list of fastq files, one per line.
+
+A help menu for each script can be accessed by running the script with no parameters
+
+Analysis Scripts
+================
+Three scripts are provided to perform basic analysis of TraDIS results in `bin`:
+
+* `tradis_gene_insert_sites` - Takes genome annotation in embl format along with plot files produced by bacteria_tradis and generates tab-delimited files containing gene-wise annotations of insert sites and read counts.
+* `tradis_essentiality.R` - Takes a single tab-delimited file from tradis_gene_insert_sites to produce calls of gene essentiality. Also produces a number of diagnostic plots.
+* `tradis_comparison.R` - Takes tab files to compare two growth conditions using edgeR. This analysis requires experimental replicates.
+
+
+Internal Objects and Methods
 ===================
 ####Bio::Tradis::DetectTags
 * Required parameters:
@@ -136,8 +158,9 @@ Objects and Methods
 * Methods:
 	* `run_tradis` - run complete analysis
 
-Examples
+Perl Programming Examples
 ========
+You can reuse the Perl modules as part of other Perl scripts. This section provides example Perl code.
 Check whether `file.bam` contains TraDIS tag fields and, if so, adds the tags
 to the reads' sequence and quality strings.
 
@@ -189,23 +212,3 @@ Bio::Tradis::RunTradis(
 	mismatch => 1
 )->run_tradis;
 ```
-Scripts
-=======
-Executable scripts to carry out most of the listed functions are available in the `bin`:
-
-* `check_tradis_tags` - Prints 1 if tags are present, prints 0 if not.
-* `add_tradis_tags` - Generates a BAM file with tags added to read strings.
-* `filter_tradis_tags` - Create a fastq file containing reads that match the supplied tag
-* `remove_tradis_tags` - Creates a fastq file containing reads with the supplied tag removed from the sequences
-* `tradis_plot` - Creates an gzipped insertion site plot
-* `bacteria_tradis` - Runs complete analysis, starting with a fastq file and produces mapped BAM files and plot files for each file in the given file list and a statistical summary of all files. Note that the -f option expects a text file containing a list of fastq files, one per line.
-
-A help menu for each script can be accessed by running the script with no parameters
-
-Analysis Scripts
-================
-Three scripts are provided to perform basic analysis of TraDIS results in `bin`:
-
-* `tradis_gene_insert_sites` - Takes genome annotation in embl format along with plot files produced by bacteria_tradis and generates tab-delimited files containing gene-wise annotations of insert sites and read counts.
-* `tradis_essentiality.R` - Takes a single tab-delimited file from tradis_gene_insert_sites to produce calls of gene essentiality. Also produces a number of diagnostic plots.
-* `tradis_comparison.R` - Takes tab files to compare two growth conditions using edgeR. This analysis requires experimental replicates.
