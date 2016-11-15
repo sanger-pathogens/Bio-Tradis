@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use File::Temp;
 use File::Slurp;
+use Test::Files qw(compare_ok);
 
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '../lib' ) }
@@ -34,9 +35,9 @@ ok( $obj->add_tags_to_seq,  'testing output' );
 ok( -e 't/data/output.bam', 'checking file existence' );
 `$samtools_exec view -h -o t/data/output.sam t/data/output.bam`;
 `$samtools_exec view -h -o t/data/AddTags/expected_tradis.sam t/data/AddTags/expected_tradis.bam`;
-is(
-    read_file('t/data/output.sam'),
-    read_file('t/data/AddTags/expected_tradis.sam'),
+compare_ok(
+    't/data/output.sam',
+    't/data/AddTags/expected_tradis.sam',
     'checking file contents'
 );
 
@@ -53,9 +54,10 @@ ok(
 ok( -e 't/data/output.bam', 'checking file existence' );
 `$samtools_exec view -h -o t/data/output.sam t/data/output.bam`;
 `$samtools_exec view -h -o t/data/AddTags/sample_sm_no_tr.sam t/data/AddTags/sample_sm_no_tr.bam`;
-is(
-    read_file('t/data/AddTags/sample_sm_no_tr.sam'),
-    read_file('t/data/output.sam'),
+
+compare_ok (
+    't/data/AddTags/sample_sm_no_tr.sam',
+    't/data/output.sam',
     'checking file contents'
 );
 
@@ -82,9 +84,9 @@ ok( $obj->add_tags_to_seq,  'testing output' );
 ok( -e 't/data/output.cram', 'checking file existence' );
 `$samtools_exec view -h -o t/data/output.sam t/data/output.cram`;
 `$samtools_exec view -h -o t/data/AddTags/expected_tradis.sam t/data/AddTags/expected_tradis.cram`;
-is(
-    read_file('t/data/output.sam'),
-    read_file('t/data/AddTags/expected_tradis.sam'),
+compare_ok(
+    't/data/output.sam',
+    't/data/AddTags/expected_tradis.sam',
     'checking file contents'
 );
 

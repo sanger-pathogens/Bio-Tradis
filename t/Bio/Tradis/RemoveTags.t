@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use File::Temp;
-use File::Slurp;
+use Test::Files qw(compare_ok);
 
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '../lib' ) }
@@ -32,9 +32,9 @@ ok(
 );
 ok( $obj->remove_tags,        'testing output' );
 ok( -e 't/data/output.fastq', 'checking file existence' );
-is(
-    read_file('t/data/output.fastq'),
-    read_file('t/data/RemoveTags/expected.rm.caa.fastq'),
+compare_ok(
+    't/data/output.fastq',
+    't/data/RemoveTags/expected.rm.caa.fastq',
     'checking file contents'
 );
 
@@ -50,9 +50,9 @@ ok(
 );
 ok( $obj->remove_tags,        'testing output' );
 ok( -e 't/data/output.fastq', 'checking file existence' );
-is(
-    read_file('t/data/output.fastq'),
-    read_file('t/data/RemoveTags/expected.rm.1mm.caa.fastq'),
+compare_ok(
+    't/data/output.fastq',
+    't/data/RemoveTags/expected.rm.1mm.caa.fastq',
     'checking file contents'
 );
 
@@ -70,9 +70,9 @@ ok(
 );
 ok( $obj->remove_tags,        'testing output' );
 ok( -e 't/data/output.fastq', 'checking file existence' );
-is(
-    read_file('t/data/output.fastq'),
-    read_file('t/data/RemoveTags/expected.rm.tna.fastq'),
+compare_ok(
+    't/data/output.fastq',
+    't/data/RemoveTags/expected.rm.tna.fastq',
     'checking file contents'
 );
 

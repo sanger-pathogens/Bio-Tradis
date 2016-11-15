@@ -2,8 +2,7 @@
 use strict;
 use warnings;
 use File::Temp;
-use File::Slurp;
-use Test::Files;
+use Test::Files qw(compare_ok);
 
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '../lib' ) }
@@ -36,7 +35,11 @@ ok( -e 'test.plot.AE004091.insert_site_plot.gz',
 
 system("gunzip -c test.plot.AE004091.insert_site_plot.gz > test.plot.unzipped");
 system("gunzip -c t/data/TradisPlot/expected.plot.gz > expected.plot.unzipped");
-compare_ok('test.plot.unzipped','expected.plot.unzipped','checking file contents');
+compare_ok(
+	'test.plot.unzipped',
+	'expected.plot.unzipped',
+	'checking file contents'
+);
 
 unlink('test.plot.AE004091.insert_site_plot.gz');
 unlink('expected.plot.unzipped');

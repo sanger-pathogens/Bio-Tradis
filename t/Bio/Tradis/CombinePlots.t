@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use File::Slurp;
+use Test::Files qw(compare_ok);
 use Cwd;
 use File::Path qw( remove_tree );
 
@@ -35,20 +35,20 @@ ok(
 );
 
 system("gunzip -c combined/first.insert_site_plot.gz > first.test.plot");
-is(
-    read_file('first.test.plot'),
-    read_file('t/data/CombinePlots/first.expected.plot'),
+compare_ok(
+    'first.test.plot',
+    't/data/CombinePlots/first.expected.plot',
     'checking first file contents'
 );
 system("gunzip -c combined/second.insert_site_plot.gz > second.test.plot");
-is(
-    read_file('second.test.plot'),
-    read_file('t/data/CombinePlots/second.expected.plot'),
+compare_ok(
+    'second.test.plot',
+    't/data/CombinePlots/second.expected.plot',
     'checking second file contents'
 );
-is(
-	read_file('comb_sample.stats'),
-	read_file('t/data/CombinePlots/comb_expected.stats'),
+compare_ok(
+	'comb_sample.stats',
+	't/data/CombinePlots/comb_expected.stats',
 	'checking stats file contents'
 );
 
@@ -75,14 +75,14 @@ ok(
 
 
 system("gunzip -c combined/zip_combined.insert_site_plot.gz > zip_combined.test.plot");
-is(
-    read_file('zip_combined.test.plot'),
-    read_file('t/data/CombinePlots/zip_comb_exp.plot'),
+compare_ok(
+    'zip_combined.test.plot',
+    't/data/CombinePlots/zip_comb_exp.plot',
     'checking zipped file contents'
 );
-is(
-	read_file('zip_comb_list.stats'),
-	read_file('t/data/CombinePlots/zip_comb_exp.stats'),
+compare_ok(
+	'zip_comb_list.stats',
+	't/data/CombinePlots/zip_comb_exp.stats',
 	'checking stats file contents'
 );
 
