@@ -4,7 +4,7 @@ use warnings;
 use Cwd;
 use File::Path 'rmtree';
 use File::Temp;
-use File::Slurp;
+use Test::Files qw(compare_ok);
 
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '../lib' ) }
@@ -52,9 +52,9 @@ ok(
     -e "$temp_directory/filter.fastq",
     'checking filtered file existence - Normal files, no mismatch'
 );
-is(
-    read_file("$temp_directory/filter.fastq"),
-    read_file('t/data/RunTradis/filtered.fastq'),
+compare_ok(
+    "$temp_directory/filter.fastq",
+    't/data/RunTradis/filtered.fastq',
     'checking filtered file contents - Normal files, no mismatch'
 );
 
@@ -78,9 +78,9 @@ system("mv $temp_directory/filter.fastq.bak $temp_directory/filter.fastq");
 ok( $obj->_remove, 'testing tag removal' );
 ok( -e "$temp_directory/tags_removed.fastq",
     'checking de-tagged file existence - Normal files, no mismatch' );
-is(
-    read_file("$temp_directory/tags_removed.fastq"),
-    read_file('t/data/RunTradis/notags.fastq'),
+compare_ok(
+    "$temp_directory/tags_removed.fastq",
+    't/data/RunTradis/notags.fastq',
     'checking de-tagged file contents - Normal files, no mismatch'
 );
 
@@ -89,8 +89,11 @@ ok( $obj->_map,                             'testing mapping' );
 ok( -e "$temp_directory/mapped.sam", 'checking SAM existence' );
 `grep -v "\@PG" $temp_directory/mapped.sam > $output_directory/tmp1.sam`;
 `grep -v "\@PG" t/data/RunTradis/mapped.sam > $output_directory/tmp2.sam`;
-is( read_file("$output_directory/tmp1.sam"), read_file("$output_directory/tmp2.sam"),
-    'checking mapped file contents' );
+compare_ok( 
+    "$output_directory/tmp1.sam", 
+    "$output_directory/tmp2.sam",
+    'checking mapped file contents' 
+);
 
 # Conversion
 ok( $obj->_sam2bam,                         'testing SAM/BAM conversion' );
@@ -116,9 +119,9 @@ system(
 "gunzip -c $temp_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped"
 );
 system("gunzip -c t/data/RunTradis/expected.plot.gz > $output_directory/expected.plot.unzipped");
-is(
-    read_file("$output_directory/test.plot.unzipped"),
-    read_file("$output_directory/expected.plot.unzipped"),
+compare_ok(
+    "$output_directory/test.plot.unzipped",
+    "$output_directory/expected.plot.unzipped",
     'checking plot file contents - Normal files, no mismatch'
 );
 
@@ -129,9 +132,9 @@ ok( -e "$output_directory/test.plot.AE004091.insert_site_plot.gz",
     'checking plot file existence - Normal files, no mismatch' );
 system("gunzip -c $output_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped");
 system("gunzip -c t/data/RunTradis/expected.plot.gz > $output_directory/expected.plot.unzipped");
-is(
-    read_file("$output_directory/test.plot.unzipped"),
-    read_file("$output_directory/expected.plot.unzipped"),
+compare_ok(
+    "$output_directory/test.plot.unzipped",
+    "$output_directory/expected.plot.unzipped",
     'checking completed pipeline file contents - Normal files, no mismatch'
 );
 
@@ -168,9 +171,9 @@ ok( -e "$output_directory/test.plot.AE004091.insert_site_plot.gz",
 system("gunzip -c $output_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped");
 system(
     "gunzip -c t/data/RunTradis/expected.1mm.plot.gz > $output_directory/expected.plot.unzipped");
-is(
-    read_file("$output_directory/test.plot.unzipped"),
-    read_file("$output_directory/expected.plot.unzipped"),
+compare_ok(
+    "$output_directory/test.plot.unzipped",
+    "$output_directory/expected.plot.unzipped",
     'checking completed pipeline with mismatch file contents - Normal files one mismatch'
 );
 
@@ -208,9 +211,9 @@ ok( -e "$output_directory/test.plot.mapped.bam.bai", 'checking indexed bam file 
 
 system("gunzip -c $output_directory/test.plot.AE004091.insert_site_plot.gz > $output_directory/test.plot.unzipped");
 system("gunzip -c t/data/RunTradis/expected.plot.gz > $output_directory/expected.plot.unzipped");
-is(
-    read_file("$output_directory/test.plot.unzipped"),
-    read_file("$output_directory/expected.plot.unzipped"),
+compare_ok(
+    "$output_directory/test.plot.unzipped",
+    "$output_directory/expected.plot.unzipped",
     'checking completed pipeline with gzipped data file contents - Normal files one mismatch'
 );
 

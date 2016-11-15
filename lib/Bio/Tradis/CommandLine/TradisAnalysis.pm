@@ -96,8 +96,8 @@ sub BUILD {
     $self->smalt_k($smalt_k)                 if ( defined($smalt_k) );
     $self->smalt_s($smalt_s)                 if ( defined($smalt_s) );
     $self->smalt_y($smalt_y)                 if ( defined($smalt_y) );
-    $self->smalt_r($smalt_r)		             if ( defined($smalt_r) );
-		$self->smalt_n($smalt_n)		             if ( defined($smalt_n) );
+    $self->smalt_r($smalt_r)		         if ( defined($smalt_r) );
+	$self->smalt_n($smalt_n)		         if ( defined($smalt_n) );
     $self->help($help)                       if ( defined($help) );
     $self->verbose($verbose)                 if ( defined($verbose));
     $self->samtools_exec($samtools_exec)     if ( defined($samtools_exec) );
@@ -153,7 +153,7 @@ sub run {
             smalt_s          => $self->smalt_s,
             smalt_y          => $self->smalt_y,
             smalt_r          => $self->smalt_r,
-						smalt_n          => $self->smalt_n,
+			smalt_n          => $self->smalt_n,
             verbose          => $self->verbose,
             samtools_exec    => $self->samtools_exec
         );

@@ -22,11 +22,6 @@ has 'outfile'     => (
     is       => 'rw',
     isa      => 'Str',
     required => 0,
-    default  => sub {
-        my $o = $self->bamfile;
-        $o =~ s/\.bam/\.tr\.bam/;
-        return $o;
-    }
 );
 has 'help' => ( is => 'rw', isa => 'Bool', required => 0 );
 has 'verbose'       => ( is => 'rw', isa => 'Bool', default => 0 );
@@ -47,7 +42,15 @@ sub BUILD {
     );
 
     $self->bamfile( abs_path($bamfile) ) if ( defined($bamfile) );
-    $self->outfile( abs_path($outfile) ) if ( defined($outfile) );
+    if (defined($outfile)) {
+        $self->outfile( abs_path($outfile) )
+    }
+    else {
+        my $o = $self->bamfile;
+        $o =~ s/\.bam/\.tr\.bam/;
+        $self->outfile( abs_path($o) );
+    }
+
     $self->help($help)                   if ( defined($help) );
     $self->verbose($verbose)             if ( defined($verbose) );
     $self->samtools_exec($samtools_exec) if ( defined($samtools_exec) );

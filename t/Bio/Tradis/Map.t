@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use File::Temp;
-use File::Slurp;
+use Test::Files;
 
 BEGIN { 
         unshift( @INC, '../lib' );
@@ -41,9 +41,9 @@ ok( $obj->do_mapping,           'testing reference indexing' );
 ok( -e 't/data/Map/mapped.out', 'checking index file existence' );
 system("grep -v ^\@ t/data/Map/mapped.out > mapped.nohead.out");
 system("grep -v ^\@ t/data/Map/expected.mapped > expected.nohead.mapped");
-is(
-    read_file('mapped.nohead.out'),
-    read_file('expected.nohead.mapped'),
+compare_ok(
+    'mapped.nohead.out',
+    'expected.nohead.mapped',
     'checking file contents'
 );
 

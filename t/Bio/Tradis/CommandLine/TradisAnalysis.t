@@ -4,7 +4,6 @@ use warnings;
 use Cwd;
 use File::Path 'rmtree';
 use File::Temp;
-use File::Slurp;
 
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '../lib' ) }

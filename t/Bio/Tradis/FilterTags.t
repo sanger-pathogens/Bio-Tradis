@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use File::Temp;
-use File::Slurp;
+use Test::Files;
 
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '../lib' ) }
@@ -30,9 +30,9 @@ ok(
 );
 ok( $obj->filter_tags, 'testing output' );
 ok( -e 'output.fastq', 'checking file existence' );
-is(
-    read_file('output.fastq'),
-    read_file('t/data/FilterTags/expected.caa.fastq'),
+compare_ok(
+    'output.fastq',
+    't/data/FilterTags/expected.caa.fastq',
     'checking file contents'
 );
 
@@ -48,9 +48,9 @@ ok(
 );
 ok( $obj->filter_tags, 'testing output' );
 ok( -e 'output.fastq', 'checking file existence' );
-is(
-    read_file('output.fastq'),
-    read_file('t/data/FilterTags/expected.1mm.caa.fastq'),
+compare_ok(
+    'output.fastq',
+    't/data/FilterTags/expected.1mm.caa.fastq',
     'checking file contents'
 );
 
@@ -68,9 +68,9 @@ ok(
 );
 ok( $obj->filter_tags, 'testing output' );
 ok( -e 'output.fastq', 'checking file existence' );
-is(
-    read_file('output.fastq'),
-    read_file('t/data/FilterTags/expected.tna.fastq'),
+compare_ok(
+    'output.fastq',
+    't/data/FilterTags/expected.tna.fastq',
     'checking file contents'
 );
 
@@ -89,9 +89,9 @@ ok(
 );
 ok( $obj->filter_tags, 'testing output' );
 ok( -e 'output.fastq', 'checking file existence' );
-is(
-    read_file('output.fastq'),
-    read_file('t/data/FilterTags/expected.caa.fastq'),
+compare_ok(
+    'output.fastq',
+    't/data/FilterTags/expected.caa.fastq',
     'checking file contents'
 );
 
