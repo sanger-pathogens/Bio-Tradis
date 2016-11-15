@@ -2,7 +2,6 @@
 use strict;
 use warnings;
 use File::Temp;
-use File::Slurp;
 use Test::Files qw(compare_ok);
 
 BEGIN { unshift( @INC, './lib' ) }
