@@ -82,9 +82,14 @@ sub add_tags_to_seq {
     my $outfile   = $self->outfile;
 
     #open temp file in SAM format and output headers from current BAM to it
+    my @now = localtime();
+    my $timeStamp = sprintf("%04d%02d%02d%02d%02d%02d",
+                        $now[5]+1900, $now[4]+1, $now[3],
+                        $now[2],      $now[1],   $now[0]);
+    my $tmp_sam = "tmp.$timeStamp.sam";
     print STDERR "Reading ".uc($self->_file_extension)." header\n" if($self->verbose);
-    system($self->samtools_exec." view -H $filename > tmp.sam");
-    open( TMPFILE, '>>tmp.sam' );
+    system($self->samtools_exec." view -H $filename > $tmp_sam");
+    open( TMPFILE, '>>$tmp_sam' );
 
     #open BAM file
     print STDERR "Reading ".uc($self->_file_extension)." file\n" if($self->verbose);
@@ -162,7 +167,7 @@ sub add_tags_to_seq {
     print STDERR "Convert SAM to ".uc($self->_file_extension)."\n" if($self->verbose);
     
     
-    system($self->samtools_exec." view -h -S ".$self->_output_switch." -o $outfile tmp.sam");
+    system($self->samtools_exec." view -h -S ".$self->_output_switch." -o $outfile $tmp_sam");
 
     if ( $self->_number_of_lines_in_bam_file($outfile) !=
         $self->_number_of_lines_in_bam_file($filename) )
@@ -172,7 +177,7 @@ sub add_tags_to_seq {
     }
 
     #remove tmp file
-    unlink("tmp.sam");
+    unlink("$tmp_sam");
     return 1;
 }
 
