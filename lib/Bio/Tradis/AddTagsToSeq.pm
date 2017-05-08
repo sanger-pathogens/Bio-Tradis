@@ -89,7 +89,7 @@ sub add_tags_to_seq {
     my $tmp_sam = "tmp.$timeStamp.sam";
     print STDERR "Reading ".uc($self->_file_extension)." header\n" if($self->verbose);
     system($self->samtools_exec." view -H $filename > $tmp_sam");
-    open( TMPFILE, '>>$tmp_sam' );
+    open( TMPFILE, ">>$tmp_sam" );
 
     #open BAM file
     print STDERR "Reading ".uc($self->_file_extension)." file\n" if($self->verbose);
