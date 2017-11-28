@@ -132,7 +132,7 @@ for my $insert_sites ( @ins_list ){
 
         my $count = 0;
         my $inserts = 0;
-        for(my $j=$read_start;$j < $read_end; $j++){
+        for(my $j=$read_start;$j <= $read_end; $j++){
             $count += $insert_sites->[$j];
             $inserts += 1 if $insert_sites->[$j] > 0;
         }
