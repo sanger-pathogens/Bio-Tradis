@@ -18,23 +18,16 @@ available as standalone scripts or as perl modules.
 Installation
 =======
 
-####HomeBrew/LinuxBrew
-To install the dependancies, the easiest way is through [HomeBrew](http://brew.sh/) (OSX) or [LinuxBrew](http://brew.sh/linuxbrew/) (Linux).
-```
-brew tap homebrew/science
-brew install r smalt samtools cpanm 
-sudo cpanm -f Bio::Tradis
-
-R 
-source("http://bioconductor.org/biocLite.R")
-biocLite()
-biocLite(c("edgeR","getopt", "MASS"))
-````
-
-####Without Homebrew
-Install [SMALT](https://www.sanger.ac.uk/resources/software/smalt/) version 0.7.6 or greater, [Samtools](http://www.htslib.org/) version 1.3 or greater and [R](https://cran.r-project.org/) version 3.2 or greater. Ensure they are in your PATH.
+#### Bioconda
+Install conda and enable the bioconda channel.
 
 ```
+conda config --add channels r
+conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
+conda install r smalt samtools perl-app-cpanminus
+
 sudo cpanm -f Bio::Tradis
 R 
 source("http://bioconductor.org/biocLite.R")
