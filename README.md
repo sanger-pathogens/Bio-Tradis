@@ -8,6 +8,20 @@ A set of tools to analyse the output from TraDIS analyses
 [![Docker Pulls](https://img.shields.io/docker/pulls/sangerpathogens/bio-tradis.svg)](https://hub.docker.com/r/sangerpathogens/bio-tradis)  
 
 ## Contents
+  * [Introduction](#introduction)
+  * [Installation](#installation)
+    * [Required dependencies](#required-dependencies)
+    * [Bioconda](#bioconda)
+    * [Docker](#docker)
+  * [Usage](#usage)
+    * [Scripts](#scripts)
+    * [Analysis Scripts](#analysis-scripts)
+    * [Internal Objects and Methods](#internal-objects-and-methods)
+    * [Perl Programming Examples](#perl-programming-examples)
+  * [License](#license)
+  * [Feedback/Issues](#feedbackissues)
+  * [Citation](#citation)
+
 ## Introduction 
 The Bio::TraDIS pipeline provides software utilities for the processing, mapping, and analysis of transposon insertion sequencing data. The pipeline was designed with the data from the TraDIS sequencing protocol in mind, but should work with a variety of transposon insertion sequencing protocols as long as they produce data in the expected format.
 
