@@ -1,6 +1,5 @@
 # This container will install Bio-Tradis from master
 #
-#FROM ubuntu:17.10
 FROM debian:testing
 
 # Install the dependancies
