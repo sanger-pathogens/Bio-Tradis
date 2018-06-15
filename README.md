@@ -1,24 +1,31 @@
-Bio-Tradis
-==========
-Bio-Tradis contains a set of tools to analyse the output from TraDIS analyses. For command-line usage instructions, please see the tutorial in the file "BioTraDISTutorial.pdf". Note that default parameters are for comparative experiments, and will need to be modified for gene essentiality studies.
- 
-For more information on the TraDIS method, see http://bioinformatics.oxfordjournals.org/content/32/7/1109 and http://genome.cshlp.org/content/19/12/2308
+# Bio-Tradis
+A set of tools to analyse the output from TraDIS analyses  
 
-[![Build Status](https://travis-ci.org/sanger-pathogens/Bio-Tradis.svg?branch=master)](https://travis-ci.org/sanger-pathogens/Bio-Tradis)
+[![Build Status](https://travis-ci.org/sanger-pathogens/Bio-Tradis.svg?branch=master)](https://travis-ci.org/sanger-pathogens/Bio-Tradis)  
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/Bio-Tradis/blob/master/software_license)  
+[![status](https://img.shields.io/badge/Bioinformatics-10.1093-brightgreen.svg)](https://doi.org/10.1093/bioinformatics/btw022)  
+[![Docker Build Status](https://img.shields.io/docker/build/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/sangerpathogens/bio-tradis)  
+[![Docker Pulls](https://img.shields.io/docker/pulls/sangerpathogens/bio-tradis.svg)](https://hub.docker.com/r/sangerpathogens/bio-tradis)  
 
-Bio-Tradis provides functionality to:
-* detect TraDIS tags in a BAM file
-* add the tags to the reads
-* filter reads in a FastQ file containing a user defined tag
-* remove tags
-* map to a reference genome
-* create an insertion site plot file
-available as standalone scripts or as perl modules.
+## Contents
+## Introduction 
+The Bio::TraDIS pipeline provides software utilities for the processing, mapping, and analysis of transposon insertion sequencing data. The pipeline was designed with the data from the TraDIS sequencing protocol in mind, but should work with a variety of transposon insertion sequencing protocols as long as they produce data in the expected format.
 
-Installation
-=======
+For more information on the TraDIS method, see http://bioinformatics.oxfordjournals.org/content/32/7/1109 and http://genome.cshlp.org/content/19/12/2308.
 
-#### Bioconda
+## Installation
+Bio-Tradis has the following dependencies:
+
+### Required dependencies
+* smalt
+* samtools
+* tabix
+* R
+* Bioconductor
+
+There are a number of ways to install Bio-Tradis and details are provided below. If you encounter an issue when installing Bio-Tradis please contact your local system administrator. If you encounter a bug please log it [here](https://github.com/sanger-pathogens/Bio-Tradis/issues) or email us at path-help@sanger.ac.uk.
+
+### Bioconda
 Install conda and enable the bioconda channel.
 
 ```
@@ -35,11 +42,30 @@ biocLite()
 biocLite(c("edgeR","getopt", "MASS"))
 ```
 
-####Windows
-Install Linux.
+### Docker
+Bio-Tradis can be run in a Docker container. First install Docker, then install Bio-Tradis:
 
-Scripts
-=======
+    docker pull sangerpathogens/bio-tradis
+
+To use Bio-Tradis use a command like this (substituting in your directories), where your files are assumed to be stored in /home/ubuntu/data:
+
+    docker run --rm -it -v /home/ubuntu/data:/data sangerpathogens/bio-tradis bacteria_tradis -h
+
+## Usage
+
+For command-line usage instructions, please see the tutorial in the file "BioTraDISTutorial.pdf". Note that default parameters are for comparative experiments, and will need to be modified for gene essentiality studies.
+
+Bio-Tradis provides functionality to:
+* detect TraDIS tags in a BAM file
+* add the tags to the reads
+* filter reads in a FastQ file containing a user defined tag
+* remove tags
+* map to a reference genome
+* create an insertion site plot file
+  
+The functions are avalable as standalone scripts or as perl modules.
+
+### Scripts
 Executable scripts to carry out most of the listed functions are available in the `bin`:
 
 * `check_tradis_tags` - Prints 1 if tags are present, prints 0 if not.
@@ -49,10 +75,9 @@ Executable scripts to carry out most of the listed functions are available in th
 * `tradis_plot` - Creates an gzipped insertion site plot
 * `bacteria_tradis` - Runs complete analysis, starting with a fastq file and produces mapped BAM files and plot files for each file in the given file list and a statistical summary of all files. Note that the -f option expects a text file containing a list of fastq files, one per line.
 
-A help menu for each script can be accessed by running the script with no parameters
+A help menu for each script can be accessed by running the script with no parameters.
 
-Analysis Scripts
-================
+### Analysis Scripts
 Three scripts are provided to perform basic analysis of TraDIS results in `bin`:
 
 * `tradis_gene_insert_sites` - Takes genome annotation in embl format along with plot files produced by bacteria_tradis and generates tab-delimited files containing gene-wise annotations of insert sites and read counts.
@@ -60,15 +85,14 @@ Three scripts are provided to perform basic analysis of TraDIS results in `bin`:
 * `tradis_comparison.R` - Takes tab files to compare two growth conditions using edgeR. This analysis requires experimental replicates.
 
 
-Internal Objects and Methods
-===================
-####Bio::Tradis::DetectTags
+### Internal Objects and Methods
+__Bio::Tradis::DetectTags__  
 * Required parameters:
 	* `bamfile` - path to/name of file to check
 * Methods:
 	* `tags_present` - returns true if TraDIS tags are detected in `bamfile`
 	
-####Bio::Tradis::AddTagsToSeq
+__Bio::Tradis::AddTagsToSeq__  
 * Required parameters:
 	* `bamfile` - path to/name of file containing reads and tags
 * Optional parameters:
@@ -85,7 +109,7 @@ Internal Objects and Methods
 					  in the correct orientation at the start of the sequences
 					  in the resulting FastQ file.
 
-####Bio::Tradis::FilterTags
+__Bio::Tradis::FilterTags__  
 * Required parameters:
 	* `fastqfile` - path to/name of file to filter. This may be a gzipped fastq file, in which case a temporary unzipped version is used and removed on completion.
 	* `tag`       - TraDIS tag to match
@@ -95,7 +119,7 @@ Internal Objects and Methods
 * Methods:
 	* `filter_tags` - output all reads containing the tag to `outfile`
 	
-####Bio::Tradis::RemoveTags
+__Bio::Tradis::RemoveTags__  
 * Required parameters:
 	* `fastqfile` - path to/name of file to filter.
 	* `tag`       - TraDIS tag to remove
@@ -106,7 +130,7 @@ Internal Objects and Methods
 	* `remove_tags` - output all reads with the tags removed from both sequence and
 				  quality strings to `outfile`
 				
-####Bio::Tradis::Map
+__Bio::Tradis::Map__  
 * Required parameters:
 	* `fastqfile` - path to/name of file to map to the reference
 	* `reference` - path to/name of reference genome in fasta format (.fa)
@@ -126,7 +150,7 @@ Internal Objects and Methods
 				
 	For more information on the mapping and indexing options discussed here, see the SMALT manual (ftp://ftp.sanger.ac.uk/pub4/resources/software/smalt/smalt-manual-0.7.4.pdf)
 				
-####Bio::Tradis::TradisPlot
+__Bio::Tradis::TradisPlot__  
 * Required parameters:
 	* `mappedfile` - mapped and sorted BAM file
 * Optional parameters:
@@ -135,7 +159,7 @@ Internal Objects and Methods
 * Methods:
 	* `plot` - create insertion site plots for reads in `mappedfile`. This file will be readable by the Artemis genome browser (http://www.sanger.ac.uk/resources/software/artemis/)
 	 
-####Bio::Tradis::RunTradis
+__Bio::Tradis::RunTradis__  
 * Required parameters:
 	* `fastqfile` - file containing a list of fastqs (gzipped or raw) to run the 
 				complete analysis on. This includes all (including 
@@ -151,8 +175,7 @@ Internal Objects and Methods
 * Methods:
 	* `run_tradis` - run complete analysis
 
-Perl Programming Examples
-========
+### Perl Programming Examples
 You can reuse the Perl modules as part of other Perl scripts. This section provides example Perl code.
 Check whether `file.bam` contains TraDIS tag fields and, if so, adds the tags
 to the reads' sequence and quality strings.
@@ -205,3 +228,14 @@ Bio::Tradis::RunTradis(
 	mismatch => 1
 )->run_tradis;
 ```
+## License
+Bio-Tradis is free software, licensed under [GPLv3](https://github.com/sanger-pathogens/Bio-Tradis/blob/master/software_license).
+
+## Feedback/Issues
+Please report any issues to the [issues page](https://github.com/sanger-pathogens/bio-tradis/issues) or email path-help@sanger.ac.uk
+
+## Citation
+If you use this software please cite:
+
+
+"The TraDIS toolkit: sequencing and analysis for dense transposon mutant libraries", Barquist L, Mayho M, Cummins C, Cain AK, Boinett CJ, Page AJ, Langridge G, Quail MA, Keane JA, Parkhill J. Bioinformatics. 2016 Apr 1;32(7):1109-11. doi: [10.1093/bioinformatics/btw022](https://doi.org/10.1093/bioinformatics/btw022). Epub 2016 Jan 21.
