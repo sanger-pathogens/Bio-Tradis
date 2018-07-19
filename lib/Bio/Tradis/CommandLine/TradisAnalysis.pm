@@ -13,7 +13,7 @@ use Moose;
 use Getopt::Long qw(GetOptionsFromArray);
 use Cwd qw(abs_path cwd);
 use Bio::Tradis::RunTradis;
-use TryCatch;
+use Try::Tiny;
 
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
@@ -161,10 +161,10 @@ sub run {
             $analysis->run_tradis;
             $at_least_one_good_fastq = 1;
         }
-	catch (Bio::Tradis::Exception::TagFilterError $e) {
+	catch {
 		my $tag = $self->tag;
 		warn "There was a problem filtering '$full_path' by '$tag'; it looks like the tag was not found in any read\n";
-	}
+	};
     }
     if ( ! $at_least_one_good_fastq ) {
         Bio::Tradis::Exception::TagFilterError->throw( error => "None of the input files contained the specified tag.  Please check that your inputs are valid fastq files and that at least one read in one of them starts with the specified tag\n" );
