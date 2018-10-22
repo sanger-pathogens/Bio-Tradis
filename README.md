@@ -51,10 +51,7 @@ conda config --add channels bioconda
 conda install r smalt samtools perl-app-cpanminus
 
 sudo cpanm -f Bio::Tradis
-R 
-source("http://bioconductor.org/biocLite.R")
-biocLite()
-biocLite(c("edgeR","getopt", "MASS"))
+Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "biocLite(c('edgeR','getopt', 'MASS'))"
 ```
 
 ### Docker
