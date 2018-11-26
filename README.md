@@ -14,6 +14,7 @@ A set of tools to analyse the output from TraDIS analyses
     * [Required dependencies](#required-dependencies)
     * [Bioconda](#bioconda)
     * [Docker](#docker)
+    * [Running the tests](#running-the-tests)
   * [Usage](#usage)
     * [Scripts](#scripts)
     * [Analysis Scripts](#analysis-scripts)
@@ -62,6 +63,11 @@ Bio-Tradis can be run in a Docker container. First install Docker, then install 
 To use Bio-Tradis use a command like this (substituting in your directories), where your files are assumed to be stored in /home/ubuntu/data:
 
     docker run --rm -it -v /home/ubuntu/data:/data sangerpathogens/bio-tradis bacteria_tradis -h
+
+### Running the tests
+The test can be run with dzil from the top level directory:  
+  
+`dzil test`  
 
 ## Usage
 
