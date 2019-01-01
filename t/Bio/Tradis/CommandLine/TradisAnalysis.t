@@ -23,7 +23,7 @@ my $output_directory = $output_directory_obj->dirname;
 ok(
     my $obj = Bio::Tradis::CommandLine::TradisAnalysis->new(
               args              => ['-f', 't/data/CommandLine/fastq.list', '-t',
-                                    "TAAGAGTCAG", '-r', "t/data/RunTradis/smallref.fa"],
+                                    "TAAGAGTCAG", '-r', "t/data/RunTradisSmalt/smallref.fa"],
               script_name       => 'bacteria_tradis_test',
               _output_directory => $output_directory
     ),
@@ -46,7 +46,7 @@ $output_directory = $output_directory_obj->dirname;
 
 $obj = Bio::Tradis::CommandLine::TradisAnalysis->new(
        args              => ['-f', 't/data/CommandLine/fastq.list', '-t',
-                             "CGCACAGCCG", '-r', "t/data/RunTradis/smallref.fa"],
+                             "CGCACAGCCG", '-r', "t/data/RunTradisSmalt/smallref.fa"],
        script_name       => 'bacteria_tradis_test',
        _output_directory => $output_directory
 );
@@ -71,7 +71,7 @@ $output_directory = $output_directory_obj->dirname;
 
 $obj = Bio::Tradis::CommandLine::TradisAnalysis->new(
        args              => ['-f', 't/data/CommandLine/fastq.list', '-t',
-                             "AAAAAAAAAA", '-r', "t/data/RunTradis/smallref.fa"],
+                             "AAAAAAAAAA", '-r', "t/data/RunTradisSmalt/smallref.fa"],
        script_name       => 'bacteria_tradis_test',
        _output_directory => $output_directory
 );

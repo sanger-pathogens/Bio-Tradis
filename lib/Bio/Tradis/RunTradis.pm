@@ -29,8 +29,6 @@ Artemis (or other genome browsers), mapped BAM files for each lane and a statist
 			intermediary format conversion and sorting) steps starting from
 			filtering.
 
-=item * C<tag> - TraDIS tag to filter and then remove
-
 =item * C<reference> - path to/name of reference genome in fasta format (.fa)
 
 =back
@@ -44,6 +42,8 @@ Artemis (or other genome browsers), mapped BAM files for each lane and a statist
 =item * C<tagdirection> - direction of the tag, 5' or 3'. Default = 3
 
 =item * C<mapping_score> - cutoff value for mapping score when creating insertion site plots. Default = 30
+
+=item * C<tag> - TraDIS tag to filter and then remove
 
 =back
 
@@ -68,7 +68,7 @@ has 'verbose' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'fastqfile' => ( is => 'rw', isa => 'Str', required => 1 );
 has '_unzipped_fastq' =>
   ( is => 'rw', isa => 'Str', lazy => 1, builder => '_build__unzipped_fastq' );
-has 'tag' => ( is => 'ro', isa => 'Str', required => 1 );
+has 'tag' => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
 has 'tagdirection' =>
   ( is => 'ro', isa => 'Str', required => 1, default => '3' );
 has 'mismatch' => ( is => 'rw', isa => 'Int', required => 1, default => 0 );
@@ -87,6 +87,8 @@ has 'outfile' => (
         return $o;
     }
 );
+has 'min_seed_len' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
+has 'smalt' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]',   required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
@@ -209,20 +211,24 @@ sub run_tradis {
 
     print STDERR "::::::::::::::::::\n$fq\n::::::::::::::::::\n\n" if($self->verbose);
 
-    # Step 1: Filter tags that match user input tag
-    print STDERR "..........Step 1: Filter tags that match user input tag\n" if($self->verbose);
-    $self->_filter;
+    if (defined($self->tag)) {
+        # Step 1: Filter tags that match user input tag
+        print STDERR "..........Step 1: Filter tags that match user input tag\n" if($self->verbose);
+        $self->_filter;
 
-    print STDERR "..........Step 1.1: Check that at least one read started with the tag\n" if($self->verbose);
-    $self->_check_filter;
+        print STDERR "..........Step 1.1: Check that at least one read started with the tag\n" if($self->verbose);
+        $self->_check_filter;
 
-    # Step 2: Remove the tag from the sequence and quality strings
-    print STDERR
-"..........Step 2: Remove the tag from the sequence and quality strings\n" if($self->verbose);
-    $self->_remove;
+        # Step 2: Remove the tag from the sequence and quality strings
+        print STDERR "..........Step 2: Remove the tag from the sequence and quality strings\n" if($self->verbose);
+        $self->_remove;
+    } else {
+        print STDERR "..........Tagless mode selected skipping steps 1 and 2\n" if($self->verbose);
+    }
 
     # Step 3: Map file to reference
-    print STDERR "..........Step 3: Map file to reference\n" if($self->verbose);
+    my $mapper = $self->smalt ? "smalt" : "bwa";
+    print STDERR "..........Step 3: Map file to reference using $mapper\n" if($self->verbose);
     $self->_map;
 
     # Step 4: Convert output from SAM to BAM, sort and index
@@ -317,17 +323,20 @@ sub _map {
     my $temporary_directory = $self->_temp_directory;
 
     my $ref = $self->reference;
+    my $fqfile = !defined($self->tag) ? $self->_unzipped_fastq : "$temporary_directory/tags_removed.fastq";
 
     my $mapping = Bio::Tradis::Map->new(
-        fastqfile => "$temporary_directory/tags_removed.fastq",
+        fastqfile => $fqfile,
         reference => "$ref",
         refname   => "$temporary_directory/ref.index",
         outfile   => "$temporary_directory/mapped.sam",
+        min_seed_len  => $self->min_seed_len,
         smalt_k   => $self->smalt_k,
         smalt_s   => $self->smalt_s,
         smalt_y   => $self->smalt_y,
         smalt_r   => $self->smalt_r,
-        smalt_n   => $self->smalt_n
+        smalt_n   => $self->smalt_n,
+        smalt     => $self->smalt
     );
     $mapping->index_ref;
     $mapping->do_mapping;
@@ -425,9 +434,11 @@ sub _stats {
     $stats .= "$total_reads,";
 
     # Matching reads
-    my $matching =
-      `wc $temporary_directory/filter.fastq | awk '{print \$1/4}'`;
-    chomp($matching);
+    my $matching = $total_reads;
+    if (defined($self->tag)) {
+        $matching = `wc $temporary_directory/filter.fastq | awk '{print \$1/4}' `;
+        chomp($matching);
+    }
     $stats .= "$matching,";
     $stats .= ( $matching / $total_reads ) * 100 . ",";
 

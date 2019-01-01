@@ -1,0 +1,7 @@
+--> Working on Bio::Tradis
+Fetching http://www.cpan.org/authors/id/S/SS/SSJUNNEBO/Bio-Tradis-1.4.1.tar.gz ... OK
+Configuring Bio-Tradis-1.4.1 ... OK
+==> Found dependencies: Moose
+--> Working on Moose
+Fetching http://www.cpan.org/authors/id/E/ET/ETHER/Moose-2.2011.tar.gz ... OK
+Configuring Moose-2.2011 ... N/A

@@ -18,7 +18,7 @@ use Try::Tiny;
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'fastqfile'   => ( is => 'rw', isa => 'Str',      required => 0 );
-has 'tag'         => ( is => 'rw', isa => 'Str',      required => 0 );
+has 'tag'         => ( is => 'rw', isa => 'Maybe[Str]',      required => 0 );
 has 'mismatch' => ( is => 'rw', isa => 'Int', required => 0, default => 0 );
 has 'tagdirection' =>
   ( is => 'rw', isa => 'Str', required => 0, default => '3' );
@@ -26,6 +26,8 @@ has 'reference' => ( is => 'rw', isa => 'Str',  required => 0 );
 has 'help'      => ( is => 'rw', isa => 'Bool', required => 0 );
 has 'mapping_score' =>
   ( is => 'rw', isa => 'Int', required => 0, default => 30 );
+has 'min_seed_len' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
@@ -56,7 +58,7 @@ sub BUILD {
     my ($self) = @_;
 
     my (
-        $fastqfile, $tag,     $td,      $mismatch, $ref,$smalt_n, $essentiality,
+        $fastqfile, $tag,     $td,      $mismatch, $ref,$smalt_n, $essentiality, $min_seed_len, $smalt,
         $map_score, $smalt_k, $smalt_s, $smalt_y, $smalt_r, $help, $verbose,$samtools_exec
     );
 
@@ -68,14 +70,16 @@ sub BUILD {
         'mm|mismatch=i'     => \$mismatch,
         'r|reference=s'     => \$ref,
         'm|mapping_score=i' => \$map_score,
+        'k|min_seed_len=i'  => \$min_seed_len,
+        's|smalt'           => \$smalt,
         'sk|smalt_k=i'      => \$smalt_k,
         'ss|smalt_s=i'      => \$smalt_s,
         'sy|smalt_y=f'      => \$smalt_y,
-				'n|smalt_n=i'       => \$smalt_n,
-	      'sr|smalt_r=i'      => \$smalt_r,
+        'n|smalt_n=i'       => \$smalt_n,
+        'sr|smalt_r=i'      => \$smalt_r,
         'v|verbose'         => \$verbose,
         'samtools_exec=s'   => \$samtools_exec,
-				'e|essentiality'    => \$essentiality,
+        'e|essentiality'    => \$essentiality,
         'h|help'            => \$help
     );
 
@@ -93,17 +97,22 @@ sub BUILD {
     $self->mismatch($mismatch)               if ( defined($mismatch) );
     $self->reference( abs_path($ref) )       if ( defined($ref) );
     $self->mapping_score($map_score)         if ( defined($map_score) );
+    $self->min_seed_len($min_seed_len)       if ( defined($min_seed_len) );
+    $self->smalt($smalt)                     if ( defined($smalt) );
     $self->smalt_k($smalt_k)                 if ( defined($smalt_k) );
     $self->smalt_s($smalt_s)                 if ( defined($smalt_s) );
     $self->smalt_y($smalt_y)                 if ( defined($smalt_y) );
-    $self->smalt_r($smalt_r)		         if ( defined($smalt_r) );
-	$self->smalt_n($smalt_n)		         if ( defined($smalt_n) );
+    $self->smalt_r($smalt_r)                 if ( defined($smalt_r) );
+    $self->smalt_n($smalt_n)                 if ( defined($smalt_n) );
     $self->help($help)                       if ( defined($help) );
     $self->verbose($verbose)                 if ( defined($verbose));
     $self->samtools_exec($samtools_exec)     if ( defined($samtools_exec) );
     
+
+
     # print usage text if required parameters are not present
-    ( $fastqfile && $tag && $ref ) or die $self->usage_text;
+    ( $fastqfile ) or die "--fastqfile required/n" . $self->usage_text;
+    ( $ref ) or die "--reference required\n" . $self->usage_text;
 }
 
 sub run {
@@ -149,11 +158,13 @@ sub run {
             mapping_score    => $self->mapping_score,
             output_directory => $self->_output_directory,
             _stats_handle    => $self->_stats_handle,
+            min_seed_len     => $self->min_seed_len,
+            smalt            => $self->smalt,
             smalt_k          => $self->smalt_k,
             smalt_s          => $self->smalt_s,
             smalt_y          => $self->smalt_y,
             smalt_r          => $self->smalt_r,
-			smalt_n          => $self->smalt_n,
+            smalt_n          => $self->smalt_n,
             verbose          => $self->verbose,
             samtools_exec    => $self->samtools_exec
         );
@@ -250,11 +261,13 @@ Usage: bacteria_tradis [options]
 
 Options:
 -f        : text file listing fastq files with tradis tags attached
--t        : tag to search for
+-t        : tag to search for (optional.  If not set runs bwa in tagless mode with no filtering.)
 -r        : reference genome in fasta format (.fa)
 -td       : tag direction - 3 or 5 (optional. default = 3)
 -mm       : number of mismatches allowed when matching tag (optional. default = 0)
 -m        : mapping quality cutoff score (optional. default = 30)
+-k        : custom k-mer value (min seed length) (optional)
+--smalt   : use smalt rather than bwa as the mapper
 --smalt_k : custom k-mer value for SMALT mapping (optional)
 --smalt_s : custom step size for SMALT mapping (optional)
 --smalt_y : custom y parameter for SMALT (optional. default = 0.96)
