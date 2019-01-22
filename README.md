@@ -49,10 +49,7 @@ conda config --add channels r
 conda config --add channels defaults
 conda config --add channels conda-forge
 conda config --add channels bioconda
-conda install r smalt samtools perl-app-cpanminus
-
-sudo cpanm -f Bio::Tradis
-Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "biocLite(c('edgeR','getopt', 'MASS'))"
+conda install biotradis
 ```
 
 ### Docker
