@@ -72,6 +72,8 @@ has 'refname' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
 has 'outfile' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
+has 'min_seed_len' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
+has 'smalt' => ( is => 'rw', isa => 'Bool', required => 0, default => 0 );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
@@ -83,29 +85,44 @@ sub index_ref {
     my $ref     = $self->reference;
     my $refname = $self->refname;
 
-    # Calculate index parameters
+    my $cmd = "";
+    if ($self->smalt) {
+        # Calculate index parameters
+        my $read_len = $self->_calculate_read_len();
+        my ( $k, $s ) = $self->_calculate_index_parameters($read_len);
+        $cmd = "smalt index -k $k -s $s $refname $ref > /dev/null 2>&1";
+    } else {
+        $cmd = "bwa index $ref > /dev/null 2>&1"
+    }
+    system($cmd);
+    return $cmd;
+}
+
+sub _calculate_read_len {
+    my ($self) = @_;
     my $pars = Bio::Tradis::Parser::Fastq->new( file => $self->fastqfile );
     $pars->next_read;
     my @read = $pars->read_info;
-	my $read_len = length($read[1]);
-    my ( $k, $s ) = $self->_calculate_index_parameters($read_len);
-
-    my $cmd = "smalt index -k $k -s $s $refname $ref > /dev/null 2>&1";
-    system($cmd);
-    return $cmd;
+    return length($read[1]);
 }
 
 sub _calculate_index_parameters {
 	my ($self, $read_len)  = @_;
 	my ( $k, $s );
-	
-	if( defined $self->smalt_k ){ $k = $self->smalt_k; }
+    
+    if ( defined $self->smalt_k ){ $k = $self->smalt_k; }
 	else{ $k = $self->_smalt_k_default($read_len); }
 	
 	if( defined $self->smalt_s ){ $s = $self->smalt_s; }
 	else{ $s = $self->_smalt_s_default($read_len); }
 	
 	return ( $k, $s );
+}
+
+sub _min_seed_len_default {
+	my ($self, $read_len)  = @_;
+	if($read_len < 100){ return 13; }
+	else{ return 19; }
 }
 
 sub _smalt_k_default {
@@ -124,18 +141,29 @@ sub _smalt_s_default {
 sub do_mapping {
     my ($self)  = @_;
     my $fqfile  = $self->fastqfile;
+    my $ref = $self->reference;
     my $refname = $self->refname;
     my $outfile = $self->outfile;
     my $y = $self->smalt_y;
     my $r = $self->smalt_r;
-		my $n = $self->smalt_n;
+    my $n = $self->smalt_n;
 
-    my $smalt = "smalt map -n $n -x -r $r -y $y $refname $fqfile 1> $outfile  2> smalt.stderr";
-
-    system($smalt);
-    unlink('smalt.stderr');
+    my $align = "";
+    if ($self->smalt) { 
+        $align = "smalt map -n $n -x -r $r -y $y $refname $fqfile 1> $outfile 2> align.stderr";
+    } else {
+        my $read_len = $self->_calculate_read_len();
+        my $k = ( defined $self->min_seed_len ) ? 
+            $self->min_seed_len : 
+            $self->_min_seed_len_default($read_len);
     
-    return $smalt;
+        $align = "bwa mem -k $k -t $n $ref $fqfile 1> $outfile 2> align.stderr";
+    }
+
+    system($align);
+    unlink('align.stderr');
+    
+    return $align;
 }
 
 __PACKAGE__->meta->make_immutable;

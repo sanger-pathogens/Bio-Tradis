@@ -23,16 +23,18 @@ has 'refname' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'ref.index' );
 has 'outfile' =>
   ( is => 'rw', isa => 'Str', required => 0, default => 'mapped.sam' );
+has 'smalt' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => 0 );
 has 'smalt_k' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_s' => ( is => 'rw', isa => 'Maybe[Int]', required => 0 );
 has 'smalt_y' => ( is => 'rw', isa => 'Maybe[Num]', required => 0, default => 0.96 );
 has 'smalt_r' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => -1 );
 has 'smalt_n' => ( is => 'rw', isa => 'Maybe[Int]', required => 0, default => 1 );
 
+
 sub BUILD {
     my ($self) = @_;
 
-    my ( $fastqfile, $ref, $refname, $outfile, $smalt_k, $smalt_s, $smalt_y, $smalt_r,$smalt_n,  $help );
+    my ( $fastqfile, $ref, $refname, $outfile, $smalt, $smalt_k, $smalt_s, $smalt_y, $smalt_r,$smalt_n,  $help );
 
     GetOptionsFromArray(
         $self->args,
@@ -40,6 +42,7 @@ sub BUILD {
         'r|reference=s'   => \$ref,
         'rn|refname=s'    => \$refname,
         'o|outfile=s'     => \$outfile,
+        's|smalt=i'    => \$smalt,
 	'sk|smalt_k=i'    => \$smalt_k,
 	'ss|smalt_s=i'    => \$smalt_s,
 	'sy|smalt_y=f'    => \$smalt_y,
@@ -52,6 +55,7 @@ sub BUILD {
     $self->reference( abs_path($ref) )       if ( defined($ref) );
     $self->refname($refname)                 if ( defined($refname) );
     $self->outfile( abs_path($outfile) )     if ( defined($outfile) );
+    $self->smalt( $smalt )               if ( defined($smalt) );
     $self->smalt_k( $smalt_k )               if ( defined($smalt_k) );
     $self->smalt_s( $smalt_s )               if ( defined($smalt_s) );
     $self->smalt_y( $smalt_y )               if ( defined($smalt_y) );
@@ -76,6 +80,7 @@ sub run {
         reference => $self->reference,
         refname   => $self->refname,
         outfile   => $self->outfile,
+        smalt => $self->smalt,
 	smalt_k   => $self->smalt_k,
 	smalt_s   => $self->smalt_s,
 	smalt_y   => $self->smalt_y,
@@ -87,8 +92,8 @@ sub run {
 
 sub usage_text {
       print <<USAGE;
-Indexes the reference genome and maps the given fastq file.
--k and -s options for indexing are calculated for the length of
+Indexes the reference genome and maps the given fastq file. If smalt is to be used set -s or --smalt and 
+-sk and -s as options for indexing which are calculated for the length of
 the read as follows unless otherwise specified ( --smalt_k & 
 --smalt_s options )
 Read length    | k  |  s
@@ -104,10 +109,12 @@ Options:
 -r        : reference in fasta format
 -rn       : reference index name (optional. default: ref.index)
 -o        : mapped SAM output name (optional. default: mapped.sam)
+-k        : minimum seed length for BWA mapping (optional)
+--smalt   : smalt to be used as aligner (oprional. default: bwa)
 --smalt_k : custom k-mer value for SMALT mapping
 --smalt_s : custom step size for SMALT mapping
 --smalt_r : custom r value for SMALT mapping
--n        : number of threads to use for SMALT and samtools sort (optional. default = 1)
+-n        : number of threads to use for mapping and samtools sort (optional. default = 1)
 
 USAGE
       exit;

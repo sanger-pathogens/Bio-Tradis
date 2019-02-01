@@ -6,10 +6,12 @@ set -e
 start_dir=$(pwd)
 
 SMALT_VERSION="0.7.6"
+BWA_VERSION="0.7.17"
 TABIX_VERSION="master"
 SAMTOOLS_VERSION="1.3"
 
 SMALT_DOWNLOAD_URL="http://downloads.sourceforge.net/project/smalt/smalt-${SMALT_VERSION}-bin.tar.gz"
+BWA_DOWNLOAD_URL="https://sourceforge.net/projects/bio-bwa/files/bwa-${BWA_VERSION}.tar.bz2/download"
 TABIX_DOWNLOAD_URL="https://github.com/samtools/tabix/archive/${TABIX_VERSION}.tar.gz"
 SAMTOOLS_DOWNLOAD_URL="https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2"
 
@@ -34,6 +36,7 @@ download () {
 }
 
 download $SMALT_DOWNLOAD_URL "smalt-${SMALT_VERSION}.tgz"
+download $BWA_DOWNLOAD_URL "bwa-${BWA_VERSION}.tbz"
 download $TABIX_DOWNLOAD_URL "tabix-${TABIX_VERSION}.tgz"
 download $SAMTOOLS_DOWNLOAD_URL "samtools-${SAMTOOLS_VERSION}.tbz"
 
@@ -55,6 +58,17 @@ fi
 cd $smalt_dir
 if [ ! -e "$smalt_dir/smalt" ]; then
   ln "$smalt_dir/smalt_x86_64" "$smalt_dir/smalt" 
+fi
+
+## bwa
+cd $build_dir
+bwa_dir=$(pwd)/"bwa-${BWA_VERSION}"
+if [ ! -d $bwa_dir ]; then
+  tar xjfv bwa-${BWA_VERSION}.tbz
+fi
+cd $bwa_dir
+if [ ! -e "$bwa_dir/bwa" ]; then
+  make
 fi
 
 ## tabix
@@ -96,6 +110,7 @@ update_path () {
 }
 
 update_path ${smalt_dir}
+update_path ${bwa_dir}
 update_path "${tabix_dir}"
 update_path "${samtools_dir}"
 
