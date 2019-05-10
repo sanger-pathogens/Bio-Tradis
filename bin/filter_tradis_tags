@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 package Bio::Tradis::Bin::FilterTags;
+use FindBin qw($Bin); 
 
 # ABSTRACT: filter tags at start of fastq sequences
 # PODNAME: filter_tags
@@ -15,6 +16,7 @@ match the tag provided
 BEGIN { unshift( @INC, '../lib' ) }
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '/software/pathogen/internal/prod/lib/' ) }
+BEGIN { unshift( @INC, "$Bin/../lib/" ) }
 
 use Bio::Tradis::CommandLine::FilterFastqTags;
 
