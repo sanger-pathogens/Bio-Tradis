@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 package Bio::Tradis::Bin::DetectTags;
+use FindBin qw($Bin); 
 
 # ABSTRACT: check if tr tag is present
 # PODNAME: check_tags
@@ -14,6 +15,7 @@ Checks the presence of tr/tq tags in a given BAM file
 BEGIN { unshift( @INC, '../lib' ) }
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '/software/pathogen/internal/prod/lib/' ) }
+BEGIN { unshift( @INC, "$Bin/../lib/" ) }
 
 use Bio::Tradis::CommandLine::CheckTags;
 
