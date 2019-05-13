@@ -3,8 +3,6 @@ addons:
   apt:
     packages:
     - zlib1g-dev
-    - libgd-perl
-    - libgd-dev
     - libgd-gd2-perl
     - libxml-libxml-perl
     - bioperl

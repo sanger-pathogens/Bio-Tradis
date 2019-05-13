@@ -45,7 +45,8 @@ if [ "$TRAVIS" = 'true' ]; then
   echo "Using Travis's apt plugin"
 else
   sudo apt-get update -q
-  sudo apt-get install -y -q zlib1g-dev libgd-perl libgd-dev libxml-libxml-perl libgd-gd2-perl bioperl
+  sudo apt-get install -y -q zlib1g-dev libxml-libxml-perl libgd-gd2-perl bioperl 
+  #libgd-perl libgd-dev 
 fi
 
 # Build all the things
