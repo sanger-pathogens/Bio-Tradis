@@ -5,6 +5,7 @@ addons:
     - zlib1g-dev
     - libgd-perl
     - libgd-dev
+    - libxml-libxml-perl
     - libncurses5-dev 
     - libncursesw5-dev
 perl:
