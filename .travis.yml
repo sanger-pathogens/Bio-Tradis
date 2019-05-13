@@ -5,11 +5,13 @@ addons:
     - zlib1g-dev
     - libgd-perl
     - libgd-dev
+    - libgd-gd2-perl
     - libxml-libxml-perl
+    - bioperl
     - libncurses5-dev 
     - libncursesw5-dev
 perl:
-  - "5.18"
+  - "5.14"
   - "5.22"
 sudo: false
 install:
