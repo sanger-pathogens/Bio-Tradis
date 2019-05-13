@@ -3,6 +3,10 @@ addons:
   apt:
     packages:
     - zlib1g-dev
+    - libgd-perl
+    - libgd-dev
+    - libncurses5-dev 
+    - libncursesw5-dev
 perl:
   - "5.18"
   - "5.22"
