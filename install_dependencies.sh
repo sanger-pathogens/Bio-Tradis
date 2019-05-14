@@ -45,7 +45,8 @@ if [ "$TRAVIS" = 'true' ]; then
   echo "Using Travis's apt plugin"
 else
   sudo apt-get update -q
-  sudo apt-get install -y -q zlib1g-dev
+  sudo apt-get install -y -q zlib1g-dev libxml-libxml-perl libgd-gd2-perl bioperl 
+  #libgd-perl libgd-dev 
 fi
 
 # Build all the things
@@ -118,6 +119,10 @@ cd $start_dir
 
 # Install perl dependencies
 cpanm Dist::Zilla
+
+# Patch? 
+cpanm --force Dist::Zilla::PluginBundle::Starter
+
 dzil authordeps --missing | cpanm
 dzil listdeps --missing | cpanm
 
