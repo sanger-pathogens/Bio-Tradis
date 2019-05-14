@@ -1,0 +1,24 @@
+start_dir=$(pwd)
+
+SMALT_VERSION="0.7.6"
+BWA_VERSION="0.7.17"
+TABIX_VERSION="master"
+SAMTOOLS_VERSION="1.3"
+
+smalt_dir=$(pwd)/"smalt-${SMALT_VERSION}-bin"
+bwa_dir=$(pwd)/"bwa-${BWA_VERSION}"
+tabix_dir=$(pwd)/"tabix-$TABIX_VERSION"
+samtools_dir=$(pwd)/"samtools-$SAMTOOLS_VERSION"
+
+update_path () {
+  new_dir=$1
+  if [[ ! "$PATH" =~ (^|:)"${new_dir}"(:|$) ]]; then
+    export PATH=${new_dir}:${PATH}
+  fi
+}
+
+update_path ${smalt_dir}
+update_path ${bwa_dir}
+update_path "${tabix_dir}"
+update_path "${samtools_dir}"
+
