@@ -46,7 +46,6 @@ if [ "$TRAVIS" = 'true' ]; then
 else
   sudo apt-get update -q
   sudo apt-get install -y -q zlib1g-dev libxml-libxml-perl libgd-gd2-perl bioperl 
-  #libgd-perl libgd-dev 
 fi
 
 # Build all the things
@@ -120,7 +119,7 @@ cd $start_dir
 # Install perl dependencies
 cpanm Dist::Zilla
 
-# Patch? 
+# Patch fo install Dist::Zilla::PluginBundle::Starter
 cpanm --force Dist::Zilla::PluginBundle::Starter
 
 dzil authordeps --missing | cpanm
