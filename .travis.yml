@@ -5,5 +5,3 @@ install:
   - docker pull andreatelatin/biotradis
 script:
   - docker run --rm -it andreatelatin/biotradis /bin/bash -c "git clone https://github.com/sanger-pathogens/Bio-Tradis.git && cd Bio-Tradis && source ./install_dependencies.sh && dzil test"
-
-
