@@ -2,6 +2,6 @@ sudo: required
 services:
   - docker
 install:
-  - docker pull andreatelatin/biotradis
+  - docker pull sangerpathogens/bio-tradis
 script:
-  - docker run --rm -it andreatelatin/biotradis /bin/bash -c "git clone https://github.com/sanger-pathogens/Bio-Tradis.git && cd Bio-Tradis && source ./install_dependencies.sh && dzil test"
+  - docker run --rm -it sangerpathogens/bio-tradis /bin/bash -c "git clone https://github.com/sanger-pathogens/Bio-Tradis.git && cd Bio-Tradis && source ./install_dependencies.sh && dzil test"
