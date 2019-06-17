@@ -118,9 +118,7 @@ cd $start_dir
 
 # Install perl dependencies
 cpanm Dist::Zilla
-
-# Patch fo install Dist::Zilla::PluginBundle::Starter
-cpanm --force Dist::Zilla::PluginBundle::Starter
+cpanm Dist::Zilla::PluginBundle::Starter
 
 dzil authordeps --missing | cpanm
 dzil listdeps --missing | cpanm
