@@ -46,11 +46,7 @@ There are a number of ways to install Bio-Tradis and details are provided below.
 Install conda and enable the bioconda channel.
 
 ```
-conda config --add channels r
-conda config --add channels defaults
-conda config --add channels conda-forge
-conda config --add channels bioconda
-conda install biotradis bwa
+conda install-c bioconda biotradis=1.4.1.dev
 
 ```
 
