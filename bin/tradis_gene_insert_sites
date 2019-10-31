@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 package Bio::Tradis::Bin::GeneInsertSites;
+use FindBin qw($Bin); 
 
 # ABSTRACT: Generate insertion site details from TraDIS pipeline plots
 

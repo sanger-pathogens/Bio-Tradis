@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 package Bio::Tradis::Bin::CombineTradisPlots;
+use FindBin qw($Bin); 
 
 # ABSTRACT: Combine multiple plotfiles and generate updated statistics for the combined files
 
@@ -17,6 +18,7 @@ plotfile and as an identifier in the stats file, so ensure these are unique.
 BEGIN { unshift( @INC, '../lib' ) }
 BEGIN { unshift( @INC, './lib' ) }
 BEGIN { unshift( @INC, '/software/pathogen/internal/prod/lib/' ) }
+BEGIN { unshift( @INC, "$Bin/../lib/" ) }
 
 use Bio::Tradis::CommandLine::PlotCombine;
 

@@ -1,7 +1,10 @@
 #!/usr/bin/env perl
 
 package Bio::Tradis::Bin::RunTradis;
+
 use FindBin qw($Bin);
+=======
+
 
 # ABSTRACT: Perform full tradis analysis
 # PODNAME: run_tradis

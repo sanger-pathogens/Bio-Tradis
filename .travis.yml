@@ -1,16 +1,7 @@
-language: perl
-addons:
-  apt:
-    packages:
-    - zlib1g-dev
-perl:
-  - "5.14"
-sudo: false
+sudo: required
+services:
+  - docker
 install:
-  - "source ./install_dependencies.sh"
-before_script:
-  - cpanm --quiet --notest Dist::Zilla::App::Command::cover
-  - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Codecov
-script: "dzil test"
-after_success:
-  - dzil cover -test -report codecov
+  - docker pull sangerpathogens/bio-tradis
+script:
+  - docker run --rm -it sangerpathogens/bio-tradis /bin/bash -c "git clone https://github.com/sanger-pathogens/Bio-Tradis.git && cd Bio-Tradis && source ./install_dependencies.sh && dzil test"

@@ -4,6 +4,8 @@ A set of tools to analyse the output from TraDIS analyses
 [![Build Status](https://travis-ci.org/sanger-pathogens/Bio-Tradis.svg?branch=master)](https://travis-ci.org/sanger-pathogens/Bio-Tradis)  
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/Bio-Tradis/blob/master/software_license)  
 [![status](https://img.shields.io/badge/Bioinformatics-10.1093-brightgreen.svg)](https://doi.org/10.1093/bioinformatics/btw022)  
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/biotradis/README.html)   
+[![Container ready](https://img.shields.io/badge/container-ready-brightgreen.svg)](https://quay.io/repository/biocontainers/biotradis)  
 [![Docker Build Status](https://img.shields.io/docker/build/sangerpathogens/bio-tradis.svg)](https://hub.docker.com/r/sangerpathogens/bio-tradis)  
 [![Docker Pulls](https://img.shields.io/docker/pulls/sangerpathogens/bio-tradis.svg)](https://hub.docker.com/r/sangerpathogens/bio-tradis)  
 [![codecov](https://codecov.io/gh/sanger-pathogens/bio-tradis/branch/master/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/bio-tradis)

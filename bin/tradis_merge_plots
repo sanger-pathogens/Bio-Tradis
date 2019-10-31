@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 package Bio::Tradis::Bin::MergePlots;
+use FindBin qw($Bin); 
 
 # ABSTRACT: 
 
