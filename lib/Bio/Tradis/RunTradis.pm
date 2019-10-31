@@ -448,7 +448,7 @@ sub _stats {
     $stats .= ( $mapped / $matching ) * 100 . ",";
 
     # Unique insertion sites
-    my ( $total_uis=0, $total_seq_len );
+    my ( $total_uis, $total_seq_len );
     foreach my $si ( keys %{$seq_info} ) {
         my $plotname = $self->_plotname($si);
         system(
