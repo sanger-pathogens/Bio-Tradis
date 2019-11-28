@@ -3,7 +3,7 @@
 # PODNAME: tradis_comparison.R
 # ABSTRACT: tradis_comparison.R
 
-library("edgeR")
+if(!require(edgeR)){install.packages("edgeR", repos = "http://cran.us.r-project.org")}
 library("getopt")
 
 options(width=80)
