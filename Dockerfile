@@ -4,7 +4,7 @@ FROM debian:testing
 
 # Install the dependancies
 RUN apt-get update -qq && apt-get install -y sudo make wget unzip zlib1g-dev cpanminus gcc bzip2 libncurses5-dev libncursesw5-dev libssl-dev r-base git
-RUN cpanm IPC::System::Simple DateTime::Locale DateTime Dist::Zilla Bio::Perl Text::CSV
+RUN cpanm IPC::System::Simple DateTime::Locale DateTime Dist::Zilla Bio::Perl Text::CSV Bio::Seq
 RUN dzil authordeps --missing | cpanm && dzil listdeps --missing | cpanm
 RUN sudo Rscript -e "source('http://bioconductor.org/biocLite.R')" -e "biocLite(c('edgeR','getopt', 'MASS'))"
 #RUN git clone https://github.com/sanger-pathogens/Bio-Tradis.git
