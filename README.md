@@ -47,8 +47,13 @@ There are a number of ways to install Bio-Tradis and details are provided below.
 ### Bioconda
 Install conda and enable the bioconda channel.
 
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/biotradis/badges/version.svg)](https://anaconda.org/bioconda/biotradis)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/biotradis/badges/latest_release_date.svg)](https://anaconda.org/bioconda/biotradis)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/biotradis/badges/platforms.svg)](https://anaconda.org/bioconda/biotradis)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/biotradis/badges/downloads.svg)](https://anaconda.org/bioconda/biotradis)
+
 ```
-conda install-c bioconda biotradis=1.4.1.dev
+conda install-c bioconda biotradis=1.4.5=1
 
 ```
 
