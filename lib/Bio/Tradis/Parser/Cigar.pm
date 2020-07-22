@@ -43,6 +43,8 @@ sub _build__results
 			}
 			elsif($action eq 'S' || $action eq 'D' || $action eq 'N')
 			{
+                                $current_coordinate -= $number if($results{start} == 0);
+                                $results{start} = $current_coordinate if($results{start} == 0);
 				$current_coordinate += $number;
 			}
 			elsif($action eq 'I' )
