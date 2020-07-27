@@ -46,6 +46,7 @@ sub _build__results
                                 $current_coordinate -= $number if($results{start} == 0);
                                 $results{start} = $current_coordinate if($results{start} == 0);
 				$current_coordinate += $number;
+                                $results{end} = $current_coordinate -1 if($results{end} < $current_coordinate);
 			}
 			elsif($action eq 'I' )
 			{
