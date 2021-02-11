@@ -53,7 +53,7 @@ Install conda and enable the bioconda channel.
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/biotradis/badges/downloads.svg)](https://anaconda.org/bioconda/biotradis)
 
 ```
-conda install-c bioconda biotradis=1.4.5=1
+conda install -c bioconda biotradis=1.4.5=1
 
 ```
 
