@@ -253,7 +253,7 @@ Bio::Tradis::RunTradis(
 Bio-Tradis is free software, licensed under [GPLv3](https://github.com/sanger-pathogens/Bio-Tradis/blob/master/software_license).
 
 ## Feedback/Issues
-Please report any issues to the [issues page](https://github.com/sanger-pathogens/bio-tradis/issues) or email path-help@sanger.ac.uk
+We currently do not have the resources to provide support for Bio-Tradis. However, the community might be able to help you out if you report any issues about usage of the software to the [issues page](https://github.com/sanger-pathogens/bio-tradis/issues).
 
 ## Citation
 If you use this software please cite:
